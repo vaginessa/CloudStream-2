@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="CloudSteamForms.MainPage">
+
+    <Button Text="Hello" Clicked="Button_Clicked"></Button>
+    <!--
+    <ScrollView >
+        
+        <StackLayout>
+            <SearchBar x:Name="SeachBar" TextChanged="SeachBar_TextChanged" >
+                
+
+            </SearchBar>
+            <Grid x:Name="GRID">
+
+            </Grid>
+        </StackLayout>
+    </ScrollView>
+   -->
+    <!--
+        <Grid>
+        <ContentView
+                x:Name="HeaderPanel"
+                HorizontalOptions="FillAndExpand" 
+                VerticalOptions="FillAndExpand"
+                Margin="0,-75,0,0">
+            <ContentView.Margin>
+                <OnPlatform x:TypeArguments="Thickness">
+                    <On Platform="Android" Value="0,0,0,0" />
+                    <On Platform="iOS" Value="0,-75,0,0" />
+                </OnPlatform>
+            </ContentView.Margin>
+                <ImageButton
+                    Source="https://m.media-amazon.com/images/M/MV5BMWI0OTJlYTItNzMwZi00YzRiLWJhMjItMWRlMDNhZjNiMzJkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SY298_CR0,0,201,298_AL_.jpg" 
+                    Aspect="AspectFill"
+                    HeightRequest="250"
+					HorizontalOptions="FillAndExpand"
+					VerticalOptions="Start"
+					Opacity=".8">
+                </ImageButton>
+        </ContentView>
+        <ScrollView
+                x:Name="ParallaxScroll" 
+                VerticalOptions="FillAndExpand" 
+                HorizontalOptions="FillAndExpand">
+            <Grid
+				    RowSpacing="0"
+				    VerticalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="200" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid
+                        Grid.Row="0">
+                    <Image 
+                            Source="coverbackground"/>
+                    <Image 
+                            Source="play"/>
+                </Grid>
+                <Grid                    
+                       
+					    Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Label 
+                            Grid.Row="0"
+                            Text="da"/>
+                    <Grid
+                            Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Label 
+                                Grid.Column="0"
+                                Text="2020"/>
+                        <Label 
+                                Grid.Column="1"
+                                Text="Hello"
+                                HorizontalOptions="Start"/>
+                    </Grid>
+                    <Label 
+                            Grid.Row="2"
+                            Text="Hello"/>
+                </Grid>
+                <Grid                    
+                        Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid
+                            Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="60" />
+                        </Grid.ColumnDefinitions>
+                            <Grid  Grid.Column="0">
+                                
+                            
+                                <Image 
+                                    Grid.Row="0"
+                                    Source="list"
+                                   />
+                            <Label 
+                                    Grid.Row="1"
+                                    Text="My list"/>
+                            </Grid>
+                            <Grid
+                                Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Image 
+                                    Grid.Row="0"
+                                    Source="rate"
+                                   />
+                            <Label 
+                                    Grid.Row="1"
+                                    Text="Rate"/>
+                        </Grid>
+                    </Grid>
+                    <StackLayout
+                            Grid.Row="1">
+                        <StackLayout
+                                Orientation="Horizontal">
+                            <Label 
+                                    Text="Similar to"/>
+                            <Label 
+                                    Text="Hello" />
+                        </StackLayout>
+                        
+                        <flv:FlowListView
+                                FlowColumnCount="3" 
+                                FlowColumnExpand="First"
+                                SeparatorVisibility="None"
+                                HasUnevenRows="True"
+                                HeightRequest="350">
+                            <flv:FlowListView.FlowColumnTemplate>
+                                <DataTemplate>
+                                    <templates:MovieItemTemplate />
+                                </DataTemplate>
+                            </flv:FlowListView.FlowColumnTemplate>
+                        </flv:FlowListView>
+                        
+                    </StackLayout>
+                </Grid>
+            </Grid>
+        </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+    -->
+    <!--
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+        <Grid
+                HeightRequest="64"
+                Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Image 
+                    Grid.Column="0"
+                    Source="https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX32_CR0,0,32,44_AL_.jpg"
+                    />
+            <Image 
+                    Grid.Column="1"
+                    Source="https://m.media-amazon.com/images/M/MV5BZDE4NmZlZDUtZTY1Yy00YTkxLWI1ODYtMGJmOTAyNDkyOTRiXkEyXkFqcGdeQXVyMTA1MzA2MTY3._V1_SX201_CR0,0,201,298_AL_.jpg"
+                    />
+            <Image 
+                    Grid.Column="2"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />
+            <Image 
+                    Grid.Column="3"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />
+            <Image 
+                    Grid.Column="4"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />
+            <Image 
+                    Grid.Column="5"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />   <Image 
+                    Grid.Column="6"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />   <Image 
+                    Grid.Column="7"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />   <Image 
+                    Grid.Column="8"
+                Source="https://m.media-amazon.com/images/M/MV5BMjIzMzcwNjg0Ml5BMl5BanBnXkFtZTgwMDE2MzgwMzE@._V1_UY44_CR13,0,32,44_AL_.jpg"
+                    />
+            <Label 
+                    Grid.Row="0"
+                    Text="Hello" />
+            <Grid 
+                    Grid.Column="0"
+                Grid.ColumnSpan="3"
+                    HeightRequest="2"
+                    VerticalOptions="EndAndExpand"
+                    BackgroundColor="{StaticResource BlackColor}"/>
+        </Grid>
+    </Grid>
+
+
+-->
+
+
+</ContentPage>
