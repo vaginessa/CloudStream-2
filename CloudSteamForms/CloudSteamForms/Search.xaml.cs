@@ -102,9 +102,20 @@ namespace CloudSteamForms
         {
             print(e.ItemIndex);
             print(activePosters[e.ItemIndex].name + "<<<");
-            mainPoster = activePosters[e.ItemIndex];
+            PushPage(activePosters[e.ItemIndex],Navigation);
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            return true; // base.OnBackButtonPressed();
+        }
+
+        public static void PushPage(Poster _mainPoster, INavigation navigation)
+        {
+            mainPoster = _mainPoster;
             Page p = new MovieResult();// { mainPoster = mainPoster };
-            Navigation.PushModalAsync(p);
+
+            navigation.PushModalAsync(p);
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)

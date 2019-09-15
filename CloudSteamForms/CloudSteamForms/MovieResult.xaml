@@ -59,12 +59,13 @@
                 <Grid Grid.Row="3"  Grid.Column="0">
                     <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="Gray"></Label>
                 </Grid>
-
+                
                 <Grid Grid.Row="4"  Grid.Column="0">
                     <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
                 </Grid>
+             
             </Grid>
-            
+          
             <Grid x:Name="MGRID"
 HorizontalOptions="Center"
             RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
@@ -96,7 +97,8 @@ HorizontalOptions="Center"
                 </Grid>
                 -->
             </Grid>
-            
+
+           
             <!--
             <StackLayout Spacing="0" VerticalOptions="Start" >
                 <Grid RowSpacing="0">

@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Collections.ObjectModel;
 using CloudSteamForms.Models;
 using Xamarin.Essentials;
+using CloudSteamForms;
 
 namespace CloudSteamForms
 {
@@ -21,13 +22,14 @@ namespace CloudSteamForms
         public ObservableCollection<EpisodeResult> myEpisodeResultCollection;
         public string trailerUrl = "";
         List<ImageButton> recBtts = new List<ImageButton>();
-        List<Poster> recomendedPosters { set { currentMovie.title.recomended = value; } get { return currentMovie.title.recomended; } }  //= new List<Poster>();
+        public static List<Movie> lastMovie;
+        List<Poster> RecomendedPosters { set { currentMovie.title.recomended = value; } get { return currentMovie.title.recomended; } }  //= new List<Poster>();
         bool loadedTitle = false;
         int currentSeason = 0;
-        ListView listView;
-        const int heightRequestPerEpisode = 120;
-        const int heightRequestAddEpisode = 40;
-        const int heightRequestAddEpisodeAndroid = 0;
+        ListView episodeView;
+        public const int heightRequestPerEpisode = 120;
+        public const int heightRequestAddEpisode = 40;
+        public const int heightRequestAddEpisodeAndroid = 0;
 
         bool isMovie = false;
         Movie currentMovie = new Movie();
@@ -56,7 +58,12 @@ namespace CloudSteamForms
 
         protected override bool OnBackButtonPressed()
         {
-
+            if (lastMovie != null) {
+                if (lastMovie.Count > 0) {
+                    activeMovie = lastMovie[lastMovie.Count - 1];
+                    lastMovie.RemoveAt(lastMovie.Count - 1);
+                }
+            }
             //Navigation.PopModalAsync();
             // return true;
             return base.OnBackButtonPressed();
@@ -83,7 +90,7 @@ namespace CloudSteamForms
 
             mainPoster = Search.mainPoster;
 
-           Gradient.Source = ImageSource.FromResource("CloudSteamForms.Resource.gradient.png");
+            Gradient.Source = ImageSource.FromResource("CloudSteamForms.Resource.gradient.png");
 
             //NameLabel.Text = activeMovie.title.name;
             NameLabel.Text = mainPoster.name;
@@ -98,12 +105,13 @@ namespace CloudSteamForms
             Gradient.Clicked += TrailerBtt_Clicked;
             linkAdded += MovieResult_linkAdded;
             linksProbablyDone += MovieResult_linksProbablyDone;
+            movie123FishingDone += MovieResult_movie123FishingDone;
             //  myEpisodeResultCollection;
 
             //  FakePlayBtt.Source = ImageSource.FromUri(new System.Uri("https://m.media-amazon.com/images/M/MV5BMjEyNzQ0MjE2OF5BMl5BanBnXkFtZTcwMTkyNjE5Ng@@._V1_CR0,60,640,360_AL_UX477_CR0,0,477,268_AL_.jpg"));
             //FakePlayBtt.Source = ImageSource.FromResource("CloudSteamForms.Resource.playBtt.png");
             BackgroundColor = Color.Black;
-            listView = new ListView {
+            episodeView = new ListView {
                 VerticalOptions = LayoutOptions.Start,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 TranslationY = heightRequestAddEpisode / 2f,
@@ -113,7 +121,7 @@ namespace CloudSteamForms
                 // Define template for displaying each item.
                 // (Argument of DataTemplate constructor is called for 
                 //      each item; it must return a Cell derivative.)
-                ItemTemplate = new DataTemplate(() => {
+                ItemTemplate = new ListViewDataTemplateSelector(), /*new DataTemplate(() => {
 
                     // Create views with bindings for displaying each property.
                     Label nameLabel = new Label();
@@ -121,21 +129,60 @@ namespace CloudSteamForms
                     nameLabel.SetBinding(Label.TextProperty, "Title");
                     desLabel.SetBinding(Label.TextProperty, "Description");
                     desLabel.FontSize = nameLabel.FontSize / 1.2f;
+                    
                     desLabel.TextColor = Color.Gray;
                     nameLabel.TranslationX = 5;
                     desLabel.TranslationX = 5;
                     ProgressBar progressBar = new ProgressBar();
                     progressBar.IsVisible = false;
                     progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
-                    //nameLabel.SetBinding(Label.d, "Extra");
-                    /*
-                    Label birthdayLabel = new Label();
-                    birthdayLabel.SetBinding(Label.TextProperty,
-                        new Binding("Birthday", BindingMode.OneWay,
-                            null, null, "Born {0:d}"));
 
-                    BoxView boxView = new BoxView();
-                    boxView.SetBinding(BoxView.ColorProperty, "FavoriteColor");*/
+                    Picker linkPicker = new Picker();
+                    // linkPicker.Items.Add("Mirror 1");
+                    //  linkPicker.Items.Add("Mirror 2");
+                    // linkPicker.Items.Add("Mirror 3");
+                    linkPicker.SetBinding(Picker.ItemsSourceProperty, "Mirros");
+
+
+                    Picker subPicker = new Picker();
+                    subPicker.SetBinding(Picker.ItemsSourceProperty, "Subtitles");
+
+                    
+                    //   subPicker.Items.Add("English");
+                    //   subPicker.Items.Add("Swedish");
+
+                    Picker exePicker = new Picker();
+                    exePicker.Items.Add("Play");
+                    exePicker.Items.Add("Download");
+                    exePicker.Items.Add("Copy Link");
+                    exePicker.Items.Add("Copy Subtitle Link");
+
+                    // Button playBtt = new Button() { Text="Play" };
+
+                    Grid grid = new Grid();
+                    grid.Children.Add(linkPicker);
+                    grid.Children.Add(subPicker);
+                    grid.Children.Add(exePicker);
+                    //   grid.Children.Add(playBtt);
+
+                    Grid.SetColumn(subPicker, 1);
+                    Grid.SetColumn(exePicker, 2);
+
+                    grid.SetBinding(Grid.IsVisibleProperty, "EpVis");
+
+                    try {
+                        exePicker.SelectedIndex = 0;
+                        subPicker.SelectedIndex = 0;
+                        linkPicker.SelectedIndex = 0;
+                    }
+                    catch (Exception) {
+
+                    }
+                    //grid.IsVisible = true;
+                    //    Grid.SetColumn(playBtt, 3);
+
+                    //nameLabel.SetBinding(Label.d, "Extra");
+
 
                     // Return an assembled ViewCell.
                     return new ViewCell {
@@ -147,27 +194,30 @@ namespace CloudSteamForms
                             VerticalOptions = LayoutOptions.Start,
                             Children =
                             {
-                                    //boxView,
-                                    new StackLayout
+                                //boxView,
+                                new StackLayout
+                                {
+                                    VerticalOptions = LayoutOptions.Start,
+                                    Spacing = 0,
+                                    Children =
                                     {
-                                        VerticalOptions = LayoutOptions.Start,
-                                        Spacing = 0,
-                                        Children =
-                                        {
-                                            nameLabel,
-                                            desLabel,
-                                            progressBar,
-                                            //birthdayLabel
-                                        }
-                                        }
+                                        nameLabel,
+                                        desLabel,
+                                        grid,
+                                        progressBar,
+                                        //birthdayLabel
+                                    }
                                 }
+                            }
                         }
                     };
-                })
+                })*/
+
             };
-            listView.ItemTapped += ListView_ItemTapped;
-            listView.HeightRequest = 0;
+            episodeView.ItemTapped += ListView_ItemTapped;
+            episodeView.HeightRequest = 0;
             MALBtt.IsVisible = false;
+
 
             // listView.HeightRequest = 100;
             // starPng.Source = 
@@ -181,13 +231,12 @@ namespace CloudSteamForms
                     {
                         XGRID,
                     MGRID,
-                    listView,
+                    episodeView,
                     RText,
                     MScroll,
                     }
                 }
             };
-
 
             //  Grid.SetRow(RowSeason, 0);
             Grid.SetRow(RowDub, 0);
@@ -196,14 +245,21 @@ namespace CloudSteamForms
             GetImdbTitle(mainPoster);
         }
 
+        private void MovieResult_movie123FishingDone(object sender, Movie e)
+        {
+            if (!SameAsActiveMovie()) return;
+            currentMovie = e;
+        }
+
         bool SameAsActiveMovie()
         {
-            print(currentMovie.title.id + " || " + activeMovie.title.id);
+            //print(currentMovie.title.id + " || " + activeMovie.title.id);
             return currentMovie.title.id == activeMovie.title.id;
         }
 
         private void MovieResult_linksProbablyDone(object sender, Episode e)
         {
+            /*
             foreach (var item in currentEpisodes) {
                 if (item.name == e.name) {
                     List<Link> links = e.links.OrderBy(l => -l.priority).ToList();
@@ -219,21 +275,91 @@ namespace CloudSteamForms
                     }
                     return;
                 }
-            }
+            }*/
 
         }
 
 
         private void MovieResult_linkAdded(object sender, int e)
         {
+            if (!SameAsActiveMovie()) return;
+            MainThread.BeginInvokeOnMainThread(() => {
+                currentMovie = activeMovie;
+
+                if (currentEpisodes != null) {
+                    for (int i = 0; i < currentEpisodes.Count; i++) {
+                        if (currentEpisodes[i].links != null) {
+
+                            if (currentEpisodes[i].links.Count > 0) {
+
+                                List<Link> links = currentEpisodes[i].links;
+                                try {
+                                    links = links.OrderBy(l => -l.priority).ToList();
+
+                                }
+                                catch (Exception) {
+
+                                }
+
+                                myEpisodeResultCollection[i].EpVis = true;
+                                List<string> mirrors = new List<string>();
+                                List<string> mirrorsUrls = new List<string>();
+                                int mirrorCounter = 0;
+                                // myEpisodeResultCollection[i].Mirros.Clear();
+                                for (int f = 0; f < links.Count; f++) {
+                                    try {
+                                        Link link = links[f];
+
+                                        if (CheckIfURLIsValid(link.url)) {
+                                            string name = link.name;
+                                            if (name.Contains("[MIRRORCOUNTER]")) {
+                                                mirrorCounter++;
+                                                name = name.Replace("[MIRRORCOUNTER]", mirrorCounter.ToString());
+                                            }
+                                            mirrors.Add(name);
+                                            mirrorsUrls.Add(link.url);
+                                            //    myEpisodeResultCollection[i].Mirros.Add(currentEpisodes[i].links[f].name);
+                                        }
+                                    }
+                                    catch (Exception) {
+
+                                    }
+                                }
+
+                                if (mirrors.Count > myEpisodeResultCollection[i].Mirros.Count) {
+                                    EpisodeResult epRes = myEpisodeResultCollection[i];
+                                    myEpisodeResultCollection[i] = new EpisodeResult() { Mirros = mirrors, Description = epRes.Description, EpVis = mirrors.Count > 0, Id = epRes.Id, MirrosUrls = mirrorsUrls, PosterUrl = epRes.PosterUrl, Progress = 1, Rating = epRes.Rating, Subtitles = epRes.Subtitles, Title = epRes.Title };
+                                }
+                            }
+                        }
+                    }
+                }
+            });
             //print(e + "|" + activeMovie.episodes[1].maxProgress);
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            activeMovie = currentMovie;
-            GetEpisodeLink(isMovie ? -1 : (e.ItemIndex + 1), currentSeason);
+            //print(activeMovie.title.movies123MetaData.seasonData.Count);
+
+           // activeMovie = currentMovie;
+            EpisodeResult result = myEpisodeResultCollection[e.ItemIndex];
+            if (result.EpVis) {
+                print("OPEN : " + result.Title);
+                if (result.LoadResult.loadSelection == LoadSelection.Play) {
+                    if (CheckIfURLIsValid(result.LoadResult.url)) {
+                        PlayVLCWithSingleUrl(result.LoadResult.url, result.Title);
+                    }
+                    else {
+                        // VALID URL ERROR
+                    }
+
+                }
+            }
+            else {
+                GetEpisodeLink(isMovie ? -1 : (e.ItemIndex + 1), currentSeason,isDub:isDub);
+            }
         }
 
         private void TrailerBtt_Clicked(object sender, EventArgs e)
@@ -257,9 +383,9 @@ namespace CloudSteamForms
             MainThread.BeginInvokeOnMainThread(() => {
                 try {
                     string souceUrl = e.title.trailers.First().posterUrl;
-                    if(CheckIfURLIsValid(souceUrl)) {
+                    if (CheckIfURLIsValid(souceUrl)) {
 
-                    TrailerBtt.Source = souceUrl;
+                        TrailerBtt.Source = souceUrl;
                     }
                     else {
                         TrailerBtt.Source = ImageSource.FromResource("CloudSteamForms.Resource.gradient.png");
@@ -269,7 +395,7 @@ namespace CloudSteamForms
                     TrailerBtt.Source = ImageSource.FromResource("CloudSteamForms.Resource.gradient.png");
                 }
 
-                if(!MainPage.RUNNING_WINDOWS) {
+                if (!MainPage.RUNNING_WINDOWS) {
                     Gradient.IsVisible = false;
                 }
 
@@ -308,31 +434,32 @@ namespace CloudSteamForms
                     GetImdbEpisodes();
                 }
 
-                // ---------------------------- RECOMENDATIONS ----------------------------
+                // ---------------------------- RECOMMENDATIONS ----------------------------
 
                 foreach (var item in Recommendations.Children) { // SETUP
                     Grid.SetColumn(item, 0);
                     Grid.SetRow(item, 0);
                 }
                 Recommendations.Children.Clear();
-                for (int i = 0; i < recomendedPosters.Count; i++) {
+                for (int i = 0; i < RecomendedPosters.Count; i++) {
                     Poster p = e.title.recomended[i];
                     if (CheckIfURLIsValid(p.posterUrl)) {
                         ImageButton imageButton = new ImageButton() { HeightRequest = 100, Source = p.posterUrl, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
                         recBtts.Add(imageButton);
                         Recommendations.Children.Add(recBtts[i]);
-
                     }
-
-
                 }
 
 
-                for (int i = 0; i < recBtts.Count; i++) { // CLICKED
+                for (int i = 0; i < recBtts.Count; i++) { // --- RECOMMENDATIONS CLICKED -----
                     recBtts[i].Clicked += (o, _e) => {
                         for (int z = 0; z < recBtts.Count; z++) {
                             if (((ImageButton)o).Id == recBtts[z].Id) {
-                                Search.mainPoster = recomendedPosters[z];
+                                if (lastMovie == null) {
+                                    lastMovie = new List<Movie>();
+                                }
+                                lastMovie.Add(activeMovie);
+                                Search.mainPoster = RecomendedPosters[z];
                                 Page p = new MovieResult();// { mainPoster = mainPoster };
                                 Navigation.PushModalAsync(p);
                             }
@@ -388,16 +515,16 @@ namespace CloudSteamForms
                 if (currentMovie.title.movieType != MovieType.Movie && currentMovie.title.movieType != MovieType.AnimeMovie) {
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
-                            myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description, PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0 });
+                            myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description, PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                         }
                     }
                 }
                 else {
-                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "" });
+                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                     isLocalMovie = true;
                 }
 
-                listView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + (MainPage.RUNNING_WINDOWS ? heightRequestAddEpisode : heightRequestAddEpisodeAndroid);
+                episodeView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + (MainPage.RUNNING_WINDOWS ? heightRequestAddEpisode : heightRequestAddEpisodeAndroid);
 
                 DubPicker.Items.Clear();
 
@@ -440,7 +567,7 @@ namespace CloudSteamForms
 
                 }
 
-                DubPicker.IsVisible= DubPicker.Items.Count > 0;
+                DubPicker.IsVisible = DubPicker.Items.Count > 0;
                 print(DubPicker.IsVisible + "ENABLED");
                 MALBtt.IsVisible = CurrentMalLink != "";
                 SetRows();
@@ -450,25 +577,10 @@ namespace CloudSteamForms
 
         void SetDubExist()
         {
+            if (!SameAsActiveMovie()) return;
+
             // string dstring = "";
-            List<string> baseUrls = new List<string>();
-
-            try {
-                for (int q = 0; q < currentMovie.title.MALData.seasonData[currentSeason].seasons.Count; q++) {
-                    MALSeason ms = currentMovie.title.MALData.seasonData[currentSeason].seasons[q];
-
-                    if ((ms.dubExists && isDub) || (ms.subExists && !isDub)) {
-                        //  dstring = ms.baseUrl;
-                        string burl = ms.baseUrl.Replace("-dub", "");
-                        if (!baseUrls.Contains(burl)) {
-                            baseUrls.Add(burl);
-                        }
-                        //print("BASEURL " + ms.baseUrl);
-                    }
-                }
-            }
-            catch (Exception) {
-            }
+            List<string> baseUrls = GetAllEpsFromAnime(currentMovie, currentSeason, isDub);
 
             if (baseUrls.Count > 0) {
 
@@ -477,32 +589,35 @@ namespace CloudSteamForms
                 tempThred.Thread = new System.Threading.Thread(() => {
                     try {
                         int max = 0;
+                        activeMovie.title.MALData.currentActiveMaxEpsPerSeason = new List<int>();
+
                         for (int i = 0; i < baseUrls.Count; i++) {
                             string dstring = baseUrls[i]; dstring = dstring.Replace("-dub", "") + (isDub ? "-dub" : "");
                             string d = DownloadString("https://www9.gogoanime.io/category/" + dstring);
                             if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                             string subMax = FindHTML(d, "class=\"active\" ep_start = \'", ">");
                             string maxEp = FindHTML(subMax, "ep_end = \'", "\'");//FindHTML(d, "<a href=\"#\" class=\"active\" ep_start = \'0\' ep_end = \'", "\'");
-                            print("MAXEP" + maxEp);
+                            print(i + "MAXEP" + maxEp);
+                            print(baseUrls[i]);
+
                             max += int.Parse(maxEp);
+                            activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(int.Parse(maxEp));
                         }
-
-
 
                         MainThread.BeginInvokeOnMainThread(() => {
                             myEpisodeResultCollection.Clear();
 
                             for (int i = 0; i < max; i++) {
                                 try {
-                                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description, PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0 });
+                                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description, PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                                 catch (Exception) {
-                                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0 });
+                                    myEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                             }
-                            listView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + heightRequestAddEpisode;
+                            episodeView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + heightRequestAddEpisode;
                             SetRows();
                         });
 
@@ -522,8 +637,6 @@ namespace CloudSteamForms
 
         private void MovieResult_trailerLoaded(object sender, string e)
         {
-            print("trailer loaded");
-            print(e);
             if (!SameAsActiveMovie()) return;
 
             trailerUrl = e;
@@ -543,14 +656,152 @@ namespace CloudSteamForms
         private void IMDb_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-
             OpenBrowser("https://www.imdb.com/title/" + mainPoster.url);
         }
         private void MAL_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            print("da");
             OpenBrowser(CurrentMalLink);
         }
+    }
+}
+
+public class ListViewDataTemplateSelector : DataTemplateSelector
+{
+    protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
+    {
+        return new DataTemplate(() => {
+            //print(((EpisodeResult)item).Title + " ------------------->>>>>>>");
+            EpisodeResult result = (EpisodeResult)item;
+            Label nameLabel = new Label();
+            Label desLabel = new Label();
+            nameLabel.SetBinding(Label.TextProperty, "Title");
+            desLabel.SetBinding(Label.TextProperty, "Description");
+            desLabel.FontSize = nameLabel.FontSize / 1.2f;
+
+            desLabel.TextColor = Color.Gray;
+            nameLabel.TranslationX = 5;
+            desLabel.TranslationX = 5;
+
+            ProgressBar progressBar = new ProgressBar();
+            progressBar.IsVisible = false;
+            progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
+
+            Picker linkPicker = new Picker();
+            // linkPicker.Items.Add("Mirror 1");
+            //  linkPicker.Items.Add("Mirror 2");
+            // linkPicker.Items.Add("Mirror 3");
+            linkPicker.SetBinding(Picker.ItemsSourceProperty, "Mirros");
+
+
+            Picker subPicker = new Picker();
+            subPicker.SetBinding(Picker.ItemsSourceProperty, "Subtitles");
+
+            //   subPicker.Items.Add("English");
+            //   subPicker.Items.Add("Swedish");
+
+            Picker exePicker = new Picker();
+            exePicker.Items.Add("Play");
+            exePicker.Items.Add("Download");
+            exePicker.Items.Add("Copy Link");
+            exePicker.Items.Add("Copy Subtitle Link");
+
+            // Button playBtt = new Button() { Text="Play" };
+
+            Grid grid = new Grid();
+            grid.Children.Add(linkPicker);
+            grid.Children.Add(subPicker);
+            grid.Children.Add(exePicker);
+            //   grid.Children.Add(playBtt);
+
+            if (GLOBAL_SUBTITLES_ENABLED) {
+                Grid.SetColumn(subPicker, 1);
+                if (PLAY_SELECT_ENABLED) {
+                    Grid.SetColumn(exePicker, 2);
+                }
+            }
+            else {
+                if (PLAY_SELECT_ENABLED) {
+
+                    Grid.SetColumn(exePicker, 1);
+                }
+            }
+            exePicker.IsEnabled = PLAY_SELECT_ENABLED;
+            exePicker.IsVisible = PLAY_SELECT_ENABLED;
+            subPicker.IsEnabled = GLOBAL_SUBTITLES_ENABLED;
+            subPicker.IsVisible = GLOBAL_SUBTITLES_ENABLED;
+
+            grid.SetBinding(Grid.IsVisibleProperty, "EpVis");
+
+            try {
+                exePicker.SelectedIndex = 0;
+                subPicker.SelectedIndex = 0;
+                linkPicker.SelectedIndex = 0;
+            }
+            catch (Exception) {
+
+            }
+
+            grid.WidthRequest = 1000000;
+
+            linkPicker.SelectedIndexChanged += (o, e) => {
+                LoadResult cl = result.LoadResult;
+                result.LoadResult = new LoadResult() { url = result.MirrosUrls[linkPicker.SelectedIndex], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
+            };
+
+            exePicker.SelectedIndexChanged += (o, e) => {
+                LoadResult cl = result.LoadResult;
+                LoadSelection[] loadSelections = { LoadSelection.Play, LoadSelection.Download, LoadSelection.CopyLink, LoadSelection.CopySubtitleLink };
+                LoadSelection loadSelection = loadSelections[exePicker.SelectedIndex];
+                result.LoadResult = new LoadResult() { url = cl.url, loadSelection = loadSelection, subtitleUrl = cl.subtitleUrl };
+            };
+
+            subPicker.SelectedIndexChanged += (o, e) => {
+                LoadResult cl = result.LoadResult;
+                result.LoadResult = new LoadResult() { url = cl.url, loadSelection = cl.loadSelection, subtitleUrl = subPicker.SelectedIndex == 0 ? "" : result.SubtitlesUrls[subPicker.SelectedIndex - 1] };
+            };
+
+
+            //grid.IsVisible = true;
+            //    Grid.SetColumn(playBtt, 3);
+
+            //nameLabel.SetBinding(Label.d, "Extra");
+            /*
+            Label birthdayLabel = new Label();
+            birthdayLabel.SetBinding(Label.TextProperty,
+                new Binding("Birthday", BindingMode.OneWay,
+                    null, null, "Born {0:d}"));
+
+            BoxView boxView = new BoxView();
+            boxView.SetBinding(BoxView.ColorProperty, "FavoriteColor");*/
+
+            // Return an assembled ViewCell.
+            return new ViewCell {
+                View = new StackLayout {
+                    // Padding = new Thickness(0, 5),
+                    HeightRequest = MovieResult.heightRequestPerEpisode,
+                    MinimumHeightRequest = MovieResult.heightRequestPerEpisode,
+                    Orientation = StackOrientation.Horizontal,
+                    VerticalOptions = LayoutOptions.Start,
+                    Children =
+                {
+                                //boxView,
+                                new StackLayout
+                                {
+                                    VerticalOptions = LayoutOptions.Start,
+                                    Spacing = 0,
+                                    Children =
+                                    {
+                                        nameLabel,
+                                        desLabel,
+                                        grid,
+                                        progressBar,
+                                        //birthdayLabel
+                                    }
+                                }
+                            }
+                }
+            };
+        });
     }
 }
