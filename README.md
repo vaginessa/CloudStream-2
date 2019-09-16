@@ -1,8 +1,8 @@
-# CloudSteam 2
+# CloudStream 2
 
 ***THIS PROJECT IS NOT DONE YET***
 
-CloudSteam 2 is the successor to CloudSteam and will have many more features.
+CloudStream 2 is the successor to CloudSteam and will have many more features.
 
 **NEW:**
 + Instant Search
