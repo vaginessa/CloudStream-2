@@ -22,7 +22,7 @@ CloudStream 2 is the successor to CloudStream and will have many more features.
 ---------------------------------------
 ***How it works:***
 
-This app dosen't use a p2p connection or any private servers hosted by me. It takes all the links from established streaming sites by downloading the sites and extracting the useful information.
+This app dosen't use a p2p connection or any private servers hosted by me, **IT IS NOT A BITTORRENT**. It takes all the links from established streaming sites by downloading the sites and extracting the useful information.
 
 CloudStream and CloudStream 2 works in diffrent ways. CloudStream gets the links and info from the link site directly. CloudStream 2 will first search IMDb and then crossreference with the link sites and MAL to get the links. This will result in CloudStream 2 having fewer providers overall, and sometimes having links to diffrent movies or shows with the same name. It will also make CloudStream 2 slower because it has to download many more sites to get all the information.
 
