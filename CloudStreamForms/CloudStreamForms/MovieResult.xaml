@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             
+             x:Class="CloudStreamForms.MovieResult">
+
+    <ScrollView>
+
+        <StackLayout>
+
+            <!--
+        <Grid
+
+            RowSpacing="0"
+				    VerticalOptions="Start">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0"  Grid.Column="0">
+                <ImageButton x:Name="TrailerBtt"  HorizontalOptions="Start"  Source="https://m.media-amazon.com/images/M/MV5BMjEyNzQ0MjE2OF5BMl5BanBnXkFtZTcwMTkyNjE5Ng@@._V1_CR0,60,640,360_AL_UX477_CR0,0,477,268_AL_.jpg" HeightRequest="250"></ImageButton>
+
+            </Grid>
+            <Grid Grid.Row="0" Grid.Column="1">
+
+                <ImageButton x:Name="PosterBtt"  HorizontalOptions="Start"  Source="https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX182_CR0,0,182,268_AL_.jpg" HeightRequest="250"></ImageButton>
+            </Grid>
+
+        </Grid>
+-->
+
+            <Grid x:Name="XGRID" HorizontalOptions="Center"
+            RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
+				    VerticalOptions="Start">
+
+
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0"  Grid.Column="0">
+                    <ImageButton x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></ImageButton>
+                    <!-- <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="Resource\gradient.png"></ImageButton> -->
+                    <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
+                </Grid>
+                <Grid Grid.Row="1"  Grid.Column="0">
+                    <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                </Grid>
+
+                <Grid Grid.Row="2"  Grid.Column="0">
+                    <Label x:Name="RatingLabel" Text="" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                </Grid>
+                <Grid Grid.Row="3"  Grid.Column="0">
+                    <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="Gray"></Label>
+                </Grid>
+                
+                <Grid Grid.Row="4"  Grid.Column="0">
+                    <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
+                </Grid>
+             
+            </Grid>
+          
+            <Grid x:Name="MGRID"
+HorizontalOptions="Center"
+            RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
+				    VerticalOptions="Start" >
+      
+
+                <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal">
+                    <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>
+                </Grid>
+                
+                
+                <Grid Grid.Row="2"  Grid.Column="0" x:Name="RowDub">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"> </ColumnDefinition>
+                        <ColumnDefinition Width="Auto"> </ColumnDefinition>
+                        <ColumnDefinition Width="Auto"> </ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid Grid.Row="0"  Grid.Column="0">
+                            <Picker x:Name="SeasonPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationY="20"></Picker>
+                        </Grid>
+                        <Grid Grid.Row="0"  Grid.Column="1">
+                            <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationY="20"></Picker>
+                        </Grid>
+                    </Grid>
+                </Grid>
+               <!-- 
+                <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
+                </Grid>
+                -->
+            </Grid>
+
+           
+            <!--
+            <StackLayout Spacing="0" VerticalOptions="Start" >
+                <Grid RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <ListView x:Name="EpisodeView" VerticalOptions="Start" HasUnevenRows="True" > </ListView>
+                    </Grid>
+
+                </Grid>
+          
+            </StackLayout>
+         -->
+            <!--
+            <ListView x:Name="EpisodeView">
+                ItemsSource="{Binding myEpisodeResultCollection}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding Title}"></TextCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate> 
+            </ListView>-->
+            <!--  
+         
+            -->
+            <!--
+            <Grid
+ColumnSpacing="0"
+            
+            RowSpacing="0"
+				    VerticalOptions="Start">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="0"  Grid.Column="0">
+                    <ImageButton x:Name="PosterBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" TranslationX="10" TranslationY="10" Source="https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX182_CR0,0,182,268_AL_.jpg" ></ImageButton>
+
+                </Grid>
+                <Grid Grid.Row="0"  Grid.Column="1" >
+
+                    <Label x:Name="PosterName" FontAttributes="Bold" FontSize="Title" Text="Iron Man" HorizontalOptions="StartAndExpand" TranslationX="20" TranslationY="20"></Label>
+                    <Image x:Name="starPng" HorizontalOptions="Start" VerticalOptions="Start" HeightRequest="20" TranslationX="20" TranslationY="50"></Image>
+                    <Label x:Name="ImdbRating" Text="7.8" TranslationX="40" TranslationY="50"></Label>
+                    <Label x:Name="YearText" TextColor="Gray" Text="2018" HorizontalOptions="StartAndExpand" TranslationX="20" TranslationY="70"></Label>
+                </Grid>
+                <Grid Grid.Row="1"  Grid.Column="0" >
+                    <Button x:Name="TrailerBtt" Text="Watch Trailer" HorizontalOptions="Fill" VerticalOptions="Start"  TranslationX="10" TranslationY="10"></Button>
+
+                </Grid>
+
+
+            </Grid>
+
+            <Label Text="Hello Xamarin.Forms!" />
+                        -->
+            <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" TranslationY="-10" VerticalOptions="Start"></Label>
+            <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
+                <StackLayout>
+                    <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
+
+                    </Grid>
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
