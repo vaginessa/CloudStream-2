@@ -34,7 +34,20 @@ namespace CloudStreamForms.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+
+            CloudStreamForms.App.PlayVlc += App_PlayVlc;
         }
+
+        private void App_PlayVlc(object sender, string e)
+        {
+            try {
+                MainDroid.OpenPathAsVideo(e);
+            }
+            catch (Exception) {
+                CloudStreamForms.App.OpenBrowser(e);
+            }
+        }
+
 
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
@@ -42,6 +55,16 @@ namespace CloudStreamForms.Droid
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+    public static class MainDroid
+    {
+        public static void OpenPathAsVideo(string path)
+        {
+            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
+
+            Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/mp4");
+            Android.App.Application.Context.StartActivity(intent);
         }
     }
 }

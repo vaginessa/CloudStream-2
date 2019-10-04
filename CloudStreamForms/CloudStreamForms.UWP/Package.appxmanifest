@@ -49,7 +49,7 @@
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.protocol" EntryPoint="CloudStreamForms.UWP.App">
-          <uap:Protocol Name="cloudsteamforms" DesiredView="default">
+          <uap:Protocol Name="cloudstreamforms" DesiredView="default">
             <uap:DisplayName>CloudStream 2</uap:DisplayName>
             <uap:Logo>Assets\Square150x150Logo.png</uap:Logo>
           </uap:Protocol>

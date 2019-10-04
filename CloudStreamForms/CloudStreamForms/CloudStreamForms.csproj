@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <StartupObject />
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>CloudStreamForms.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CloudSteam2.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <Win32Resource />
     <AssemblyName>CloudStreamForms</AssemblyName>

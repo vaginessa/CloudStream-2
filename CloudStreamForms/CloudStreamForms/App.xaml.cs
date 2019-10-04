@@ -6,13 +6,22 @@ namespace CloudStreamForms
 {
     public partial class App : Application
     {
+        public static event EventHandler<string> PlayVlc;
+        public static event EventHandler<string> OBrowser;
         public App()
         {
             InitializeComponent();
 
             MainPage = new MainPage();
         }
-
+        public static void PlayVLCWithSingleUrl(string url, string name = "")
+        {
+            PlayVlc?.Invoke(null, url);
+        }
+        public static void OpenBrowser(string url)
+        {
+            OBrowser?.Invoke(null, url);
+        }
         protected override void OnStart()
         {
             // Handle when your app starts

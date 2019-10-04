@@ -34,7 +34,7 @@ namespace CloudStreamForms
         bool isMovie = false;
         Movie currentMovie = new Movie();
         bool isDub = true;
-
+        bool RunningWindows { get { return DeviceInfo.Platform == DevicePlatform.UWP; } }
         string CurrentMalLink
         {
             get {
@@ -90,7 +90,7 @@ namespace CloudStreamForms
 
             mainPoster = Search.mainPoster;
 
-            //Gradient.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
+            Gradient.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
 
             //NameLabel.Text = activeMovie.title.name;
             NameLabel.Text = mainPoster.name;
@@ -101,8 +101,8 @@ namespace CloudStreamForms
             epsiodesLoaded += MovieResult_epsiodesLoaded;
 
 
-            TrailerBtt.Clicked += TrailerBtt_Clicked;
-            //Gradient.Clicked += TrailerBtt_Clicked;
+           // TrailerBtt.Clicked += TrailerBtt_Clicked;
+            Gradient.Clicked += TrailerBtt_Clicked;
             linkAdded += MovieResult_linkAdded;
             linksProbablyDone += MovieResult_linksProbablyDone;
             movie123FishingDone += MovieResult_movie123FishingDone;
@@ -395,7 +395,7 @@ namespace CloudStreamForms
                     TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
                 }
 
-                if (!MainPage.RUNNING_WINDOWS) {
+                if (!RunningWindows) {
                     //Gradient.IsVisible = false;
                 }
 
@@ -523,8 +523,8 @@ namespace CloudStreamForms
                     myEpisodeResultCollection.Add(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                     isLocalMovie = true;
                 }
-
-                episodeView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + (MainPage.RUNNING_WINDOWS ? heightRequestAddEpisode : heightRequestAddEpisodeAndroid);
+              
+                episodeView.HeightRequest = myEpisodeResultCollection.Count * heightRequestPerEpisode + (RunningWindows ? heightRequestAddEpisode : heightRequestAddEpisodeAndroid);
 
                 DubPicker.Items.Clear();
 

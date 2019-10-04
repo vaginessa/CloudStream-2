@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
 namespace CloudStreamForms.UWP
 {
     public sealed partial class MainPage
@@ -21,8 +20,31 @@ namespace CloudStreamForms.UWP
         public MainPage()
         {
             this.InitializeComponent();
-
+            Windows.UI.Core.SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
+           Windows.UI.Core.AppViewBackButtonVisibility.Visible;
             LoadApplication(new CloudStreamForms.App());
+            CloudStreamForms.App.PlayVlc += App_PlayVlc;
+        }
+
+        private void App_PlayVlc(object sender, string e)
+        {
+            try {
+                MainUWP.OpenPathAsVideo(e);
+            }
+            catch (Exception) {
+                CloudStreamForms.App.OpenBrowser(e);
+            }
+        }
+    }
+
+    public static class MainUWP
+    {
+        public static void OpenPathAsVideo(string path)
+        {
+            System.Diagnostics.Process VLC = new System.Diagnostics.Process();
+            VLC.StartInfo.FileName = "\"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe\"";
+            VLC.StartInfo.Arguments = "-vvv " + path;
+            VLC.Start();
         }
 
     }
