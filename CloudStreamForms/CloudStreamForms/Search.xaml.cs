@@ -17,7 +17,7 @@ namespace CloudStreamForms
     {
         public ObservableCollection<SearchResult> mySearchResultCollection;
         public static Poster mainPoster;
-
+        ListView listView;
         public Search()
         {
             InitializeComponent();
@@ -33,7 +33,7 @@ namespace CloudStreamForms
                 Placeholder = "Movie Search",
             };
             searchBar.TextChanged += SearchBar_TextChanged;
-            ListView listView = new ListView {
+            listView = new ListView {
                 // Source of data items.
                 ItemsSource = mySearchResultCollection,
 
@@ -102,7 +102,8 @@ namespace CloudStreamForms
         {
             print(e.ItemIndex);
             print(activePosters[e.ItemIndex].name + "<<<");
-            PushPage(activePosters[e.ItemIndex],Navigation);
+            listView.SelectedItem = null;
+            PushPage(activePosters[e.ItemIndex], Navigation);
         }
 
         protected override bool OnBackButtonPressed()
@@ -110,12 +111,13 @@ namespace CloudStreamForms
             return true; // base.OnBackButtonPressed();
         }
 
-        public static void PushPage(Poster _mainPoster, INavigation navigation)
+
+        public static async void PushPage(Poster _mainPoster, INavigation navigation)
         {
             mainPoster = _mainPoster;
             Page p = new MovieResult();// { mainPoster = mainPoster };
 
-            navigation.PushModalAsync(p);
+            await navigation.PushModalAsync(p, false);
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)

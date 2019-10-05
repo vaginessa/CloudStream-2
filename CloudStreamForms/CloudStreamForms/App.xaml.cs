@@ -6,7 +6,14 @@ namespace CloudStreamForms
 {
     public partial class App : Application
     {
-        public static event EventHandler<string> PlayVlc;
+        public interface IPlatformDep
+        {
+            void PlayVlc(string url, string name, string subtitleLoc);
+           // void OBrowser(string url);
+        }
+        public static IPlatformDep platformDep;
+
+       // public static event EventHandler<string> PlayVlc;
         public static event EventHandler<string> OBrowser;
         public App()
         {
@@ -14,12 +21,15 @@ namespace CloudStreamForms
 
             MainPage = new MainPage();
         }
-        public static void PlayVLCWithSingleUrl(string url, string name = "")
+        public static void PlayVLCWithSingleUrl(string url, string name = "", string subtitleLoc = "")
         {
-            PlayVlc?.Invoke(null, url);
+            //PlayVlc?.Invoke(null, url);
+            platformDep.PlayVlc(url, name, subtitleLoc);
         }
         public static void OpenBrowser(string url)
         {
+            //platformDep.OBrowser(url);
+
             OBrowser?.Invoke(null, url);
         }
         protected override void OnStart()

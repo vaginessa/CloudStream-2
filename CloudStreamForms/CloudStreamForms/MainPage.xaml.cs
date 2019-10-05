@@ -285,9 +285,9 @@ namespace CloudStreamForms
                 }
             }
         }
-        public static void PlayVLCWithSingleUrl(string url, string name = "")
+        public static void PlayVLCWithSingleUrl(string url, string name = "",string subtitleLoc = "")
         {
-            App.PlayVLCWithSingleUrl(url, name);
+            App.PlayVLCWithSingleUrl(url, name,subtitleLoc);
            
         }
 

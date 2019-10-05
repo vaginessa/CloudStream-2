@@ -46,7 +46,7 @@
 
                 <Grid Grid.Row="0"  Grid.Column="0">
                     <Image x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></Image>
-                    <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png"></ImageButton> 
+                    <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png" BackgroundColor="Transparent"></ImageButton> 
                     <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                 </Grid>
                 <Grid Grid.Row="1"  Grid.Column="0">
