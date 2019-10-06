@@ -250,6 +250,7 @@ namespace CloudStreamForms
             */
             //  Grid.SetRow(RowSeason, 0);
             episodeView.ItemAppearing += EpisodeView_ItemAppearing;
+            SizeChanged += MainPage_SizeChanged;
             Grid.SetRow(RowDub, 0);
             Grid.SetRow(RowMal, 0);
             //episodeView.HeightRequest = 10000;
@@ -259,32 +260,74 @@ namespace CloudStreamForms
             //  AbsoluteLayout.SetLayoutFlags(episodeView, AbsoluteLayoutFlags.PositionProportional);
             //   AbsoluteLayout.SetLayoutBounds(episodeView, new Rectangle(0f, 0f, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
         }
-        int _EpisodeCounter = 0;
-        int EpisodeCounter { set { if (value == 0) { totalHeight = 0; print("AAAAAAAAAAAAAAAAAAAAAAAAAA"); } _EpisodeCounter = value; } get { return _EpisodeCounter; } }
-        private double totalHeight;
+
+        private void MainPage_SizeChanged(object sender, EventArgs e)
+        {
+
+
+        }
+
+        public void AddEpisode(EpisodeResult episodeResult)
+        {
+            if (episodeResult.Rating != "") {
+                episodeResult.Title += " | ★ " + episodeResult.Rating;
+            }
+            epView.MyEpisodeResultCollection.Add(episodeResult);
+        }
+        public void ClearEpisodes()
+        {
+            epView.MyEpisodeResultCollection.Clear();
+            totalHeight = 0;
+            counter = 0;
+            //  grids.Clear();
+            // gridsSize.Clear();
+        }
+        double totalHeight = 0;
+        int counter = 0;
+        List<Grid> grids = new List<Grid>();
+        List<double> gridsSize = new List<double>();
 
         private void ViewCell_SizeChanged(object sender, EventArgs e)
         {
-
             if (sender is Grid) {
                 Grid grid = (Grid)sender;
-
-                totalHeight += grid.Height;
-                totalHeight += grid.Margin.Top;
-                totalHeight += grid.Margin.Bottom;
-                EpisodeCounter++;
-                print(EpisodeCounter + "<<" + epView.MyEpisodeResultCollection.Count);
-                if (EpisodeCounter == epView.MyEpisodeResultCollection.Count) {
-                    MainThread.BeginInvokeOnMainThread(() => {
-                        episodeView.MinimumHeightRequest = totalHeight + 20;
-                        episodeView.HeightRequest = totalHeight + 20;
-                        print("total " + totalHeight + "|" + episodeView.Height);
-
-                    });
+                double tSize = 0;
+                tSize += grid.Height;
+                tSize += grid.Margin.Top;
+                tSize += grid.Margin.Bottom;
+                bool con = grids.Where(t => t.Id == grid.Id).Count() > 0;
+                print(con + "<<< Containts");
+                if (!con) {
+                    grids.Add(grid);
+                    gridsSize.Add(tSize);
                 }
-
+                else {
+                    for (int i = 0; i < grids.Count; i++) {
+                        if (grids[i].Id == grid.Id) {
+                            gridsSize[i] = tSize;
+                        }
+                    }
+                }
+                print(">>>>> cc" + counter + "/" + epView.MyEpisodeResultCollection.Count);
+                counter++;
+              //  if (counter >= (epView.MyEpisodeResultCollection.Count)) {
+                    WaitScale();
+                //}
             }
         }
+        async void WaitScale()
+        {
+            await Task.Delay(30);
+            double size = 0;
+            for (int i = 0; i < gridsSize.Count; i++) {
+                if (grids[i].IsEnabled) {
+                    size += gridsSize[i];
+                }
+                print(size);
+            }
+            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = size);
+        }
+
         private void EpisodeView_ItemAppearing(object sender, ItemVisibilityEventArgs e)
         {
             // print("SPACING;: " + RText.Y + "|" + RText.AnchorY + "|" + RText.TranslationY + "|" + episodeView.Height + "|" + e.ItemIndex + "|" + episodeView.Y + "|" + episodeView.TranslationY + "|" + episodeView.Bounds.Height);
@@ -547,6 +590,7 @@ namespace CloudStreamForms
 
         private void SeasonPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ClearEpisodes();
             currentSeason = SeasonPicker.SelectedIndex + 1;
             GetImdbEpisodes(currentSeason);
             // myEpisodeResultCollection.Clear();
@@ -562,8 +606,7 @@ namespace CloudStreamForms
             currentMovie.episodes = e;
             MainThread.BeginInvokeOnMainThread(() => {
                 currentEpisodes = e;
-                epView.MyEpisodeResultCollection.Clear();
-                EpisodeCounter = 0;
+                ClearEpisodes();
                 bool isLocalMovie = false;
                 bool isAnime = currentMovie.title.movieType == MovieType.Anime;
 
@@ -571,12 +614,13 @@ namespace CloudStreamForms
                 if (currentMovie.title.movieType != MovieType.Movie && currentMovie.title.movieType != MovieType.AnimeMovie) {
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
-                            epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                            AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+
                         }
                     }
                 }
                 else {
-                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                    AddEpisode(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                     isLocalMovie = true;
                 }
 
@@ -661,15 +705,14 @@ namespace CloudStreamForms
                         }
 
                         MainThread.BeginInvokeOnMainThread(() => {
-                            epView.MyEpisodeResultCollection.Clear();
-                            EpisodeCounter = 0;
+                            ClearEpisodes();
                             for (int i = 0; i < max; i++) {
                                 try {
-                                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                                 catch (Exception) {
-                                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                             }
@@ -719,6 +762,7 @@ namespace CloudStreamForms
             if (!SameAsActiveMovie()) return;
             OpenBrowser(CurrentMalLink);
         }
+
     }
 
     public class MainEpisodeView
@@ -727,7 +771,6 @@ namespace CloudStreamForms
         public MainEpisodeView()
         {
             MyEpisodeResultCollection = new ObservableCollection<EpisodeResult>();
-
         }
     }
 }
@@ -893,3 +936,76 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
     }
 }
 
+namespace Xamarin.Forms
+{
+    public class AutoSizeBehavior : Behavior<ListView>
+    {
+        ListView _ListView;
+
+        protected override void OnAttachedTo(ListView bindable)
+        {
+            _ListView = bindable;
+            bindable.HeightRequest = 0;
+            bindable.ItemAppearing += AppearanceChanged;
+            bindable.ItemDisappearing += AppearanceChanged;
+        }
+
+        protected override void OnDetachingFrom(ListView bindable)
+        {
+            bindable.ItemAppearing -= AppearanceChanged;
+            bindable.ItemDisappearing -= AppearanceChanged;
+            _ListView = null;
+        }
+
+        private void AppearanceChanged(object sender, ItemVisibilityEventArgs e) =>
+          UpdateHeight(e.Item);
+
+        void UpdateHeight(object item)
+        {
+            double height;
+            if (_ListView.HasUnevenRows) {
+                if ((height = _ListView.HeightRequest) == (double)VisualElement.HeightRequestProperty.DefaultValue)
+                    height = 0;
+
+                height += MeasureRowHeight(item);
+            }
+            else {
+                height = _ListView.RowHeight;
+                if (height == (int)ListView.RowHeightProperty.DefaultValue)
+                    _ListView.RowHeight = (int)(height = MeasureRowHeight(item));
+            }
+            SetHeight(height);
+        }
+
+        double MeasureRowHeight(object item)
+        {
+            var template = _ListView.ItemTemplate;
+            var cell = (Cell)template.CreateContent();
+            cell.BindingContext = item;
+
+            // TODO: redundant
+            cell.ForceUpdateSize();
+
+            var height = cell.RenderHeight;
+            var mod = height % 1;
+            if (mod > 0)
+                height = height - mod + 1;
+            return height;
+        }
+
+        void SetHeight(double rowHeight)
+        {
+            var height = 0d;
+            // TODO if header or footer is string etc.
+            if (_ListView.Header is VisualElement header)
+                height += header.Height;
+            if (_ListView.Footer is VisualElement footer)
+                height += footer.Height;
+
+            var tiv = (ITemplatedItemsView<Cell>)_ListView;
+            height += tiv.TemplatedItems.Count * rowHeight;
+
+            _ListView.HeightRequest = height;
+        }
+    }
+}

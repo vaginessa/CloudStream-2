@@ -125,6 +125,7 @@ namespace CloudStreamForms
         {
             if (!initialized) {
                 initialized = true;
+               // Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
 
 
                 /*

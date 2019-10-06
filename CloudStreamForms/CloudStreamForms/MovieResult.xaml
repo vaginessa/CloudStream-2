@@ -103,31 +103,45 @@ HorizontalOptions="Center"
                    >
      
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
-                HasUnevenRows="true"
+                HasUnevenRows="True"
                              CachingStrategy="RecycleElement"
                 ItemTapped="ListView_ItemTapped"
-                    x:Name="episodeView"                            >
+                    x:Name="episodeView"                         >
 
 
 
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ViewCell>
+                    <ListView.ItemTemplate> 
+                        <DataTemplate >
+                            <ViewCell >
                                 <Grid    RowSpacing="0" 
-                    Padding="10" SizeChanged="ViewCell_SizeChanged" 
+                    Padding="10"
+                                                             SizeChanged="ViewCell_SizeChanged" 
+
                     >
-                                    <Label Text="{Binding Title}" />
-                                    <Label Text="{Binding Description}"  TextColor="Gray"/>
+                                    <Grid.RowDefinitions >
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
                                     <!--
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    -->
                                     <Grid Grid.Row="0"  Grid.Column="0" >
+                                    <Label Text="{Binding Title}" />
 
                            
 
                                     </Grid>
                                     <Grid Grid.Row="1"  Grid.Column="0" >
+                                    <Label Text="{Binding Description}"  TextColor="Gray"/>
 
                                     </Grid>
-                                    -->
+                                    
                                     <!--    <Label Text="{Binding Description}" /> -->
 
                                     <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
