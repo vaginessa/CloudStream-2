@@ -44,10 +44,15 @@ namespace CloudStreamForms
                     // Create views with bindings for displaying each property.
                     Label nameLabel = new Label();
                     Label desLabel = new Label();
+                    // Image poster = new Image();
                     nameLabel.SetBinding(Label.TextProperty, "Title");
                     desLabel.SetBinding(Label.TextProperty, "Extra");
+                    // poster.SetBinding(Image.SourceProperty, "Poster");
                     desLabel.FontSize = nameLabel.FontSize / 1.2f;
                     desLabel.TextColor = Color.Gray;
+
+                    desLabel.TranslationX = 10;
+                    nameLabel.TranslationX = 10;
                     //nameLabel.SetBinding(Label.d, "Extra");
                     /*
                     Label birthdayLabel = new Label();
@@ -68,10 +73,11 @@ namespace CloudStreamForms
                                     //boxView,
                                     new StackLayout
                                     {
-                                        VerticalOptions = LayoutOptions.Center,
+                                        VerticalOptions = LayoutOptions.CenterAndExpand,
                                         Spacing = 0,
                                         Children =
                                         {
+                                        //    poster,
                                             nameLabel,
                                             desLabel,
                                             //birthdayLabel
@@ -84,7 +90,7 @@ namespace CloudStreamForms
             };
             listView.ItemTapped += ListView_ItemTapped;
             // Accomodate iPhone status bar.
-            this.Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
+            // this.Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
 
             // Build the page.
             this.Content = new StackLayout {
@@ -138,7 +144,7 @@ namespace CloudStreamForms
                     if (extra != "") {
                         extra = " - " + extra;
                     }
-                    mySearchResultCollection.Add(new SearchResult() { Id = i, Title = activeSearchResults[i].name + extra, Extra = activeSearchResults[i].year });
+                    mySearchResultCollection.Add(new SearchResult() { Id = i, Title = activeSearchResults[i].name + extra, Extra = activeSearchResults[i].year, Poster = activeSearchResults[i].posterUrl });
                 }
             });
 

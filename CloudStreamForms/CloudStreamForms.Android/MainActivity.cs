@@ -55,15 +55,46 @@ namespace CloudStreamForms.Droid
     {
         public static void OpenPathAsVideo(string path, string name, string subtitleLoc)
         {
-            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
+         //   Main.print(">>>>>>>>>>>>>>> NAME : " + name);
 
-            Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/*");
-            intent.PutExtra("title", name);
+
+            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
+            
+            Intent intent = new Intent(Intent.ActionView);
+            // intent.SetPackage("org.videolan.vlc");
+
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+            intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
+
             if (subtitleLoc != "") {
                 intent.PutExtra("subtitles_location", subtitleLoc);
             }
+            intent.SetDataAndTypeAndNormalize(uri, "video/*");
+            intent.PutExtra("title", name);
+            //intent = intent.PutExtra("title", "title"); intent.PutExtra("title", "Kung Fury");
 
-            Android.App.Application.Context.StartActivity(intent);
+            var activity = (Activity)Application.Context;
+
+            // Android.App.Application.Context.ApplicationContext.start
+            Android.App.Application.Context.StartService(intent);
+            /*
+            int vlcRequestCode = 42;
+
+            Intent vlcIntent = new Intent(Intent.ActionView);
+            vlcIntent.SetPackage("org.videolan.vlc");
+            vlcIntent.SetDataAndTypeAndNormalize(uri, "video/*");
+            vlcIntent.PutExtra("title", "Kung Fury");
+            vlcIntent.PutExtra("from_start", false);
+            vlcIntent.PutExtra("position", 5);
+            vlcIntent.SetComponent(new ComponentName("org.videolan.vlc", "org.videolan.vlc.gui.video.VideoPlayerActivity"));
+
+            // vlcIntent.PutExtra("subtitles_location", "/sdcard/Movies/Fifty-Fifty.srt");
+            var activity = (Activity)Application.Context;
+            activity.StartActivityForResult(vlcIntent, vlcRequestCode);
+            */
+         //   activity.StartActivityForResult(intent,42);
         }
 
         public void PlayVlc(string url, string name, string subtitleLoc)

@@ -66,7 +66,7 @@ namespace CloudStreamForms
             CloudStreamForms.App.OBrowser += App_OBrowser;
             LoadSeachPage();
 
-            PushPageFromUrlAndName("tt0371746", "Iron Man");
+            PushPageFromUrlAndName("tt0944947", "Game Of Thrones");
 
             //Page p = new MovieResult();
             //  Navigation.PushModalAsync(p);
@@ -285,10 +285,10 @@ namespace CloudStreamForms
                 }
             }
         }
-        public static void PlayVLCWithSingleUrl(string url, string name = "",string subtitleLoc = "")
+        public static void PlayVLCWithSingleUrl(string url, string name = "", string subtitleLoc = "")
         {
-            App.PlayVLCWithSingleUrl(url, name,subtitleLoc);
-           
+            App.PlayVLCWithSingleUrl(url, name, subtitleLoc);
+
         }
 
 
@@ -375,8 +375,16 @@ namespace CloudStreamForms
                 tempThreds.Remove(tempThred);
                 // print(tempThred.Thread.Name);
                 try {
-                    tempThred.Thread.Join();
+                    
+                    if (DeviceInfo.Platform == DevicePlatform.UWP) {
+                           tempThred.Thread.Join();
                     tempThred.Thread.Abort();
+
+                    }
+                    else {
+
+                    }
+
                 }
                 catch (Exception) {
                 }
