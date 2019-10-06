@@ -54,7 +54,7 @@ namespace CloudStreamForms
             }
         }
 
-       
+
         List<Episode> currentEpisodes { set { currentMovie.episodes = value; } get { return currentMovie.episodes; } }
 
         protected override bool OnBackButtonPressed()
@@ -227,7 +227,7 @@ namespace CloudStreamForms
             MALBtt.IsVisible = false;
             epView = new MainEpisodeView();
             BindingContext = epView;
-            
+
             // listView.HeightRequest = 100;
             // starPng.Source = 
             //MGRID.Children.Add(listView);
@@ -249,22 +249,49 @@ namespace CloudStreamForms
             };
             */
             //  Grid.SetRow(RowSeason, 0);
-            //  SLay.HeightRequest = 100;
-            episodeView.ItemAppearing += EpisodeView_ItemAppearing; 
+            episodeView.ItemAppearing += EpisodeView_ItemAppearing;
             Grid.SetRow(RowDub, 0);
             Grid.SetRow(RowMal, 0);
+            //episodeView.HeightRequest = 10000;
             // print(mainPoster.name + "|" + mainPoster.url + "|" + mainPoster.year);
             GetImdbTitle(mainPoster);
-
+            //  episodeView.HeightRequest = 0;
+            //  AbsoluteLayout.SetLayoutFlags(episodeView, AbsoluteLayoutFlags.PositionProportional);
+            //   AbsoluteLayout.SetLayoutBounds(episodeView, new Rectangle(0f, 0f, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
         }
+        int _EpisodeCounter = 0;
+        int EpisodeCounter { set { if (value == 0) { totalHeight = 0; print("AAAAAAAAAAAAAAAAAAAAAAAAAA"); } _EpisodeCounter = value; } get { return _EpisodeCounter; } }
+        private double totalHeight;
 
+        private void ViewCell_SizeChanged(object sender, EventArgs e)
+        {
+
+            if (sender is Grid) {
+                Grid grid = (Grid)sender;
+
+                totalHeight += grid.Height;
+                totalHeight += grid.Margin.Top;
+                totalHeight += grid.Margin.Bottom;
+                EpisodeCounter++;
+                print(EpisodeCounter + "<<" + epView.MyEpisodeResultCollection.Count);
+                if (EpisodeCounter == epView.MyEpisodeResultCollection.Count) {
+                    MainThread.BeginInvokeOnMainThread(() => {
+                        episodeView.MinimumHeightRequest = totalHeight + 20;
+                        episodeView.HeightRequest = totalHeight + 20;
+                        print("total " + totalHeight + "|" + episodeView.Height);
+
+                    });
+                }
+
+            }
+        }
         private void EpisodeView_ItemAppearing(object sender, ItemVisibilityEventArgs e)
         {
+            // print("SPACING;: " + RText.Y + "|" + RText.AnchorY + "|" + RText.TranslationY + "|" + episodeView.Height + "|" + e.ItemIndex + "|" + episodeView.Y + "|" + episodeView.TranslationY + "|" + episodeView.Bounds.Height);
             //  placeIt.IsVisible = true;
-
-          //  episodeView.Footer = placeIt;
+            //  episodeView.Footer = placeIt;
             //placeIt.IsVisible = false;
-            
+
             //  SLay.HeightRequest = 100000;
             //  print("A---- :" + episodeView.RowHeight * epView.MyEpisodeResultCollection.Count + "--: " + episodeView.);
             //  SLay.HeightRequest = episodeView.RowHeight * epView.MyEpisodeResultCollection.Count;
@@ -395,7 +422,7 @@ namespace CloudStreamForms
         {
             if (trailerUrl != null) {
                 if (trailerUrl != "") {
-                    PlayVLCWithSingleUrl(trailerUrl,currentMovie.title.name + " - Trailer");
+                    PlayVLCWithSingleUrl(trailerUrl, currentMovie.title.name + " - Trailer");
                 }
             }
         }
@@ -472,7 +499,7 @@ namespace CloudStreamForms
                 for (int i = 0; i < RecomendedPosters.Count; i++) {
                     Poster p = e.title.recomended[i];
                     if (CheckIfURLIsValid(p.posterUrl)) {
-                        ImageButton imageButton = new ImageButton() { HeightRequest=100, WidthRequest=65, Source = p.posterUrl, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
+                        ImageButton imageButton = new ImageButton() { HeightRequest = 100, WidthRequest = 65, Source = p.posterUrl, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
                         recBtts.Add(imageButton);
                         Recommendations.Children.Add(recBtts[i]);
                     }
@@ -536,6 +563,7 @@ namespace CloudStreamForms
             MainThread.BeginInvokeOnMainThread(() => {
                 currentEpisodes = e;
                 epView.MyEpisodeResultCollection.Clear();
+                EpisodeCounter = 0;
                 bool isLocalMovie = false;
                 bool isAnime = currentMovie.title.movieType == MovieType.Anime;
 
@@ -543,7 +571,7 @@ namespace CloudStreamForms
                 if (currentMovie.title.movieType != MovieType.Movie && currentMovie.title.movieType != MovieType.AnimeMovie) {
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
-                            epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n","").Replace("  ",""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                            epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                         }
                     }
                 }
@@ -634,7 +662,7 @@ namespace CloudStreamForms
 
                         MainThread.BeginInvokeOnMainThread(() => {
                             epView.MyEpisodeResultCollection.Clear();
-
+                            EpisodeCounter = 0;
                             for (int i = 0; i < max; i++) {
                                 try {
                                     epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
@@ -699,7 +727,7 @@ namespace CloudStreamForms
         public MainEpisodeView()
         {
             MyEpisodeResultCollection = new ObservableCollection<EpisodeResult>();
-          
+
         }
     }
 }

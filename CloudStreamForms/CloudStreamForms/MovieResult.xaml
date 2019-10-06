@@ -98,35 +98,36 @@ HorizontalOptions="Center"
                 </Grid>
                 -->
             </Grid>
-            <StackLayout x:Name="SLay" VerticalOptions="EndAndExpand">
+            <StackLayout  x:Name="absLayout" 
+                   
+                   >
+     
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
-                            VerticalOptions="FillAndExpand"
-
                 HasUnevenRows="true"
                              CachingStrategy="RecycleElement"
                 ItemTapped="ListView_ItemTapped"
-                 
-                    x:Name="episodeView"   >
+                    x:Name="episodeView"                            >
 
-                    <ListView.Footer  >
-                        <StackLayout>
-                            <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Large" TextColor="White"></Label>
-                            <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
-                                <StackLayout>
-                                    <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
 
-                                    </Grid>
-                                </StackLayout>
-                            </ScrollView>
-                        </StackLayout>
-                    </ListView.Footer>
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <StackLayout Padding="10">
+                                <Grid    RowSpacing="0" 
+                    Padding="10" SizeChanged="ViewCell_SizeChanged" 
+                    >
                                     <Label Text="{Binding Title}" />
                                     <Label Text="{Binding Description}"  TextColor="Gray"/>
+                                    <!--
+                                    <Grid Grid.Row="0"  Grid.Column="0" >
+
+                           
+
+                                    </Grid>
+                                    <Grid Grid.Row="1"  Grid.Column="0" >
+
+                                    </Grid>
+                                    -->
                                     <!--    <Label Text="{Binding Description}" /> -->
 
                                     <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
@@ -134,15 +135,27 @@ HorizontalOptions="Center"
                                     <!--   Style="{DynamicResource ListItemDetailTextStyle}"        LineBreakMode="NoWrap"
                                 FontSize="13"                           d:Text="Item descripton"
 -->
-                                </StackLayout>
+                                </Grid>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
 
                 </ListView>
+
+
+
+
             </StackLayout>
+            <StackLayout>
+                <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
+                <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
+                    <StackLayout>
+                        <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
 
-
+                        </Grid>
+                    </StackLayout>
+                </ScrollView>
+            </StackLayout>
             <!--
                     public int Id { set; get; }
         public string Title { set; get; }
