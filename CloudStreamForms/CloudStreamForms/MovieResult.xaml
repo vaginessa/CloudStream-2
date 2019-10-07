@@ -113,17 +113,13 @@ HorizontalOptions="Center"
                     <ListView.ItemTemplate>
                         <DataTemplate >
                             <ViewCell >
-                                <Grid    RowSpacing="0" 
-                    Padding="10"
-                                                             SizeChanged="ViewCell_SizeChanged" 
-
-                    >
+                                <Grid    RowSpacing="0"  Padding="10" SizeChanged="ViewCell_SizeChanged" >
                                     <Grid.RowDefinitions >
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    
+
                                     <Grid.ColumnDefinitions >
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
@@ -138,8 +134,7 @@ HorizontalOptions="Center"
                                     
                                     -->
                                     <Grid  Grid.Row="0"  Grid.Column="1">
-                                        <Grid RowSpacing="0" 
-                    Padding="10" >
+                                        <Grid RowSpacing="0" Padding="0" >
                                             <Grid.RowDefinitions >
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="Auto" />
@@ -150,19 +145,18 @@ HorizontalOptions="Center"
                                             </Grid>
                                             <Grid Grid.Row="1"  Grid.Column="0" >
                                                 <Label Text="{Binding Description}"  TextColor="Gray"/>
-
+                                            </Grid>
+                                            <Grid Grid.Row="2" x:Name="PBar"  Grid.Column="0" >
+                                                <ProgressBar Progress="{Binding Progress}"  BindingContextChanged="ProgressBar_BindingContextChanged" IsVisible="False"></ProgressBar>
+                                                <!--  Progress="{Binding Progress}" -->
                                             </Grid>
                                         </Grid>
                                     </Grid>
 
                                     <Grid Grid.Row="0"  Grid.Column="0" WidthRequest="126">
-                                        <Image Source="{Binding PosterUrl}"></Image>
-                                        <Image Source="play_png.png" PropertyChanging="Image_PropertyChanging"></Image>
+                                        <ImageButton Source="{Binding PosterUrl}" Clicked="ImageButton_Clicked" BackgroundColor="Transparent"></ImageButton>
+                                        <Image Source="play_png.png" PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent"></Image>
                                     </Grid>
-
-
-
-
 
                                     <!--    <Label Text="{Binding Description}" /> -->
 

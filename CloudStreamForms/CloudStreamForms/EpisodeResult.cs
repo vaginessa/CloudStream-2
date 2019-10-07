@@ -11,17 +11,14 @@ namespace CloudStreamForms.Models
         public string Rating { set; get; }
         public string PosterUrl { set; get; }
         public string Description { set; get; }
-        public double Progress { set; get; }
-
-        public List<string> Mirros { set; get; }
-
-        public List<string> MirrosUrls { set; get; }
-
-        public List<string> Subtitles { set; get; }
-        public List<string> SubtitlesUrls { set; get; }
-
-        public bool EpVis { set; get; }
-        public LoadResult LoadResult { set; get; }
+        public double Progress { set; get; } 
+        public List<string> mirros { set; get; }
+        public List<string> mirrosUrls { set; get; }
+        public List<string> subtitles { set; get; }
+        public List<string> subtitlesUrls { set; get; }
+        public bool epVis { set; get; }
+        public LoadResult loadResult { set; get; }
+        public bool loadedLinks { set; get; }
     }
 
     public enum LoadSelection { Play,Download,CopyLink,CopySubtitleLink }

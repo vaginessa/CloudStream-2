@@ -268,14 +268,15 @@ namespace CloudStreamForms
             WaitScale();
         }
         List<Grid> grids = new List<Grid>();
+        List<ProgressBar> progressBars = new List<ProgressBar>();
         public void AddEpisode(EpisodeResult episodeResult)
         {
             if (episodeResult.Rating != "") {
                 episodeResult.Title += " | ★ " + episodeResult.Rating;
             }
 
-            if(episodeResult.PosterUrl == "") {
-                if(activeMovie.title.posterUrl != "") {
+            if (episodeResult.PosterUrl == "") {
+                if (activeMovie.title.posterUrl != "") {
                     episodeResult.PosterUrl = activeMovie.title.trailers.FirstOrDefault().posterUrl ?? "";
                 }
             }
@@ -291,6 +292,7 @@ namespace CloudStreamForms
             counter = 0;
             play_btts = new List<Image>();
             grids = new List<Grid>();
+            progressBars = new List<ProgressBar>();
             //  grids.Clear();
             // gridsSize.Clear();
         }
@@ -301,17 +303,23 @@ namespace CloudStreamForms
         {
             if (sender is Grid) {
                 Grid grid = (Grid)sender;
-                if(counter < epView.MyEpisodeResultCollection.Count) {
+                EpisodeResult episodeResult = ((EpisodeResult)((Grid)sender).BindingContext);
+
+                // ProgressBar progressBar = (ProgressBar)( (Grid)((Grid)((Grid)grid.Children.ElementAt(0)).Children.ElementAt(0)).Children.ElementAt(2)).Children.ElementAt(0);
+                //  progressBars = new List<ProgressBar>(epView.MyEpisodeResultCollection.Count);
+                if (counter < epView.MyEpisodeResultCollection.Count) {
                     grids.Add(grid);
+
                 }
-        
-               // print(">>>>> cc" + counter + "/" +);
+                // print(">>>>> cc" + counter + "/" +);
                 counter++;
                 //  if (counter >= (epView.MyEpisodeResultCollection.Count)) {
                 WaitScale();
                 //}
             }
         }
+
+
         async void WaitScale()
         {
             await Task.Delay(30);
@@ -323,7 +331,7 @@ namespace CloudStreamForms
                 totalHeight += grid.Margin.Bottom;
             }
 
-            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = totalHeight);
+            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = totalHeight + 50);
         }
 
         private void EpisodeView_ItemAppearing(object sender, ItemVisibilityEventArgs e)
@@ -378,7 +386,15 @@ namespace CloudStreamForms
         private void MovieResult_linkAdded(object sender, int e)
         {
             if (!SameAsActiveMovie()) return;
+
+            if (currentMovie.episodes[0].name + currentMovie.episodes[0].description == activeMovie.episodes[0].name + activeMovie.episodes[0].description && epView.MyEpisodeResultCollection.Count > 0) {
+
+            }
+            else {
+                return;
+            }
             MainThread.BeginInvokeOnMainThread(() => {
+
                 currentMovie = activeMovie;
 
                 if (currentEpisodes != null) {
@@ -396,7 +412,7 @@ namespace CloudStreamForms
 
                                 }
 
-                                epView.MyEpisodeResultCollection[i].EpVis = true;
+                                epView.MyEpisodeResultCollection[i].epVis = true;
                                 List<string> mirrors = new List<string>();
                                 List<string> mirrorsUrls = new List<string>();
                                 int mirrorCounter = 0;
@@ -421,9 +437,11 @@ namespace CloudStreamForms
                                     }
                                 }
 
-                                if (mirrors.Count > epView.MyEpisodeResultCollection[i].Mirros.Count) {
-                                    EpisodeResult epRes = epView.MyEpisodeResultCollection[i];
-                                    epView.MyEpisodeResultCollection[i] = new EpisodeResult() { Mirros = mirrors, Description = epRes.Description, EpVis = mirrors.Count > 0, Id = epRes.Id, MirrosUrls = mirrorsUrls, PosterUrl = epRes.PosterUrl, Progress = 1, Rating = epRes.Rating, Subtitles = epRes.Subtitles, Title = epRes.Title };
+                                if (mirrors.Count > epView.MyEpisodeResultCollection[i].mirros.Count) {
+                                    //EpisodeResult epRes = epView.MyEpisodeResultCollection[i];
+                                    epView.MyEpisodeResultCollection[i].mirrosUrls = mirrorsUrls;
+                                    epView.MyEpisodeResultCollection[i].epVis = mirrors.Count > 0;
+                                    epView.MyEpisodeResultCollection[i].mirros = mirrors;// = new EpisodeResult() { mirros = mirrors, Description = epRes.Description, epVis = mirrors.Count > 0, Id = epRes.Id, mirrosUrls = mirrorsUrls, PosterUrl = epRes.PosterUrl, progress = epRes.progress, Rating = epRes.Rating, subtitles = epRes.subtitles, Title = epRes.Title };
                                 }
                             }
                         }
@@ -436,26 +454,9 @@ namespace CloudStreamForms
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            //print(activeMovie.title.movies123MetaData.seasonData.Count);
-            // activeMovie = currentMovie;
-            int _i = e.ItemIndex;
-            EpisodeResult result = e.Item as EpisodeResult;
-            if (result.EpVis) {
-                print("OPEN : " + result.Title);
-                if (result.LoadResult.loadSelection == LoadSelection.Play) {
-                    if (CheckIfURLIsValid(result.LoadResult.url)) {
-                        PlayVLCWithSingleUrl(result.LoadResult.url, result.Title);
-                    }
-                    else {
-                        // VALID URL ERROR
-                    }
 
-                }
-            }
-            else {
-                GetEpisodeLink(isMovie ? -1 : (e.ItemIndex + 1), currentSeason, isDub: isDub);
-            }
-            episodeView.SelectedItem = null;
+            EpisodeResult episodeResult = ((MainEpisodeView)((ListView)sender).BindingContext).MyEpisodeResultCollection[e.ItemIndex];
+
 
         }
 
@@ -612,13 +613,13 @@ namespace CloudStreamForms
                 if (currentMovie.title.movieType != MovieType.Movie && currentMovie.title.movieType != MovieType.AnimeMovie) {
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
-                            AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                            AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
 
                         }
                     }
                 }
                 else {
-                    AddEpisode(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                    AddEpisode(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
                     isLocalMovie = true;
                 }
 
@@ -706,11 +707,11 @@ namespace CloudStreamForms
                             ClearEpisodes();
                             for (int i = 0; i < max; i++) {
                                 try {
-                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
 
                                 }
                                 catch (Exception) {
-                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, EpVis = false, Subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
 
                                 }
                             }
@@ -768,12 +769,102 @@ namespace CloudStreamForms
 
             Image image = ((Image)sender);
 
-            if(play_btts.Where(t => t.Id == image.Id).Count() == 0) {
+            if (play_btts.Where(t => t.Id == image.Id).Count() == 0) {
                 play_btts.Add(image);
                 print("----->> " + image.Source);
                 image.Source = ImageSource.FromResource("CloudStreamForms.Resource.play_png.png");
                 image.Scale = 0.4f;
             }
+
+        }
+
+        async void SetProgress(int sec, int sender)
+        {
+            EpisodeResult ep = epView.MyEpisodeResultCollection[sender];
+
+            ep.loadedLinks = false;
+
+            double add = 0;
+            for (int i = 0; i < 100 * sec; i++) {
+                await Task.Delay(10);
+                add = ((double)i / (double)sec) / (double)100;
+                MainThread.BeginInvokeOnMainThread(() => {
+
+                    //  ep.Progress = add;
+                });
+
+                print(add + "|" + ep.Progress);
+            }
+            ep.loadedLinks = true;
+        }
+
+        private void ImageButton_Clicked(object sender, EventArgs e) // LOAD
+        {
+            if (!SameAsActiveMovie()) return;
+            //print(activeMovie.title.movies123MetaData.seasonData.Count);
+            // activeMovie = currentMovie;
+            //ProgressBar progressBar = (ProgressBar)((Grid)((Grid)((ImageButton)sender).Children.ElementAt(0)).Children.ElementAt(0)).Children.ElementAt(2)).Children.ElementAt(0);
+
+            EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
+            if (episodeResult.loadedLinks) {
+                print("OPEN : " + episodeResult.Title);
+                if (!CheckIfURLIsValid(episodeResult.loadResult.url)) {
+                    try {
+                        LoadResult cl = episodeResult.loadResult;
+
+                        episodeResult.loadResult = new LoadResult() { url = episodeResult.mirrosUrls[0], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
+                    }
+                    catch (Exception) {
+                    }
+                 
+                }
+
+                if (CheckIfURLIsValid(episodeResult.loadResult.url)) {
+                        PlayVLCWithSingleUrl(episodeResult.loadResult.url, episodeResult.Title);
+                    }
+                    else {
+                        // VALID URL ERROR
+                    }
+
+                
+            }
+            else {
+                if (progressBars[episodeResult.Id].Progress == 0) {
+                    GetEpisodeLink(isMovie ? -1 : (episodeResult.Id + 1), currentSeason, isDub: isDub);
+                    Device.InvokeOnMainThreadAsync(async () => {
+                        progressBars[episodeResult.Id].Progress = 0.01f;
+                        progressBars[episodeResult.Id].IsVisible = true;
+                        await progressBars[episodeResult.Id].ProgressTo(1, 3000, Easing.Linear);
+                        progressBars[episodeResult.Id].Progress = 1;
+                        episodeResult.loadedLinks = true;
+                    });
+                }
+
+                // SetProgress(3, ((EpisodeResult)((ImageButton)sender).BindingContext).Id);
+
+            }
+            //MainThread.BeginInvokeOnMainThread(() => {
+            //   epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress = 1;
+
+        
+            // print(epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress + "-->><<");
+            //});
+            episodeView.SelectedItem = null;
+        }
+
+        private void ProgressBar_BindingContextChanged(object sender, EventArgs e)
+        {
+            ProgressBar pBar = (ProgressBar)sender;
+            if (pBar.BindingContext is EpisodeResult) {
+                int id = ((EpisodeResult)pBar.BindingContext).Id;
+                if (id >= progressBars.Count) {
+                    progressBars.Add(pBar);
+                }
+                else {
+                    progressBars[id] = pBar;
+                }
+            }
+            print(progressBars.Count + "----------;;;");
 
         }
     }
@@ -869,7 +960,7 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
                 copyBtt.Clicked += (o, e) => {
                     if (linkPicker.SelectedIndex != -1) {
                         try {
-                            Clipboard.SetTextAsync(result.MirrosUrls[linkPicker.SelectedIndex]);
+                            Clipboard.SetTextAsync(result.mirrosUrls[linkPicker.SelectedIndex]);
 
                         }
                         catch (Exception) {
@@ -886,20 +977,20 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
             grid.WidthRequest = 1000000;
 
             linkPicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.LoadResult;
-                result.LoadResult = new LoadResult() { url = result.MirrosUrls[linkPicker.SelectedIndex], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
+                LoadResult cl = result.loadResult;
+                result.loadResult = new LoadResult() { url = result.mirrosUrls[linkPicker.SelectedIndex], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
             };
 
             exePicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.LoadResult;
+                LoadResult cl = result.loadResult;
                 LoadSelection[] loadSelections = { LoadSelection.Play, LoadSelection.Download, LoadSelection.CopyLink, LoadSelection.CopySubtitleLink };
                 LoadSelection loadSelection = loadSelections[exePicker.SelectedIndex];
-                result.LoadResult = new LoadResult() { url = cl.url, loadSelection = loadSelection, subtitleUrl = cl.subtitleUrl };
+                result.loadResult = new LoadResult() { url = cl.url, loadSelection = loadSelection, subtitleUrl = cl.subtitleUrl };
             };
 
             subPicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.LoadResult;
-                result.LoadResult = new LoadResult() { url = cl.url, loadSelection = cl.loadSelection, subtitleUrl = subPicker.SelectedIndex == 0 ? "" : result.SubtitlesUrls[subPicker.SelectedIndex - 1] };
+                LoadResult cl = result.loadResult;
+                result.loadResult = new LoadResult() { url = cl.url, loadSelection = cl.loadSelection, subtitleUrl = subPicker.SelectedIndex == 0 ? "" : result.subtitlesUrls[subPicker.SelectedIndex - 1] };
             };
 
 
@@ -946,79 +1037,5 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
                 }
             };
         });
-    }
-}
-
-namespace Xamarin.Forms
-{
-    public class AutoSizeBehavior : Behavior<ListView>
-    {
-        ListView _ListView;
-
-        protected override void OnAttachedTo(ListView bindable)
-        {
-            _ListView = bindable;
-            bindable.HeightRequest = 0;
-            bindable.ItemAppearing += AppearanceChanged;
-            bindable.ItemDisappearing += AppearanceChanged;
-        }
-
-        protected override void OnDetachingFrom(ListView bindable)
-        {
-            bindable.ItemAppearing -= AppearanceChanged;
-            bindable.ItemDisappearing -= AppearanceChanged;
-            _ListView = null;
-        }
-
-        private void AppearanceChanged(object sender, ItemVisibilityEventArgs e) =>
-          UpdateHeight(e.Item);
-
-        void UpdateHeight(object item)
-        {
-            double height;
-            if (_ListView.HasUnevenRows) {
-                if ((height = _ListView.HeightRequest) == (double)VisualElement.HeightRequestProperty.DefaultValue)
-                    height = 0;
-
-                height += MeasureRowHeight(item);
-            }
-            else {
-                height = _ListView.RowHeight;
-                if (height == (int)ListView.RowHeightProperty.DefaultValue)
-                    _ListView.RowHeight = (int)(height = MeasureRowHeight(item));
-            }
-            SetHeight(height);
-        }
-
-        double MeasureRowHeight(object item)
-        {
-            var template = _ListView.ItemTemplate;
-            var cell = (Cell)template.CreateContent();
-            cell.BindingContext = item;
-
-            // TODO: redundant
-            cell.ForceUpdateSize();
-
-            var height = cell.RenderHeight;
-            var mod = height % 1;
-            if (mod > 0)
-                height = height - mod + 1;
-            return height;
-        }
-
-        void SetHeight(double rowHeight)
-        {
-            var height = 0d;
-            // TODO if header or footer is string etc.
-            if (_ListView.Header is VisualElement header)
-                height += header.Height;
-            if (_ListView.Footer is VisualElement footer)
-                height += footer.Height;
-
-            var tiv = (ITemplatedItemsView<Cell>)_ListView;
-            height += tiv.TemplatedItems.Count * rowHeight;
-
-            _ListView.HeightRequest = height;
-        }
     }
 }
