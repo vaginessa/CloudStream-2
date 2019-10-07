@@ -253,6 +253,8 @@ namespace CloudStreamForms
             SizeChanged += MainPage_SizeChanged;
             Grid.SetRow(RowDub, 0);
             Grid.SetRow(RowMal, 0);
+            episodeView.HeightRequest = 0;
+
             //episodeView.HeightRequest = 10000;
             // print(mainPoster.name + "|" + mainPoster.url + "|" + mainPoster.year);
             GetImdbTitle(mainPoster);
@@ -263,69 +265,65 @@ namespace CloudStreamForms
 
         private void MainPage_SizeChanged(object sender, EventArgs e)
         {
-
-
+            WaitScale();
         }
-
+        List<Grid> grids = new List<Grid>();
         public void AddEpisode(EpisodeResult episodeResult)
         {
             if (episodeResult.Rating != "") {
                 episodeResult.Title += " | ★ " + episodeResult.Rating;
             }
+
+            if(episodeResult.PosterUrl == "") {
+                if(activeMovie.title.posterUrl != "") {
+                    episodeResult.PosterUrl = activeMovie.title.trailers.FirstOrDefault().posterUrl ?? "";
+                }
+            }
             epView.MyEpisodeResultCollection.Add(episodeResult);
         }
         public void ClearEpisodes()
         {
+            episodeView.ItemsSource = null;
             epView.MyEpisodeResultCollection.Clear();
+            episodeView.ItemsSource = epView.MyEpisodeResultCollection;
+            episodeView.HeightRequest = 0;
             totalHeight = 0;
             counter = 0;
+            play_btts = new List<Image>();
+            grids = new List<Grid>();
             //  grids.Clear();
             // gridsSize.Clear();
         }
         double totalHeight = 0;
         int counter = 0;
-        List<Grid> grids = new List<Grid>();
-        List<double> gridsSize = new List<double>();
 
         private void ViewCell_SizeChanged(object sender, EventArgs e)
         {
             if (sender is Grid) {
                 Grid grid = (Grid)sender;
-                double tSize = 0;
-                tSize += grid.Height;
-                tSize += grid.Margin.Top;
-                tSize += grid.Margin.Bottom;
-                bool con = grids.Where(t => t.Id == grid.Id).Count() > 0;
-                print(con + "<<< Containts");
-                if (!con) {
+                if(counter < epView.MyEpisodeResultCollection.Count) {
                     grids.Add(grid);
-                    gridsSize.Add(tSize);
                 }
-                else {
-                    for (int i = 0; i < grids.Count; i++) {
-                        if (grids[i].Id == grid.Id) {
-                            gridsSize[i] = tSize;
-                        }
-                    }
-                }
-                print(">>>>> cc" + counter + "/" + epView.MyEpisodeResultCollection.Count);
+        
+               // print(">>>>> cc" + counter + "/" +);
                 counter++;
-              //  if (counter >= (epView.MyEpisodeResultCollection.Count)) {
-                    WaitScale();
+                //  if (counter >= (epView.MyEpisodeResultCollection.Count)) {
+                WaitScale();
                 //}
             }
         }
         async void WaitScale()
         {
             await Task.Delay(30);
-            double size = 0;
-            for (int i = 0; i < gridsSize.Count; i++) {
-                if (grids[i].IsEnabled) {
-                    size += gridsSize[i];
-                }
-                print(size);
+            totalHeight = 0;
+            for (int i = 0; i < grids.Count; i++) {
+                Grid grid = grids[i];
+                totalHeight += grid.Height;
+                totalHeight += grid.Margin.Top;
+                totalHeight += grid.Margin.Bottom;
             }
-            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = size);
+
+            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = totalHeight);
         }
 
         private void EpisodeView_ItemAppearing(object sender, ItemVisibilityEventArgs e)
@@ -763,6 +761,21 @@ namespace CloudStreamForms
             OpenBrowser(CurrentMalLink);
         }
 
+        List<Image> play_btts = new List<Image>();
+
+        private void Image_PropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+
+            Image image = ((Image)sender);
+
+            if(play_btts.Where(t => t.Id == image.Id).Count() == 0) {
+                play_btts.Add(image);
+                print("----->> " + image.Source);
+                image.Source = ImageSource.FromResource("CloudStreamForms.Resource.play_png.png");
+                image.Scale = 0.4f;
+            }
+
+        }
     }
 
     public class MainEpisodeView

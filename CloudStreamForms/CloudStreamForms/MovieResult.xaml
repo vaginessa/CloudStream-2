@@ -101,7 +101,7 @@ HorizontalOptions="Center"
             <StackLayout  x:Name="absLayout" 
                    
                    >
-     
+
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                 HasUnevenRows="True"
                              CachingStrategy="RecycleElement"
@@ -110,7 +110,7 @@ HorizontalOptions="Center"
 
 
 
-                    <ListView.ItemTemplate> 
+                    <ListView.ItemTemplate>
                         <DataTemplate >
                             <ViewCell >
                                 <Grid    RowSpacing="0" 
@@ -123,6 +123,12 @@ HorizontalOptions="Center"
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
+                                    
+                                    <Grid.ColumnDefinitions >
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
                                     <!--
                                     
@@ -131,17 +137,33 @@ HorizontalOptions="Center"
                                     
                                     
                                     -->
-                                    <Grid Grid.Row="0"  Grid.Column="0" >
-                                    <Label Text="{Binding Title}" />
+                                    <Grid  Grid.Row="0"  Grid.Column="1">
+                                        <Grid RowSpacing="0" 
+                    Padding="10" >
+                                            <Grid.RowDefinitions >
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid Grid.Row="0"  Grid.Column="0" >
+                                                <Label Text="{Binding Title}" />
+                                            </Grid>
+                                            <Grid Grid.Row="1"  Grid.Column="0" >
+                                                <Label Text="{Binding Description}"  TextColor="Gray"/>
 
-                           
-
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
-                                    <Grid Grid.Row="1"  Grid.Column="0" >
-                                    <Label Text="{Binding Description}"  TextColor="Gray"/>
 
+                                    <Grid Grid.Row="0"  Grid.Column="0" WidthRequest="126">
+                                        <Image Source="{Binding PosterUrl}"></Image>
+                                        <Image Source="play_png.png" PropertyChanging="Image_PropertyChanging"></Image>
                                     </Grid>
-                                    
+
+
+
+
+
                                     <!--    <Label Text="{Binding Description}" /> -->
 
                                     <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
