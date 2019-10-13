@@ -147,8 +147,6 @@ namespace CloudStreamForms
                     mySearchResultCollection.Add(new SearchResult() { Id = i, Title = activeSearchResults[i].name + extra, Extra = activeSearchResults[i].year, Poster = activeSearchResults[i].posterUrl });
                 }
             });
-
-
         }
     }
 }

@@ -24,6 +24,7 @@ namespace CloudStreamForms
         List<ImageButton> recBtts = new List<ImageButton>();
         public static List<Movie> lastMovie;
         List<Poster> RecomendedPosters { set { currentMovie.title.recomended = value; } get { return currentMovie.title.recomended; } }  //= new List<Poster>();
+
         bool loadedTitle = false;
         int currentSeason = 0;
         //ListView episodeView;
@@ -546,8 +547,7 @@ namespace CloudStreamForms
                         Recommendations.Children.Add(recBtts[i]);
                     }
                 }
-
-
+                RecomendationLoaded.IsVisible = false;
                 for (int i = 0; i < recBtts.Count; i++) { // --- RECOMMENDATIONS CLICKED -----
                     recBtts[i].Clicked += (o, _e) => {
                         for (int z = 0; z < recBtts.Count; z++) {
@@ -831,10 +831,11 @@ namespace CloudStreamForms
             else {
                 if (progressBars[episodeResult.Id].Progress == 0) {
                     GetEpisodeLink(isMovie ? -1 : (episodeResult.Id + 1), currentSeason, isDub: isDub);
+              
                     Device.InvokeOnMainThreadAsync(async () => {
                         progressBars[episodeResult.Id].Progress = 0.01f;
                         progressBars[episodeResult.Id].IsVisible = true;
-                        await progressBars[episodeResult.Id].ProgressTo(1, 3000, Easing.Linear);
+                        await progressBars[episodeResult.Id].ProgressTo(1, 3000, Easing.SinIn);
                         progressBars[episodeResult.Id].Progress = 1;
                         episodeResult.loadedLinks = true;
                     });
@@ -864,8 +865,6 @@ namespace CloudStreamForms
                     progressBars[id] = pBar;
                 }
             }
-            print(progressBars.Count + "----------;;;");
-
         }
     }
 
