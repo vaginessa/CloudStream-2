@@ -866,6 +866,11 @@ namespace CloudStreamForms
                 }
             }
         }
+        public double MaxWidthRequest { set; get; } = 10;
+        private void ScrollView_SizeChanged(object sender, EventArgs e)
+        {
+            MaxWidthRequest = ((ScrollView)sender).ContentSize.Width;
+        }
     }
 
     public class MainEpisodeView

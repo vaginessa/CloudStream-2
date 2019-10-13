@@ -8,7 +8,7 @@
              
              x:Class="CloudStreamForms.MovieResult">
 
-    <ScrollView>
+    <ScrollView SizeChanged="ScrollView_SizeChanged">
 
         <StackLayout>
 
@@ -113,18 +113,14 @@ HorizontalOptions="Center"
                     <ListView.ItemTemplate>
                         <DataTemplate >
                             <ViewCell >
-                                <Grid    RowSpacing="0"  Padding="0" SizeChanged="ViewCell_SizeChanged" >
+                                <Grid RowSpacing="0"  Padding="0" SizeChanged="ViewCell_SizeChanged" HorizontalOptions="Fill" >
                                     <Grid.RowDefinitions >
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    <Grid.ColumnDefinitions >
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                                   
 
                                     <!--
                                     
@@ -134,7 +130,7 @@ HorizontalOptions="Center"
                                     
                                     -->
 
-                                    <Grid Grid.Row="0" Grid.Column="0" >
+                                    <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" >
 
                                         <Grid  RowSpacing="0"  Padding="10" >
 
@@ -169,21 +165,19 @@ HorizontalOptions="Center"
                                                         <Label Text="{Binding Title}" />
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
-                                                        <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="3" />
+                                                        <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="4" />
                                                     </Grid>
                                                 </Grid>
                                             </Grid>
-
-
                                         </Grid>
                                     </Grid>
 
-                                    <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" >
-                                        <Grid>
+                                    <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
+                                        <ContentView VerticalOptions="Center">
 
-                                            <ProgressBar Progress="{Binding Progress}"  PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" ></ProgressBar>
+                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="true" ></ProgressBar>
 
-                                        </Grid>
+                                        </ContentView>
                                     </Grid>
 
                                     <!--  Progress="{Binding Progress}"  IsVisible="False" WidthRequest="126"-->
