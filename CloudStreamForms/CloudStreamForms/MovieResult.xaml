@@ -166,6 +166,9 @@ HorizontalOptions="Center"
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
                                                         <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="4" />
+                                                    </Grid> 
+                                                    <Grid Grid.Row="2"  Grid.Column="0" >
+                                                        <Picker IsVisible="{Binding LoadedLinks}"> </Picker>
                                                     </Grid>
                                                 </Grid>
                                             </Grid>
@@ -174,9 +177,7 @@ HorizontalOptions="Center"
 
                                     <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
                                         <ContentView VerticalOptions="Center">
-
-                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="true" ></ProgressBar>
-
+                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" ></ProgressBar>
                                         </ContentView>
                                     </Grid>
 

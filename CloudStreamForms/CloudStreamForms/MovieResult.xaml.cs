@@ -388,6 +388,7 @@ namespace CloudStreamForms
         {
             if (!SameAsActiveMovie()) return;
 
+
             if (currentMovie.episodes[0].name + currentMovie.episodes[0].description == activeMovie.episodes[0].name + activeMovie.episodes[0].description && epView.MyEpisodeResultCollection.Count > 0) {
 
             }
@@ -411,6 +412,10 @@ namespace CloudStreamForms
                                 }
                                 catch (Exception) {
 
+                                }
+                                if (links.Count != 0) {
+
+                                    print("LINK ADDED" + links.Count + "|" + links[links.Count - 1].name);
                                 }
 
                                 epView.MyEpisodeResultCollection[i].epVis = true;
@@ -438,11 +443,11 @@ namespace CloudStreamForms
                                     }
                                 }
 
-                                if (mirrors.Count > epView.MyEpisodeResultCollection[i].mirros.Count) {
+                                if (mirrors.Count > epView.MyEpisodeResultCollection[i].Mirros.Count) {
                                     //EpisodeResult epRes = epView.MyEpisodeResultCollection[i];
                                     epView.MyEpisodeResultCollection[i].mirrosUrls = mirrorsUrls;
                                     epView.MyEpisodeResultCollection[i].epVis = mirrors.Count > 0;
-                                    epView.MyEpisodeResultCollection[i].mirros = mirrors;// = new EpisodeResult() { mirros = mirrors, Description = epRes.Description, epVis = mirrors.Count > 0, Id = epRes.Id, mirrosUrls = mirrorsUrls, PosterUrl = epRes.PosterUrl, progress = epRes.progress, Rating = epRes.Rating, subtitles = epRes.subtitles, Title = epRes.Title };
+                                    epView.MyEpisodeResultCollection[i].Mirros = mirrors;// = new EpisodeResult() { mirros = mirrors, Description = epRes.Description, epVis = mirrors.Count > 0, Id = epRes.Id, mirrosUrls = mirrorsUrls, PosterUrl = epRes.PosterUrl, progress = epRes.progress, Rating = epRes.Rating, subtitles = epRes.subtitles, Title = epRes.Title };
                                 }
                             }
                         }
@@ -613,13 +618,13 @@ namespace CloudStreamForms
                 if (currentMovie.title.movieType != MovieType.Movie && currentMovie.title.movieType != MovieType.AnimeMovie) {
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
-                            AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
+                            AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                         }
                     }
                 }
                 else {
-                    AddEpisode(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
+                    AddEpisode(new EpisodeResult() { Title = currentMovie.title.name, Description = currentMovie.title.description, Id = 0, PosterUrl = "", Progress = 0, Rating = "", epVis = false, subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
                     isLocalMovie = true;
                 }
 
@@ -707,11 +712,11 @@ namespace CloudStreamForms
                             ClearEpisodes();
                             for (int i = 0; i < max; i++) {
                                 try {
-                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                                 catch (Exception) {
-                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, mirros = new List<string>() });
+                                    AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + "Episode #" + (i + 1), Id = i, Description = "", PosterUrl = "", Rating = "", Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
 
                                 }
                             }
@@ -771,7 +776,6 @@ namespace CloudStreamForms
 
             if (play_btts.Where(t => t.Id == image.Id).Count() == 0) {
                 play_btts.Add(image);
-                print("----->> " + image.Source);
                 image.Source = ImageSource.FromResource("CloudStreamForms.Resource.play_png.png");
                 image.Scale = 0.4f;
             }
@@ -782,7 +786,7 @@ namespace CloudStreamForms
         {
             EpisodeResult ep = epView.MyEpisodeResultCollection[sender];
 
-            ep.loadedLinks = false;
+            ep.LoadedLinks = false;
 
             double add = 0;
             for (int i = 0; i < 100 * sec; i++) {
@@ -795,7 +799,7 @@ namespace CloudStreamForms
 
                 print(add + "|" + ep.Progress);
             }
-            ep.loadedLinks = true;
+            ep.LoadedLinks = true;
         }
 
         private void ImageButton_Clicked(object sender, EventArgs e) // LOAD
@@ -806,7 +810,7 @@ namespace CloudStreamForms
             //ProgressBar progressBar = (ProgressBar)((Grid)((Grid)((ImageButton)sender).Children.ElementAt(0)).Children.ElementAt(0)).Children.ElementAt(2)).Children.ElementAt(0);
 
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
-            if (episodeResult.loadedLinks) {
+            if (episodeResult.LoadedLinks) {
                 print("OPEN : " + episodeResult.Title);
                 if (!CheckIfURLIsValid(episodeResult.loadResult.url)) {
                     try {
@@ -816,28 +820,33 @@ namespace CloudStreamForms
                     }
                     catch (Exception) {
                     }
-                 
-                }
 
+                }
+                App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros);
+                /*
                 if (CheckIfURLIsValid(episodeResult.loadResult.url)) {
                         PlayVLCWithSingleUrl(episodeResult.loadResult.url, episodeResult.Title);
                     }
                     else {
                         // VALID URL ERROR
                     }
+*/
 
-                
             }
             else {
                 if (progressBars[episodeResult.Id].Progress == 0) {
                     GetEpisodeLink(isMovie ? -1 : (episodeResult.Id + 1), currentSeason, isDub: isDub);
-              
+
                     Device.InvokeOnMainThreadAsync(async () => {
                         progressBars[episodeResult.Id].Progress = 0.01f;
                         progressBars[episodeResult.Id].IsVisible = true;
                         await progressBars[episodeResult.Id].ProgressTo(1, 3000, Easing.SinIn);
                         progressBars[episodeResult.Id].Progress = 1;
-                        episodeResult.loadedLinks = true;
+                        progressBars[episodeResult.Id].IsVisible = false;
+                        if (episodeResult.mirrosUrls.Count > 0) {
+                            App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros);
+                            episodeResult.LoadedLinks = true;
+                        }
                     });
                 }
 
@@ -847,7 +856,7 @@ namespace CloudStreamForms
             //MainThread.BeginInvokeOnMainThread(() => {
             //   epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress = 1;
 
-        
+
             // print(epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress + "-->><<");
             //});
             episodeView.SelectedItem = null;

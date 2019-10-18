@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Content;
+using LibVLCSharp.Shared;
 
 namespace CloudStreamForms.Droid
 {
@@ -17,6 +18,8 @@ namespace CloudStreamForms.Droid
         MainDroid mainDroid;
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            Core.Initialize();
+
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
             Window window = this.Window;

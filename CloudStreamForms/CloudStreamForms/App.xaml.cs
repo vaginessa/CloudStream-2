@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -9,6 +10,7 @@ namespace CloudStreamForms
         public interface IPlatformDep
         {
             void PlayVlc(string url, string name, string subtitleLoc);
+            void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
            // void OBrowser(string url);
         }
         public static IPlatformDep platformDep;
@@ -26,6 +28,13 @@ namespace CloudStreamForms
             //PlayVlc?.Invoke(null, url);
             platformDep.PlayVlc(url, name, subtitleLoc);
         }
+
+        public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")
+        {
+            //PlayVlc?.Invoke(null, url);
+            platformDep.PlayVlc(url, name, subtitleLoc);
+        }
+
         public static void OpenBrowser(string url)
         {
             //platformDep.OBrowser(url);
