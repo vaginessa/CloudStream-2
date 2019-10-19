@@ -13,7 +13,8 @@ using static CloudStreamForms.Main;
 //using Android.Util;
 //using Android.Content;
 using Xamarin.Essentials;
-
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace CloudStreamForms
 {
@@ -57,8 +58,14 @@ namespace CloudStreamForms
         public MainPage()
         {
             InitializeComponent(); mainPage = this;
-
-
+            /*
+            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                       delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                                               System.Security.Cryptography.X509Certificates.X509Chain chain,
+                                               System.Net.Security.SslPolicyErrors sslPolicyErrors)
+                       {
+                           return true; // **** Always accept
+                       };*/
             //ApplicationView.PreferredLaunchViewSize = new Size(480, 800);
             //  ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize
             Application.Current.PageAppearing += Current_PageAppearing;
@@ -125,7 +132,7 @@ namespace CloudStreamForms
         {
             if (!initialized) {
                 initialized = true;
-               // Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
+                // Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
 
 
                 /*
@@ -272,7 +279,7 @@ namespace CloudStreamForms
 
         // -------------------- ALL METHODS --------------------
 
-        public static string pathVLC = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
+        //public static string pathVLC = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
 
         public static void OpenBrowser(string url)
         {
@@ -376,13 +383,14 @@ namespace CloudStreamForms
                 tempThreds.Remove(tempThred);
                 // print(tempThred.Thread.Name);
                 try {
-                    
+
                     if (DeviceInfo.Platform == DevicePlatform.UWP) {
-                           tempThred.Thread.Join();
-                    tempThred.Thread.Abort();
+                        tempThred.Thread.Join();
+                        tempThred.Thread.Abort();
 
                     }
                     else {
+                        //tempThred.Thread.Join();
 
                     }
 
@@ -714,7 +722,7 @@ namespace CloudStreamForms
                         return;
                     }
                     string qSearchLink = "https://v2.sg.media-imdb.com/suggestion/" + text.Substring(0, 1) + "/" + text.Replace(" ", "_") + ".json";
-                    string result = DownloadString(qSearchLink);
+                    string result = DownloadString(qSearchLink, tempThred);
                     //print(qSearchLink+ "|" +result);
                     string lookFor = "{\"i\":{\"";
 
@@ -761,7 +769,7 @@ namespace CloudStreamForms
                 try {
 
                     string year = activeMovie.title.year.Substring(0, 4); // this will not work in 8000 years time :)
-                    string _d = DownloadString("https://myanimelist.net/search/prefix.json?type=anime&keyword=" + activeMovie.title.name);
+                    string _d = DownloadString("https://myanimelist.net/search/prefix.json?type=anime&keyword=" + activeMovie.title.name, tempThred);
                     string url = "";
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
@@ -843,7 +851,7 @@ namespace CloudStreamForms
                         done = false,
                     };
                     if (activeMovie.title.MALData.japName != "error") {
-                        d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName);
+                        d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName, tempThred);
                         string look = "<p class=\"name\"><a href=\"/category/";
 
 
@@ -1011,7 +1019,7 @@ namespace CloudStreamForms
 
 
                     List<string> keyWords = new List<string>();
-                    string _d = DownloadString(url + "keywords");
+                    string _d = DownloadString(url + "keywords", tempThred);
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                     string _lookFor = "data-item-keyword=\"";
                     while (_d.Contains(_lookFor)) {
@@ -1159,7 +1167,7 @@ namespace CloudStreamForms
                     string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
                     string movies123 = "https://movies123.pro/search/" + rinput.Replace("+", "%20") + ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? "/movies" : "/series");
 
-                    string d = DownloadString(movies123);
+                    string d = DownloadString(movies123, tempThred);
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                     int counter = 0; // NOT TO GET STUCK, JUST IN CASE
@@ -1266,7 +1274,7 @@ namespace CloudStreamForms
                                                                                                                                                                                                     //print("FWORDLINK: " + fwordLink);
                                 if (activeMovie.title.movieType == MovieType.TVSeries) {
                                     //<a data-ep-id="
-                                    string _d = DownloadString(fwordLink);
+                                    string _d = DownloadString(fwordLink, tempThred);
                                     string _lookFor = "<a data-ep-id=\"";
                                     //print(_d);
                                     List<string> sData = new List<string>();
@@ -1370,7 +1378,7 @@ namespace CloudStreamForms
                 tempThred.Thread = new System.Threading.Thread(() => {
                     try {
                         string url = "https://www.imdb.com/title/" + activeMovie.title.id + "/episodes?season=" + season;
-                        string d = DownloadString(url);
+                        string d = DownloadString(url, tempThred);
                         if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                         int eps = 0;
@@ -1570,11 +1578,11 @@ namespace CloudStreamForms
                         if (fwordLink != "") { // IF FOUND
                             string dstring = "https://www3.gogoanime.io/" + fwordLink + "-episode-" + (episode - subtract);
                             print("DSTRING: " + dstring);
-                            string d = DownloadString(dstring);
+                            string d = DownloadString(dstring, tempThred);
                             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
                             print(mp4);
                             try {
-                                string _d = DownloadString(mp4);
+                                string _d = DownloadString(mp4, tempThred);
                                 if (!GetThredActive(tempThred)) { return; };
                                 string mxLink = Getmp4UploadByFile(_d);
                                 print(mxLink);
@@ -1600,7 +1608,7 @@ namespace CloudStreamForms
                             }
                             if (vid != "") {
                                 string dLink = "https://vidstreaming.io/download?" + vid;
-                                string _d = DownloadString(dLink);
+                                string _d = DownloadString(dLink, tempThred);
                                 if (!GetThredActive(tempThred)) { return; };
 
                                 string linkContext = FindHTML(_d, "<h6>Link download</h6>", " </div>");
@@ -2187,7 +2195,7 @@ namespace CloudStreamForms
                         for (int i = 0; i < 5; i++) {
                             if (d == "") {
                                 try {
-                                    d = DownloadString(url, false); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                                    d = DownloadString(url, tempThred, false); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                                 }
                                 catch (System.Exception) {
@@ -2585,19 +2593,67 @@ namespace CloudStreamForms
         /// <param name="url"></param>
         /// <param name="UTF8Encoding"></param>
         /// <returns></returns>
-        public static string DownloadString(string url, bool UTF8Encoding = true)
+        public static string DownloadString(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
         {
             WebClient client = new WebClient();
             if (UTF8Encoding) {
                 client.Encoding = Encoding.UTF8; // TO GET SPECIAL CHARACTERS ECT
             }
+
             try {
-                return client.DownloadString(url);
+
+
+                // ANDROID DOWNLOADSTRING
+
+                bool done = false;
+                string _s = "";
+                client.DownloadStringCompleted += (o, e) => {
+                    done = true;
+                    if (!e.Cancelled) {
+                        if (e.Error == null) {
+                            _s = e.Result;
+                        }
+                        else {
+                            print(e.Error.Message + "|" + url);
+                        }
+                    }
+                    else {
+                        _s = "";
+                    }
+                };
+                client.DownloadStringTaskAsync(url);
+                for (int i = 0; i < 1000; i++) {
+                    Thread.Sleep(10);
+
+                    if (tempThred != null) {
+                        if (!GetThredActive((TempThred)tempThred)) {
+                            client.CancelAsync();
+                            return "";
+                        }
+                    }
+
+                    if (done) {
+                        //print(_s);
+                        print(">>" + i);
+                        return _s;
+                    }
+                }
+                client.CancelAsync();
+                return _s;
+
+
+                // return client.DownloadString(url);
             }
             catch (Exception) {
                 return "";
             }
         }
+
+
+
+
+
+
         /// <summary>
         /// Makes first letter of all capital
         /// </summary>

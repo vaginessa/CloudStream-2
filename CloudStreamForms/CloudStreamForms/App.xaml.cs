@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace CloudStreamForms
 {
+
+
     public partial class App : Application
     {
+        public const string baseM3u8Name = @"sample.m3u";
+
         public interface IPlatformDep
         {
             void PlayVlc(string url, string name, string subtitleLoc);
@@ -33,6 +38,21 @@ namespace CloudStreamForms
         {
             //PlayVlc?.Invoke(null, url);
             platformDep.PlayVlc(url, name, subtitleLoc);
+        }
+
+
+        public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name)
+        {
+            string _s = "#EXTM3U";
+            for (int i = 0; i < path.Count; i++) {
+                _s += "\n#EXTINF:" + ", " + name[i].Replace("-","").Replace("  "," ") + "\n" + path[i];
+            }
+            return _s;
+        }
+
+        public static byte[] ConvertPathAndNameToM3U8Bytes(List<string> path, List<string> name)
+        {
+            return Encoding.ASCII.GetBytes(ConvertPathAndNameToM3U8(path,name));
         }
 
         public static void OpenBrowser(string url)

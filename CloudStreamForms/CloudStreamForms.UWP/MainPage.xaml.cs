@@ -24,6 +24,7 @@ using Windows.System;
 using System.Reflection;
 using System.ComponentModel;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CloudStreamForms.UWP
 {
@@ -45,29 +46,22 @@ namespace CloudStreamForms.UWP
     public class MainUWP : CloudStreamForms.App.IPlatformDep
     {
 
-        public static async void OpenPathsAsVideo(List<string> path, List<string> name)
+        public static async Task OpenPathsAsVideo(List<string> path, List<string> name)
         {
 
-            string imageFile = @"sample.m3u8";
+
 
 
             Windows.Storage.StorageFolder storageFolder =
     Windows.Storage.ApplicationData.Current.LocalFolder;
             Windows.Storage.StorageFile sampleFile =
-                await storageFolder.CreateFileAsync(imageFile,
+                await storageFolder.CreateFileAsync(CloudStreamForms.App.baseM3u8Name,
                     Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
-            var file = await storageFolder.GetFileAsync(imageFile);
+            var file = await storageFolder.GetFileAsync(CloudStreamForms.App.baseM3u8Name);
             var s = await file.OpenStreamForWriteAsync();
-            ByteConverter b = new ByteConverter();
 
-
-            string _s = "#EXTM3U";
-            for (int i = 0; i < path.Count; i++) {
-                _s += "\n#EXTINF:" + ", " + name[i].Replace("(","").Replace(")","") + "\n" + path[i];
-            }
-
-            byte[] bytes = Encoding.ASCII.GetBytes(_s);
+            byte[] bytes = CloudStreamForms.App.ConvertPathAndNameToM3U8Bytes(path, name);
             s.Write(bytes, 0, bytes.Length);
             s.Close();
             var success = await Windows.System.Launcher.LaunchFileAsync(file);
@@ -75,7 +69,7 @@ namespace CloudStreamForms.UWP
 
         public static async void OpenPathAsVideo(string path, string name = "")
         {
-            OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name });
+            await OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name });
             // string vlcPath = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
             //string args = "-vvv " + path;
             /*
@@ -139,7 +133,7 @@ namespace CloudStreamForms.UWP
         {
             //MainUWP.OpenPathAsVideo(url,name);
             try {
-                MainUWP.OpenPathsAsVideo(url,name);
+                MainUWP.OpenPathsAsVideo(url, name);
 
             }
             catch (Exception) {

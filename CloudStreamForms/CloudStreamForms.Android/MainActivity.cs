@@ -7,7 +7,13 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Content;
-using LibVLCSharp.Shared;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using Android.Support.V4.Content;
+using Android;
+using Android.Support.V4.App;
+using Xamarin.Forms;
 
 namespace CloudStreamForms.Droid
 {
@@ -16,10 +22,10 @@ namespace CloudStreamForms.Droid
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         MainDroid mainDroid;
+        public static Activity activity;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Core.Initialize();
-
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
             Window window = this.Window;
@@ -39,9 +45,11 @@ namespace CloudStreamForms.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+            activity = this;
 
             mainDroid = new MainDroid();
             mainDroid.Awake();
+            RequestPermission(this);
         }
 
 
@@ -52,17 +60,29 @@ namespace CloudStreamForms.Droid
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
+        public static int REQUEST_WRITE_STORAGE = 112;
+        private static void RequestPermission(Activity context)
+        {
+            bool hasPermission = (ContextCompat.CheckSelfPermission(context, Manifest.Permission.WriteExternalStorage) == Permission.Granted);
+            if (!hasPermission) {
+                ActivityCompat.RequestPermissions(context,
+                   new string[] { Manifest.Permission.WriteExternalStorage },
+                 REQUEST_WRITE_STORAGE);
+            }
+
+        }
+
 
     }
     public class MainDroid : App.IPlatformDep
     {
         public static void OpenPathAsVideo(string path, string name, string subtitleLoc)
         {
-         //   Main.print(">>>>>>>>>>>>>>> NAME : " + name);
+            //   Main.print(">>>>>>>>>>>>>>> NAME : " + name);
 
 
             Android.Net.Uri uri = Android.Net.Uri.Parse(path);
-            
+
             Intent intent = new Intent(Intent.ActionView);
             // intent.SetPackage("org.videolan.vlc");
 
@@ -78,7 +98,7 @@ namespace CloudStreamForms.Droid
             intent.PutExtra("title", name);
             //intent = intent.PutExtra("title", "title"); intent.PutExtra("title", "Kung Fury");
 
-            var activity = (Activity)Application.Context;
+           // var activity = (Activity)MainActivity.activity;
 
             // Android.App.Application.Context.ApplicationContext.start
             Android.App.Application.Context.StartService(intent);
@@ -97,7 +117,121 @@ namespace CloudStreamForms.Droid
             var activity = (Activity)Application.Context;
             activity.StartActivityForResult(vlcIntent, vlcRequestCode);
             */
-         //   activity.StartActivityForResult(intent,42);
+            //   activity.StartActivityForResult(intent,42);
+        }
+
+
+
+        public static void OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
+        {
+
+
+            string absolutePath = Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads;
+            Main.print("AVS: " + absolutePath);
+
+            string basePath = absolutePath;
+            string subPath = CloudStreamForms.App.baseM3u8Name;
+            string rootPath = basePath + "/" + subPath;
+            Main.print("ROOT: " + rootPath);
+
+            Console.WriteLine("_RROT" + rootPath);
+
+            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name);
+
+            try {
+                File.Delete(rootPath);
+            }
+            catch (System.Exception) {
+
+            }
+            Java.IO.File file = new Java.IO.File(basePath, subPath);
+            file.CreateNewFile();
+            file.Mkdir();
+            Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
+            // Writes the content to the file
+            writer.Write(writeData);
+            writer.Flush();
+            writer.Close();
+
+            Device.BeginInvokeOnMainThread(() => {
+               // OpenPathAsVideo(path.First(), name.First(), "");
+                _OpenPathAsVieo(rootPath);
+
+            });
+
+            //OpenPathAsVideo(path.First(), name.First(), subtitleLoc);
+            //  OpenPathAsVieo(rootPath);
+
+
+            /*
+            Console.WriteLine("ROOT: " + rootPath);
+            Main.print("ROOT: " + rootPath);
+
+
+            try {
+                File.Delete(rootPath);
+            }
+            catch (System.Exception) {
+
+            }
+            Java.IO.File file = new Java.IO.File(basePath, subPath);
+            file.CreateNewFile();
+            file.Mkdir();
+            Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
+            // Writes the content to the file
+            writer.Write(CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name));
+            writer.Flush();
+            writer.Close();*/
+
+
+
+
+
+        }
+
+        public static void _OpenPathAsVieo(string path)
+        {
+            Main.print("PATH:: " + path);
+            Console.WriteLine("PATH2: " + path);
+
+
+            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
+
+            Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/*");
+
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+            intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
+            intent.AddFlags(ActivityFlags.NewTask);
+            
+
+            // Android.App.Application.Context.ApplicationContext.start
+            //Android.App.Application.Context.StartService(intent);
+            Android.App.Application.Context.StartActivity(intent);
+        }
+
+        public static void OpenPathAsVieo(string path)
+        {
+            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
+
+            Intent intent = new Intent(Intent.ActionView);
+            // intent.SetPackage("org.videolan.vlc");
+
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+            intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
+            intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
+
+        
+            intent.SetDataAndTypeAndNormalize(uri, "video/*");
+          //  intent.PutExtra("title", name);
+            //intent = intent.PutExtra("title", "title"); intent.PutExtra("title", "Kung Fury");
+
+            var activity = (Activity)Android.App.Application.Context;
+
+            // Android.App.Application.Context.ApplicationContext.start
+            Android.App.Application.Context.StartService(intent);
         }
 
         public void PlayVlc(string url, string name, string subtitleLoc)
@@ -108,6 +242,21 @@ namespace CloudStreamForms.Droid
             catch (Exception) {
                 CloudStreamForms.App.OpenBrowser(url);
             }
+        }
+        public void PlayVlc(List<string> url, List<string> name, string subtitleLoc)
+        {
+            //try {
+            MainDroid.OpenPathsAsVideo(url, name, subtitleLoc);
+            /*
+        }
+        catch (Exception) {
+            try {
+                MainDroid.OpenPathAsVideo(url.First(), name.First(), subtitleLoc);
+            }
+            catch (Exception) {
+                CloudStreamForms.App.OpenBrowser(url.First());
+            }
+        }*/
         }
         public void Awake()
         {

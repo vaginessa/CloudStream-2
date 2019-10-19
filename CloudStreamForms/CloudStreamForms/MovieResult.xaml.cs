@@ -91,7 +91,7 @@ namespace CloudStreamForms
 
             mainPoster = Search.mainPoster;
 
-            Gradient.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
+            Gradient.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png", Assembly.GetExecutingAssembly());
 
             //NameLabel.Text = activeMovie.title.name;
             NameLabel.Text = mainPoster.name;
@@ -492,11 +492,11 @@ namespace CloudStreamForms
                         TrailerBtt.Source = souceUrl;
                     }
                     else {
-                        TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
+                        TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png", Assembly.GetExecutingAssembly());
                     }
                 }
                 catch (Exception) {
-                    TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png");
+                    TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png", Assembly.GetExecutingAssembly());
                 }
 
                 if (!RunningWindows) {
@@ -776,7 +776,7 @@ namespace CloudStreamForms
 
             if (play_btts.Where(t => t.Id == image.Id).Count() == 0) {
                 play_btts.Add(image);
-                image.Source = ImageSource.FromResource("CloudStreamForms.Resource.play_png.png");
+                image.Source = ImageSource.FromResource("CloudStreamForms.Resource.play_png.png", Assembly.GetExecutingAssembly());
                 image.Scale = 0.4f;
             }
 
@@ -823,6 +823,8 @@ namespace CloudStreamForms
 
                 }
                 App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros);
+                //  App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls.First(), episodeResult.Mirros.First());
+
                 /*
                 if (CheckIfURLIsValid(episodeResult.loadResult.url)) {
                         PlayVLCWithSingleUrl(episodeResult.loadResult.url, episodeResult.Title);
