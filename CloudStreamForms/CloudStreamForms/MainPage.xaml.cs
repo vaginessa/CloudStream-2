@@ -73,7 +73,7 @@ namespace CloudStreamForms
             CloudStreamForms.App.OBrowser += App_OBrowser;
             LoadSeachPage();
 
-            PushPageFromUrlAndName("tt0944947", "Game Of Thrones");
+            //PushPageFromUrlAndName("tt0944947", "Game Of Thrones");
 
             //Page p = new MovieResult();
             //  Navigation.PushModalAsync(p);
@@ -1232,6 +1232,7 @@ namespace CloudStreamForms
                         string rmd = lookfor + d;
                         //string realAPILink = mD.Substring(0, mD.IndexOf("-"));
                         string fwordLink = "https://movies123.pro" + rmd.Substring(0, rmd.IndexOf("\""));
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                         if (!isMovie) {
                             fwordLink = rmd.Substring(0, rmd.IndexOf("\"")); // /tv-series/ies/the-orville-season-2/gMSTqyRs
@@ -1257,6 +1258,8 @@ namespace CloudStreamForms
                             //   print(activeMovie.title.name + "||||" + movie123.name + " : " + activeMovie.title.rating + " : " + movie123.imdbRating + " : " + activeMovie.title.movieType + " : " + movie123.type + " : " + activeMovie.title.runtime + " : " + movie123.runtime);
 
                             // GET RATING IN INT (10-100)
+                            if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
                             string s1 = activeMovie.title.rating;
                             string s2 = movie123.imdbRating;
                             if (s2.ToLower() == "n/a") {
@@ -1532,7 +1535,7 @@ namespace CloudStreamForms
                         description = cEpisode.description
                     };
 
-                    if (animeSeach) { // use https://www3.gogoanime.io/
+                    if (animeSeach) { // use https://www3.gogoanime.io/ or https://vidstreaming.io/
 
                         while (!activeMovie.title.MALData.done) {
                             Thread.Sleep(100);
@@ -1579,6 +1582,9 @@ namespace CloudStreamForms
                             string dstring = "https://www3.gogoanime.io/" + fwordLink + "-episode-" + (episode - subtract);
                             print("DSTRING: " + dstring);
                             string d = DownloadString(dstring, tempThred);
+
+
+
                             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
                             print(mp4);
                             try {
@@ -1599,6 +1605,40 @@ namespace CloudStreamForms
                             catch (System.Exception) {
                                 print("BrowserMp4: " + mp4);
 
+                            }
+
+                            string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");
+                            if(fembed == "") {
+                                fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
+                            }
+                            if (fembed != "") {
+                                string _d = PostRequest("https://www.fembed.com/api/source/" + fembed, "https://www.fembed.com/v/" + fembed, "r=&d=www.fembed.com", tempThred);
+                                if (_d != "") {
+                                    string lookFor = "\"file\":\"";
+                                    string _labelFind = "\"label\":\"";
+                                    while (_d.Contains(_labelFind)) {
+                                        string link = FindHTML(_d, lookFor, "\",\"");
+
+
+                                        //  d = RemoveOne(d, link);
+                                        link = link.Replace("\\/", "/");
+
+                                        string label = FindHTML(_d, _labelFind, "\"");
+                                        print(label + "|" + link);
+                                        if (CheckIfURLIsValid(link)) {
+
+                                            Episode ep = activeMovie.episodes[normalEpisode];
+                                            if (ep.links == null) {
+                                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                            }
+                                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                            linkAdded?.Invoke(null, 1);
+                                        }
+
+                                        _d = RemoveOne(_d, _labelFind);
+                                    }
+
+                                }
                             }
 
 
@@ -2507,6 +2547,81 @@ namespace CloudStreamForms
 
 
         }
+
+        public static string PostRequest(string myUri, string referer = "", string _requestBody = "", TempThred? _tempThred = null)
+        {
+            try {
+
+         
+            HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(myUri);
+
+            webRequest.Method = "POST";
+            //  webRequest.Headers.Add("x-token", realXToken);
+            webRequest.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            webRequest.Headers.Add("DNT", "1");
+            webRequest.Headers.Add("Cache-Control", "max-age=0, no-cache");
+            webRequest.Headers.Add("TE", "Trailers");
+            webRequest.Headers.Add("Pragma", "Trailers");
+            webRequest.ContentType = "application/x-www-form-urlencoded";
+            webRequest.Referer = referer;
+            webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+            // webRequest.Headers.Add("Host", "trollvid.net");
+            webRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36";
+            webRequest.Headers.Add("Accept-Language", "en-US,en;q=0.5");
+            bool done = false;
+            string _res = "";
+            webRequest.BeginGetRequestStream(new AsyncCallback((IAsyncResult callbackResult) => {
+                HttpWebRequest _webRequest = (HttpWebRequest)callbackResult.AsyncState;
+                Stream postStream = _webRequest.EndGetRequestStream(callbackResult);
+
+                string requestBody = _requestBody;// --- RequestHeaders ---
+
+                byte[] byteArray = Encoding.UTF8.GetBytes(requestBody);
+
+                postStream.Write(byteArray, 0, byteArray.Length);
+                postStream.Close();
+
+                if (_tempThred != null) {
+                    TempThred tempThred = (TempThred)_tempThred;
+                    if (!GetThredActive(tempThred)) { return; }
+                }
+
+
+                // BEGIN RESPONSE
+
+                _webRequest.BeginGetResponse(new AsyncCallback((IAsyncResult _callbackResult) => {
+                    HttpWebRequest request = (HttpWebRequest)_callbackResult.AsyncState;
+                    HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(_callbackResult);
+                    if (_tempThred != null) {
+                        TempThred tempThred = (TempThred)_tempThred;
+                        if (!GetThredActive(tempThred)) { return; }
+                    }
+                    using (StreamReader httpWebStreamReader = new StreamReader(response.GetResponseStream())) {
+                        if (_tempThred != null) {
+                            TempThred tempThred = (TempThred)_tempThred;
+                            if (!GetThredActive(tempThred)) { return; }
+                        }
+                        _res = httpWebStreamReader.ReadToEnd();
+                        done = true;
+                    }
+                }), _webRequest);
+            }), webRequest);
+
+
+            for (int i = 0; i < 1000; i++) {
+                Thread.Sleep(10);
+                if (done) {
+                    return _res;
+                }
+            }
+            return _res;
+            }
+            catch (Exception) {
+
+                return "";
+            }
+        }
+
 
         /// <summary>
         /// Returns the true mx url of Viduplayer

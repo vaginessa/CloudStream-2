@@ -49,6 +49,7 @@ namespace CloudStreamForms.Droid
 
             mainDroid = new MainDroid();
             mainDroid.Awake();
+
             RequestPermission(this);
         }
 

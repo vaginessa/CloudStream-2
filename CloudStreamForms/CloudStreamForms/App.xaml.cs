@@ -10,7 +10,7 @@ namespace CloudStreamForms
 
     public partial class App : Application
     {
-        public const string baseM3u8Name = @"sample.m3u";
+        public const string baseM3u8Name = @"sample.m3u8";
 
         public interface IPlatformDep
         {

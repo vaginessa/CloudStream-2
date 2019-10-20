@@ -8,11 +8,31 @@
              
              x:Class="CloudStreamForms.MovieResult">
 
-    <ScrollView SizeChanged="ScrollView_SizeChanged">
-
+    <ScrollView SizeChanged="ScrollView_SizeChanged" >
+     
         <StackLayout>
+            <StackLayout x:Name="LoadingStack" IsVisible="False" IsEnabled="False">
+                <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                    <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
 
-            <!--
+                        <!--< Your control design goes here >-->
+
+                    </StackLayout>
+
+                    <StackLayout IsVisible="{Binding IsBusy}" Padding="12"
+             AbsoluteLayout.LayoutFlags="PositionProportional"
+             AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1">
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" Color ="#80000000"/>
+
+                        <Label Text="Loading..." HorizontalOptions="Center" TextColor="White"/>
+
+                    </StackLayout>
+
+                </AbsoluteLayout>
+            </StackLayout>
+            <StackLayout x:Name="NormalStack">
+                <!--
         <Grid
 
             RowSpacing="0"
@@ -34,93 +54,96 @@
         </Grid>
 -->
 
-            <Grid x:Name="XGRID" HorizontalOptions="Center"
+                <Grid x:Name="XGRID" HorizontalOptions="Center"
             RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
 				    VerticalOptions="Start">
 
 
-                <Grid.RowDefinitions >
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                    <Grid.RowDefinitions >
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0"  Grid.Column="0">
-                    <Image x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></Image>
-                    <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
-                    <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
-                </Grid>
-                <Grid Grid.Row="1"  Grid.Column="0">
-                    <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                    <Grid Grid.Row="0"  Grid.Column="0">
+                        <Image x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></Image>
+                        <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
+                        <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
+                    </Grid>
+                    <Grid Grid.Row="1"  Grid.Column="0">
+                        <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                    </Grid>
+
+                    <Grid Grid.Row="2"  Grid.Column="0">
+                        <Label x:Name="RatingLabel" Text="" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                    </Grid>
+                    <Grid Grid.Row="3"  Grid.Column="0">
+                        <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="Gray"></Label>
+                    </Grid>
+
+                    <Grid Grid.Row="4"  Grid.Column="0">
+                        <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
+                    </Grid>
+
                 </Grid>
 
-                <Grid Grid.Row="2"  Grid.Column="0">
-                    <Label x:Name="RatingLabel" Text="" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
-                </Grid>
-                <Grid Grid.Row="3"  Grid.Column="0">
-                    <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="Gray"></Label>
-                </Grid>
-
-                <Grid Grid.Row="4"  Grid.Column="0">
-                    <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
-                </Grid>
-
-            </Grid>
-
-            <Grid x:Name="MGRID"
+                <Grid x:Name="MGRID"
 HorizontalOptions="Center"
             RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
 				    VerticalOptions="Start" >
 
 
-                <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal">
-                    <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>
-                </Grid>
+                    <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal">
+                        <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>
+                    </Grid>
 
 
-                <Grid Grid.Row="2"  Grid.Column="0" x:Name="RowDub">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid>
-                        <Grid Grid.Row="0"  Grid.Column="0">
-                            <Picker x:Name="SeasonPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
-                        </Grid>
-                        <Grid Grid.Row="0"  Grid.Column="1">
-                            <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
+                    <Grid Grid.Row="2"  Grid.Column="0" x:Name="RowDub">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid Grid.Row="0"  Grid.Column="0">
+                                <Picker x:Name="SeasonPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
+                            </Grid>
+                            <Grid Grid.Row="0"  Grid.Column="1">
+                                <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
-                <!-- 
+                    <!-- 
                 <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
                 </Grid>
                 -->
-            </Grid>
-            <StackLayout  x:Name="absLayout" 
+                </Grid>
+
+                <!--
+
+            <StackLayout  x:Name="absLayout" VerticalOptions="FillAndExpand" SizeChanged="absLayout_SizeChanged"
                    
-                   >
+                   > -->
 
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
-                HasUnevenRows="True"
-                             CachingStrategy="RecycleElement"
-                ItemTapped="ListView_ItemTapped"
-                    x:Name="episodeView"                         >
+                             CachingStrategy="RecycleElement" 
+                ItemTapped="ListView_ItemTapped" RowHeight="100"
+                    x:Name="episodeView"                    >
 
 
 
                     <ListView.ItemTemplate>
                         <DataTemplate >
                             <ViewCell >
-                                <Grid RowSpacing="0"  Padding="0" SizeChanged="ViewCell_SizeChanged" HorizontalOptions="Fill" >
+                                <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill">
+                                    <!--SizeChanged="ViewCell_SizeChanged"-->
                                     <Grid.RowDefinitions >
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                   
+
 
                                     <!--
                                     
@@ -166,9 +189,9 @@ HorizontalOptions="Center"
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
                                                         <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="4" />
-                                                    </Grid> 
+                                                    </Grid>
                                                     <Grid Grid.Row="2"  Grid.Column="0" >
-                                                        <Picker IsVisible="{Binding LoadedLinks}"> </Picker>
+                                                        <Picker IsVisible="{Binding LoadedLinks}"></Picker>
                                                     </Grid>
                                                 </Grid>
                                             </Grid>
@@ -198,22 +221,27 @@ HorizontalOptions="Center"
 
                 </ListView>
 
+                <StackLayout>
+                    <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
+                    <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
+                        <StackLayout>
+                            <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
 
-
+                            </Grid>
+                        </StackLayout>
+                    </ScrollView>
+                    <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" Color="White"></ActivityIndicator>
+                </StackLayout>
 
             </StackLayout>
-            <StackLayout>
-                <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
-                <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
-                    <StackLayout>
-                        <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
+           
 
-                        </Grid>
-                    </StackLayout>
-                </ScrollView>
-                <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" Color="White"></ActivityIndicator>
-            </StackLayout>
+
             <!--
+  </StackLayout> -->
+
+        </StackLayout>
+        <!--
                     public int Id { set; get; }
         public string Title { set; get; }
         public string Rating { set; get; }
@@ -234,7 +262,7 @@ HorizontalOptions="Center"
           
             </StackLayout>
          -->
-            <!--
+        <!--
             <ListView x:Name="EpisodeView">
                 ItemsSource="{Binding myEpisodeResultCollection}">
                 <ListView.ItemTemplate>
@@ -243,10 +271,10 @@ HorizontalOptions="Center"
                     </DataTemplate>
                 </ListView.ItemTemplate> 
             </ListView>-->
-            <!--  
+        <!--  
          
             -->
-            <!--
+        <!--
             <Grid
 ColumnSpacing="0"
             
@@ -285,6 +313,6 @@ ColumnSpacing="0"
             <Label Text="Hello Xamarin.Forms!" />
                         -->
 
-        </StackLayout>
+
     </ScrollView>
 </ContentPage>
