@@ -73,11 +73,6 @@ namespace CloudStreamForms.UWP
 
             //Windows.Storage.StorageFile sampleFile = await storageFolder.CreateFileAsync(CloudStreamForms.App.baseM3u8Name, Windows.Storage.CreationCollisionOption.ReplaceExisting);
             //#EXTVLCOPT:sub-file=sample2.srt
-
-
-
-
-
         }
 
         public static async void OpenPathAsVideo(string path, string name = "", string subtitleLoc = "")

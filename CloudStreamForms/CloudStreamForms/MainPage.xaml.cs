@@ -311,7 +311,7 @@ namespace CloudStreamForms
                 }
             }
         }
-   
+
 
         /// <summary>
         /// Get a shareble url of the current movie
@@ -614,6 +614,8 @@ namespace CloudStreamForms
             public string date;
             public string posterUrl;
             public int maxProgress;
+            public string id;
+
             private int _progress;
             public int Progress { set { _progress = value; linkAdded?.Invoke(null, value); } get { return _progress; } }
         }
@@ -1420,13 +1422,14 @@ namespace CloudStreamForms
                             try {
                                 d = d.Substring(d.IndexOf(lookFor), d.Length - d.IndexOf(lookFor));
                                 string name = FindHTML(d, "title=\"", "\"");
+                                string id = FindHTML(d, "div data-const=\"", "\"");
                                 string rating = FindHTML(d, "<span class=\"ipl-rating-star__rating\">", "<");
                                 string descript = FindHTML(d, "<div class=\"item_description\" itemprop=\"description\">", "<").Replace("\n", "").Replace("  ", "");
                                 string date = FindHTML(d, "<div class=\"airdate\">", "<").Replace("\n", "").Replace("  ", "");
                                 string posterUrl = FindHTML(d, "src=\"", "\"");
 
                                 if (descript != "Know what this is about?") {
-                                    activeMovie.episodes.Add(new Episode() { date = date, name = name, description = descript, rating = rating, posterUrl = posterUrl });
+                                    activeMovie.episodes.Add(new Episode() { date = date, name = name, description = descript, rating = rating, posterUrl = posterUrl, id = id });
                                 }
                             }
                             catch (Exception) {
@@ -1512,16 +1515,21 @@ namespace CloudStreamForms
             return baseUrls;
         }
 
-        public static void DownloadSubtitlesAndAdd(string lang = "eng")
+        public static void DownloadSubtitlesAndAdd(string lang = "eng", bool isEpisode = false, int episodeCounter = 0)
         {
-            if(!GLOBAL_SUBTITLES_ENABLED) { return; }
+            if (!GLOBAL_SUBTITLES_ENABLED) { return; }
 
             TempThred tempThred = new TempThred();
             tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
 
-                    string _subtitleLoc = DownloadSubtitle(activeMovie.title.id, lang);
+                    string id = activeMovie.title.id;
+                    if (isEpisode) {
+                        id = activeMovie.episodes[episodeCounter].id;
+                    }
+
+                    string _subtitleLoc = DownloadSubtitle(id, lang);
                     print(_subtitleLoc + "<<<<");
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                     bool contains = false;
@@ -1567,10 +1575,15 @@ namespace CloudStreamForms
                     if (movieSearch) { maxProgress += MIRROR_COUNT + HD_MIRROR_COUNT; }
                     if (animeSeach) { maxProgress += ANIME_MIRRORS_COUNT; }
 
-                    DownloadSubtitlesAndAdd(); // CHANGE LANG TO USER SETTINGS
 
                     // --------- CLEAR EPISODE ---------
                     int normalEpisode = episode == -1 ? 0 : episode - 1;                     //normalEp = ep-1;
+
+
+
+                    activeMovie.subtitles = new List<Subtitle>(); // CLEAR SUBTITLES
+                    DownloadSubtitlesAndAdd(isEpisode: (activeMovie.title.movieType == MovieType.TVSeries || activeMovie.title.movieType == MovieType.Anime), episodeCounter: normalEpisode); // CHANGE LANG TO USER SETTINGS
+
 
                     if (activeMovie.episodes.Count <= normalEpisode) { activeMovie.episodes.Add(new Episode()); }
                     Episode cEpisode = activeMovie.episodes[normalEpisode];
@@ -1582,7 +1595,8 @@ namespace CloudStreamForms
                         rating = cEpisode.rating,
                         name = cEpisode.name,
                         date = cEpisode.date,
-                        description = cEpisode.description
+                        description = cEpisode.description,
+                        id = cEpisode.id,
                     };
 
                     if (animeSeach) { // use https://www3.gogoanime.io/ or https://vidstreaming.io/
@@ -1646,7 +1660,7 @@ namespace CloudStreamForms
                                 if (CheckIfURLIsValid(mxLink)) {
                                     Episode ep = activeMovie.episodes[normalEpisode];
                                     if (ep.links == null) {
-                                        activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                        activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                     }
                                     activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                     linkAdded?.Invoke(null, 1);
@@ -1679,7 +1693,7 @@ namespace CloudStreamForms
 
                                             Episode ep = activeMovie.episodes[normalEpisode];
                                             if (ep.links == null) {
-                                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                             }
                                             activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                             linkAdded?.Invoke(null, 1);
@@ -1713,12 +1727,13 @@ namespace CloudStreamForms
                                     link = link.Replace("&amp;", "&");
 
                                     print("LINK: " + link + "|" + name);
+                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4","").Replace("orginalP", "Orginal Quality");
 
                                     if (CheckIfURLIsValid(link)) {
 
                                         Episode ep = activeMovie.episodes[normalEpisode];
                                         if (ep.links == null) {
-                                            activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                            activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                         }
                                         activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                         linkAdded?.Invoke(null, 1);
@@ -2056,7 +2071,7 @@ namespace CloudStreamForms
                                 if (CheckIfURLIsValid(newM)) {
                                     Episode ep = activeMovie.episodes[episode];
                                     if (ep.links == null) {
-                                        activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                        activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                     }
                                     activeMovie.episodes[episode].links.Add(new Link() { priority = 0, url = newM, name = "Mirror [MIRRORCOUNTER]" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                 }
@@ -2315,7 +2330,7 @@ namespace CloudStreamForms
 
                             engine.Execute(@funct);
                             if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                            //GetAPI(realXToken, tokenCode, _token, tempThred, episode);
+                                                                         //GetAPI(realXToken, tokenCode, _token, tempThred, episode);
 
 
                             System.Uri myUri = new System.Uri("https://gomostream.com/decoding_v3.php"); // Can't DownloadString because of RequestHeaders (Anti-bot)
@@ -2385,7 +2400,7 @@ namespace CloudStreamForms
 
                                                 Episode ep = activeMovie.episodes[episode];
                                                 if (ep.links == null) {
-                                                    activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
+                                                    activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                                 }
 
                                                 if (veryURL != "") {
