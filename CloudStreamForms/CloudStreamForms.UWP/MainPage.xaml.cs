@@ -46,30 +46,43 @@ namespace CloudStreamForms.UWP
     public class MainUWP : CloudStreamForms.App.IPlatformDep
     {
 
-        public static async Task OpenPathsAsVideo(List<string> path, List<string> name)
+
+        public static async Task CreateFile(string filename, byte[] write)
         {
 
-
-
-
-            Windows.Storage.StorageFolder storageFolder =
-    Windows.Storage.ApplicationData.Current.LocalFolder;
-            Windows.Storage.StorageFile sampleFile =
-                await storageFolder.CreateFileAsync(CloudStreamForms.App.baseM3u8Name,
-                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
-
-            var file = await storageFolder.GetFileAsync(CloudStreamForms.App.baseM3u8Name);
+            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            await storageFolder.CreateFileAsync(filename, Windows.Storage.CreationCollisionOption.ReplaceExisting);
+            var file = await storageFolder.GetFileAsync(filename);
             var s = await file.OpenStreamForWriteAsync();
 
-            byte[] bytes = CloudStreamForms.App.ConvertPathAndNameToM3U8Bytes(path, name);
-            s.Write(bytes, 0, bytes.Length);
+            s.Write(write, 0, write.Length);
             s.Close();
             var success = await Windows.System.Launcher.LaunchFileAsync(file);
         }
 
-        public static async void OpenPathAsVideo(string path, string name = "")
+        public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc = "")
         {
-            await OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name });
+
+            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            bool subEnabled = subtitleLoc != "";
+
+            await CreateFile(CloudStreamForms.App.baseM3u8Name, CloudStreamForms.App.ConvertPathAndNameToM3U8Bytes(path, name, subEnabled, storageFolder.Path + "\\"));
+            if (subEnabled) {
+                await CreateFile(CloudStreamForms.App.baseSubtitleName, Encoding.UTF8.GetBytes(subtitleLoc));
+            }
+
+            //Windows.Storage.StorageFile sampleFile = await storageFolder.CreateFileAsync(CloudStreamForms.App.baseM3u8Name, Windows.Storage.CreationCollisionOption.ReplaceExisting);
+            //#EXTVLCOPT:sub-file=sample2.srt
+
+
+
+
+
+        }
+
+        public static async void OpenPathAsVideo(string path, string name = "", string subtitleLoc = "")
+        {
+            await OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name }, subtitleLoc);
             // string vlcPath = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
             //string args = "-vvv " + path;
             /*
@@ -122,7 +135,7 @@ namespace CloudStreamForms.UWP
 
 
             try {
-                MainUWP.OpenPathAsVideo(url);
+                MainUWP.OpenPathAsVideo(url, name, subtitleLoc);
 
             }
             catch (Exception) {
@@ -133,7 +146,7 @@ namespace CloudStreamForms.UWP
         {
             //MainUWP.OpenPathAsVideo(url,name);
             try {
-                MainUWP.OpenPathsAsVideo(url, name);
+                MainUWP.OpenPathsAsVideo(url, name, subtitleLoc);
 
             }
             catch (Exception) {

@@ -114,7 +114,7 @@ namespace CloudStreamForms
 
         protected override bool OnBackButtonPressed()
         {
-            return true; // base.OnBackButtonPressed();
+            return base.OnBackButtonPressed(); //   return true; // 
         }
 
 

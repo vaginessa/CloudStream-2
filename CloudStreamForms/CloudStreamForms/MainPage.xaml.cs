@@ -15,11 +15,26 @@ using static CloudStreamForms.Main;
 using Xamarin.Essentials;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Collections.ObjectModel;
 
 namespace CloudStreamForms
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
+
+    public class MainRecView
+    {
+        private ObservableCollection<Poster> _MyEpisodeRecCollection;
+        public ObservableCollection<Poster> MyEpisodeRecCollection { set { _MyEpisodeRecCollection = value; } get { return _MyEpisodeRecCollection; } }
+
+
+        public MainRecView()
+        {
+            MyEpisodeRecCollection = new ObservableCollection<Poster>();
+        }
+    }
+
+
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
@@ -32,7 +47,7 @@ namespace CloudStreamForms
         public static bool initialized = false;
         public static string intentData = "";
         public static MainPage mainPage;
-
+        public MainRecView bookmarkedVideos;
 
 
         /*
@@ -71,7 +86,10 @@ namespace CloudStreamForms
             Application.Current.PageAppearing += Current_PageAppearing;
             searchLoaded += MainPage_searchLoaded;
             CloudStreamForms.App.OBrowser += App_OBrowser;
-            LoadSeachPage();
+
+            bookmarkedVideos = new MainRecView();
+
+            //LoadSeachPage();
 
             //PushPageFromUrlAndName("tt0944947", "Game Of Thrones");
 
@@ -262,7 +280,7 @@ namespace CloudStreamForms
         public const bool SEARCH_FOR_UPDATES_ENABLED = true;
 
         public const bool INLINK_SUBTITLES_ENABLED = false;
-        public const bool GLOBAL_SUBTITLES_ENABLED = false;
+        public const bool GLOBAL_SUBTITLES_ENABLED = true;
         public const bool GOMOSTEAM_ENABLED = true;
         public const bool SUBHDMIRROS_ENABLED = true;
         public const bool BAN_SUBTITLE_ADS = true;
@@ -293,12 +311,7 @@ namespace CloudStreamForms
                 }
             }
         }
-        public static void PlayVLCWithSingleUrl(string url, string name = "", string subtitleLoc = "")
-        {
-            App.PlayVLCWithSingleUrl(url, name, subtitleLoc);
-
-        }
-
+   
 
         /// <summary>
         /// Get a shareble url of the current movie
@@ -608,7 +621,8 @@ namespace CloudStreamForms
         public struct Subtitle
         {
             public string name;
-            public string url;
+            //public string url;
+            public string data;
         }
 
         public struct Movie
@@ -1498,6 +1512,40 @@ namespace CloudStreamForms
             return baseUrls;
         }
 
+        public static void DownloadSubtitlesAndAdd(string lang = "eng")
+        {
+            if(!GLOBAL_SUBTITLES_ENABLED) { return; }
+
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+
+                    string _subtitleLoc = DownloadSubtitle(activeMovie.title.id, lang);
+                    print(_subtitleLoc + "<<<<");
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    bool contains = false;
+                    if (activeMovie.subtitles == null) {
+                        activeMovie.subtitles = new List<Subtitle>();
+                    }
+
+                    for (int i = 0; i < activeMovie.subtitles.Count; i++) {
+                        if (activeMovie.subtitles[i].name == lang) {
+                            contains = true;
+                        }
+                    }
+                    if (!contains) {
+                        activeMovie.subtitles.Add(new Subtitle() { name = lang, data = _subtitleLoc });
+                    }
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "SubtitleThread";
+            tempThred.Thread.Start();
+        }
+
         public static void GetEpisodeLink(int episode = -1, int season = 1, bool purgeCurrentLinkThread = true, bool onlyEpsCount = false, bool isDub = true)
         {
             if (purgeCurrentLinkThread) {
@@ -1518,6 +1566,8 @@ namespace CloudStreamForms
                     int maxProgress = 0;
                     if (movieSearch) { maxProgress += MIRROR_COUNT + HD_MIRROR_COUNT; }
                     if (animeSeach) { maxProgress += ANIME_MIRRORS_COUNT; }
+
+                    DownloadSubtitlesAndAdd(); // CHANGE LANG TO USER SETTINGS
 
                     // --------- CLEAR EPISODE ---------
                     int normalEpisode = episode == -1 ? 0 : episode - 1;                     //normalEp = ep-1;
@@ -1608,7 +1658,7 @@ namespace CloudStreamForms
                             }
 
                             string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");
-                            if(fembed == "") {
+                            if (fembed == "") {
                                 fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
                             }
                             if (fembed != "") {
@@ -2552,69 +2602,69 @@ namespace CloudStreamForms
         {
             try {
 
-         
-            HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(myUri);
 
-            webRequest.Method = "POST";
-            //  webRequest.Headers.Add("x-token", realXToken);
-            webRequest.Headers.Add("X-Requested-With", "XMLHttpRequest");
-            webRequest.Headers.Add("DNT", "1");
-            webRequest.Headers.Add("Cache-Control", "max-age=0, no-cache");
-            webRequest.Headers.Add("TE", "Trailers");
-            webRequest.Headers.Add("Pragma", "Trailers");
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Referer = referer;
-            webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-            // webRequest.Headers.Add("Host", "trollvid.net");
-            webRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36";
-            webRequest.Headers.Add("Accept-Language", "en-US,en;q=0.5");
-            bool done = false;
-            string _res = "";
-            webRequest.BeginGetRequestStream(new AsyncCallback((IAsyncResult callbackResult) => {
-                HttpWebRequest _webRequest = (HttpWebRequest)callbackResult.AsyncState;
-                Stream postStream = _webRequest.EndGetRequestStream(callbackResult);
+                HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(myUri);
 
-                string requestBody = _requestBody;// --- RequestHeaders ---
+                webRequest.Method = "POST";
+                //  webRequest.Headers.Add("x-token", realXToken);
+                webRequest.Headers.Add("X-Requested-With", "XMLHttpRequest");
+                webRequest.Headers.Add("DNT", "1");
+                webRequest.Headers.Add("Cache-Control", "max-age=0, no-cache");
+                webRequest.Headers.Add("TE", "Trailers");
+                webRequest.Headers.Add("Pragma", "Trailers");
+                webRequest.ContentType = "application/x-www-form-urlencoded";
+                webRequest.Referer = referer;
+                webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+                // webRequest.Headers.Add("Host", "trollvid.net");
+                webRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36";
+                webRequest.Headers.Add("Accept-Language", "en-US,en;q=0.5");
+                bool done = false;
+                string _res = "";
+                webRequest.BeginGetRequestStream(new AsyncCallback((IAsyncResult callbackResult) => {
+                    HttpWebRequest _webRequest = (HttpWebRequest)callbackResult.AsyncState;
+                    Stream postStream = _webRequest.EndGetRequestStream(callbackResult);
 
-                byte[] byteArray = Encoding.UTF8.GetBytes(requestBody);
+                    string requestBody = _requestBody;// --- RequestHeaders ---
 
-                postStream.Write(byteArray, 0, byteArray.Length);
-                postStream.Close();
+                    byte[] byteArray = Encoding.UTF8.GetBytes(requestBody);
 
-                if (_tempThred != null) {
-                    TempThred tempThred = (TempThred)_tempThred;
-                    if (!GetThredActive(tempThred)) { return; }
-                }
+                    postStream.Write(byteArray, 0, byteArray.Length);
+                    postStream.Close();
 
-
-                // BEGIN RESPONSE
-
-                _webRequest.BeginGetResponse(new AsyncCallback((IAsyncResult _callbackResult) => {
-                    HttpWebRequest request = (HttpWebRequest)_callbackResult.AsyncState;
-                    HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(_callbackResult);
                     if (_tempThred != null) {
                         TempThred tempThred = (TempThred)_tempThred;
                         if (!GetThredActive(tempThred)) { return; }
                     }
-                    using (StreamReader httpWebStreamReader = new StreamReader(response.GetResponseStream())) {
+
+
+                    // BEGIN RESPONSE
+
+                    _webRequest.BeginGetResponse(new AsyncCallback((IAsyncResult _callbackResult) => {
+                        HttpWebRequest request = (HttpWebRequest)_callbackResult.AsyncState;
+                        HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(_callbackResult);
                         if (_tempThred != null) {
                             TempThred tempThred = (TempThred)_tempThred;
                             if (!GetThredActive(tempThred)) { return; }
                         }
-                        _res = httpWebStreamReader.ReadToEnd();
-                        done = true;
+                        using (StreamReader httpWebStreamReader = new StreamReader(response.GetResponseStream())) {
+                            if (_tempThred != null) {
+                                TempThred tempThred = (TempThred)_tempThred;
+                                if (!GetThredActive(tempThred)) { return; }
+                            }
+                            _res = httpWebStreamReader.ReadToEnd();
+                            done = true;
+                        }
+                    }), _webRequest);
+                }), webRequest);
+
+
+                for (int i = 0; i < 1000; i++) {
+                    Thread.Sleep(10);
+                    if (done) {
+                        return _res;
                     }
-                }), _webRequest);
-            }), webRequest);
-
-
-            for (int i = 0; i < 1000; i++) {
-                Thread.Sleep(10);
-                if (done) {
-                    return _res;
                 }
-            }
-            return _res;
+                return _res;
             }
             catch (Exception) {
 

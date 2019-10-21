@@ -8,8 +8,8 @@
              
              x:Class="CloudStreamForms.MovieResult">
 
-    <ScrollView SizeChanged="ScrollView_SizeChanged" >
-     
+    <ScrollView SizeChanged="ScrollView_SizeChanged" VerticalScrollBarVisibility="Never">
+
         <StackLayout>
             <StackLayout x:Name="LoadingStack" IsVisible="False" IsEnabled="False">
                 <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -93,7 +93,7 @@ HorizontalOptions="Center"
 				    VerticalOptions="Start" >
 
 
-                    <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal">
+                    <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal" >
                         <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>
                     </Grid>
 
@@ -197,13 +197,13 @@ HorizontalOptions="Center"
                                             </Grid>
                                         </Grid>
                                     </Grid>
-
+                                    <!--
                                     <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
                                         <ContentView VerticalOptions="Center">
-                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" ></ProgressBar>
+                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" IsEnabled="False"></ProgressBar>
                                         </ContentView>
                                     </Grid>
-
+-->
                                     <!--  Progress="{Binding Progress}"  IsVisible="False" WidthRequest="126"-->
 
                                     <!--    <Label Text="{Binding Description}" /> -->
@@ -225,7 +225,7 @@ HorizontalOptions="Center"
                     <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
                     <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
                         <StackLayout>
-                            <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
+                            <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="100">
 
                             </Grid>
                         </StackLayout>
@@ -234,7 +234,7 @@ HorizontalOptions="Center"
                 </StackLayout>
 
             </StackLayout>
-           
+
 
 
             <!--

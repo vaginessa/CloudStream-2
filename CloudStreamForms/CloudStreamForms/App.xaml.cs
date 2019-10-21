@@ -11,6 +11,7 @@ namespace CloudStreamForms
     public partial class App : Application
     {
         public const string baseM3u8Name = @"sample.m3u8";
+        public const string baseSubtitleName = @"sample.srt";
 
         public interface IPlatformDep
         {
@@ -41,18 +42,21 @@ namespace CloudStreamForms
         }
 
 
-        public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name)
+        public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name, bool isSubtitleEnabled = false, string beforePath = "")
         {
             string _s = "#EXTM3U";
+            if(isSubtitleEnabled) {
+                _s += "\n#EXTVLCOPT:sub-file=" + beforePath+ baseSubtitleName;
+            }
             for (int i = 0; i < path.Count; i++) {
                 _s += "\n#EXTINF:" + ", " + name[i].Replace("-","").Replace("  "," ") + "\n" + path[i];
             }
             return _s;
         }
 
-        public static byte[] ConvertPathAndNameToM3U8Bytes(List<string> path, List<string> name)
+        public static byte[] ConvertPathAndNameToM3U8Bytes(List<string> path, List<string> name, bool isSubtitleEnabled = false, string beforePath = "")
         {
-            return Encoding.ASCII.GetBytes(ConvertPathAndNameToM3U8(path,name));
+            return Encoding.ASCII.GetBytes(ConvertPathAndNameToM3U8(path,name,isSubtitleEnabled,beforePath));
         }
 
         public static void OpenBrowser(string url)

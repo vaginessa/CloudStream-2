@@ -228,10 +228,8 @@ namespace CloudStreamForms
             #endregion
             MALBtt.IsVisible = false;
             epView = new MainEpisodeView();
-            epView.Added += (o, e) => {
-                print("da");
-                SetHeight();
-            };
+            SetHeight();
+
             BindingContext = epView;
 
             // listView.HeightRequest = 100;
@@ -318,6 +316,7 @@ namespace CloudStreamForms
             progressBars = new List<ProgressBar>();
             //  grids.Clear();
             // gridsSize.Clear();
+            SetHeight();
         }
         double totalHeight = 0;
         int counter = 0;
@@ -363,7 +362,7 @@ namespace CloudStreamForms
 
         void SetHeight()
         {
-            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight);
+            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 50);
         }
 
 
@@ -501,7 +500,7 @@ namespace CloudStreamForms
         {
             if (trailerUrl != null) {
                 if (trailerUrl != "") {
-                    PlayVLCWithSingleUrl(trailerUrl, currentMovie.title.name + " - Trailer");
+                    App.PlayVLCWithSingleUrl(trailerUrl, currentMovie.title.name + " - Trailer");
                 }
             }
         }
@@ -883,6 +882,11 @@ namespace CloudStreamForms
                     // NormalStack.IsVisible = false;
                     NormalStack.Opacity = 0.8f;
                     await Task.Delay(5000);
+
+                    if(SameAsActiveMovie()) {
+                        currentMovie = activeMovie;
+                    }
+
                     //    LoadingStack.IsEnabled = false;
                     NormalStack.IsEnabled = true;
                     //      LoadingStack.IsVisible = false;
@@ -890,7 +894,13 @@ namespace CloudStreamForms
 
                     //NormalStack.IsVisible = true;
                     if (episodeResult.mirrosUrls.Count > 0) {
-                        App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros);
+                        string _sub = "";
+                        if(currentMovie.subtitles != null) {
+                            if(currentMovie.subtitles.Count > 0) {
+                                _sub = currentMovie.subtitles[0].data;
+                            }
+                        }
+                        App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros, _sub);
                         episodeResult.LoadedLinks = true;
                     }
 

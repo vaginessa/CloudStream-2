@@ -6,7 +6,46 @@
              mc:Ignorable="d"
              x:Class="CloudStreamForms.MainPage">
 
-    <Button Text="Hello" Clicked="Button_Clicked"></Button>
+
+
+    <ContentView>
+        <Grid x:Name="XGRID" HorizontalOptions="Center"
+            RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
+				    VerticalOptions="Start">
+
+
+            <Grid.RowDefinitions >
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0"  Grid.Column="0">
+
+                <Button Text="2" Clicked="Button_Clicked"></Button>
+            </Grid>
+            <Grid Grid.Row="1"  Grid.Column="0">
+
+                <Button Text="Hello" Clicked="Button_Clicked"></Button>
+            </Grid>
+
+            <StackLayout>
+                <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
+                <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
+                    <StackLayout>
+                        <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" >
+
+                        </Grid>
+                    </StackLayout>
+                </ScrollView>
+                <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" Color="White"></ActivityIndicator>
+            </StackLayout>
+
+        </Grid>
+
+    </ContentView>
+
+
     <!--
     <ScrollView >
         
