@@ -10,11 +10,11 @@ CloudStream 2 is the successor to CloudStream and will have many more features.
 + Recommendations
 + Trailer
 + Movie and Episode description
++ Subtitles (From https://www.opensubtitles.org)
 
 **WILL BE ADDED BEFORE FIRST RELEASE:**
 + Bookmarks
 + Download 
-+ Subtitles (From established site like: https://www.opensubtitles.org)
 + Title sharing (Something like: https://js.do/code/348388)
 
 **COMMING SOON:**
@@ -37,6 +37,8 @@ https://movies123.pro/ (Movie and Tv-Show mirror links)
 https://gomostream.com/ (Movie and Tv-Show HD links)
 
 https://www9.gogoanime.io/ (Anime HD links)
+
+https://www.opensubtitles.org (Subtitles)
 
 https://js.do/code (Title sharing)
 
