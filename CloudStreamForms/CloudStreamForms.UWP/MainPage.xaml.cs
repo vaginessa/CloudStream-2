@@ -127,11 +127,8 @@ namespace CloudStreamForms.UWP
         public void PlayVlc(string url, string name, string subtitleLoc)
         {
             //MainUWP.OpenPathAsVideo(url,name);
-
-
             try {
                 MainUWP.OpenPathAsVideo(url, name, subtitleLoc);
-
             }
             catch (Exception) {
                 CloudStreamForms.App.OpenBrowser(url);

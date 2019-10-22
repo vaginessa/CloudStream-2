@@ -91,7 +91,7 @@ namespace CloudStreamForms
 
             //LoadSeachPage();
 
-            //PushPageFromUrlAndName("tt0944947", "Game Of Thrones");
+            PushPageFromUrlAndName("tt0371746", "Iron Man");
 
             //Page p = new MovieResult();
             //  Navigation.PushModalAsync(p);
@@ -377,7 +377,12 @@ namespace CloudStreamForms
         /// <param name="tempThred"></param>
         public static void JoinThred(TempThred tempThred)
         {
-            activeThredIds.Remove(tempThred.ThredId);
+            try {
+                activeThredIds.Remove(tempThred.ThredId);
+
+            }
+            catch (Exception) {
+            }
             GetThredActive(tempThred);
         }
 
@@ -525,6 +530,7 @@ namespace CloudStreamForms
             public string baseUrl;
             public string japName;
             public string engName;
+            public List<string> synonyms;
         }
 
 
@@ -840,14 +846,25 @@ namespace CloudStreamForms
                         sqlLink = FindHTML(sequel, "<a href=\"", "\"");
                         string _jap = FindHTML(d, "Japanese:</span> ", "<").Replace("  ", "").Replace("\n", "");
                         string _eng = FindHTML(d, "English:</span> ", "<").Replace("  ", "").Replace("\n", "");
+                        string _syno = FindHTML(d, "Synonyms:</span> ", "<").Replace("  ", "").Replace("\n", "") + ",";
+                        List<string> _synos = new List<string>();
+                        while (_syno.Contains(",")) {
+                            string _current = _syno.Substring(0, _syno.IndexOf(",")).Replace("  ", "");
+                            if (_current.StartsWith(" ")) {
+                                _current = _current.Substring(1, _current.Length - 1);
+                            }
+                            _synos.Add(_current);
+                            _syno = RemoveOne(_syno, ",");
+                        }
+
 
                         if (currentName.Contains("Part ") && !currentName.Contains("Part 1")) // WILL ONLY WORK UNTIL PART 10, BUT JUST HOPE THAT THAT DOSENT HAPPEND :)
                         {
-                            data[data.Count - 1].seasons.Add(new MALSeason() { name = currentName });
+                            data[data.Count - 1].seasons.Add(new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos });
                         }
                         else {
                             data.Add(new MALSeasonData() {
-                                seasons = new List<MALSeason>() { new MALSeason() { name = currentName, engName = _eng, japName = _jap } },
+                                seasons = new List<MALSeason>() { new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos } },
                                 malUrl = "https://myanimelist.net" + _malLink
                             });
                         }
@@ -875,24 +892,44 @@ namespace CloudStreamForms
                             string ur = FindHTML(d, look, "\"").Replace("-dub", "");
                             string adv = FindHTML(d, look, "</a");
                             string title = FindHTML(adv, "title=\"", "\"").Replace(" (TV)", ""); // TO FIX BLACK CLOVER
-                            string _title = title.Replace(" (Dub)", "");
+                            string animeTitle = title.Replace(" (Dub)", "");
                             string __d = RemoveOne(d, look);
                             string __year = FindHTML(__d, "Released: ", " ");
                             int ___year = int.Parse(__year);
                             int ___year2 = int.Parse(currentSelectedYear);
+
                             if (___year >= ___year2) {
+
+                                // CHECKS SYNONYMES
+                                /*
                                 for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
                                     for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
                                         MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
-                                        print(_title + "|" + ms.name + "|" + ___year + "__" + ___year2 + "|");
 
-                                        if (ms.name == _title) {
+                                    }
+                                }*/
 
-                                            if (_title == title) {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName };
+                                // LOADS TITLES
+                                for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
+                                    for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
+                                        MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
+
+                                        bool containsSyno = false;
+                                        for (int s = 0; s < ms.synonyms.Count; s++) {
+                                            if (ms.synonyms[s] == animeTitle) {
+                                                containsSyno = true;
+                                            }
+                                            //  print("SYNO: " + ms.synonyms[s]);
+                                        }
+
+                                        print(animeTitle + "|" + ms.name + "|" + ms.engName + "|" + ___year + "___" + ___year2 + "|" + containsSyno);
+
+                                        if (ms.name == animeTitle || ms.engName == animeTitle || containsSyno) {
+                                            if (animeTitle == title) {
+                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
                                             }
                                             else {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName };
+                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
                                             }
                                         }
                                     }
@@ -1059,11 +1096,11 @@ namespace CloudStreamForms
                                 }
                             }
                             string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
-                            string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ",""); // string descript = FindHTML(d, "\"description\": \"", "\"");
-                            if(descript == "") {
+                            string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ", ""); // string descript = FindHTML(d, "\"description\": \"", "\"");
+                            if (descript == "") {
                                 descript = FindHTML(d, "\"description\": \"", "\"");
                             }
-                            print("Dscript: " + descript);
+                            // print("Dscript: " + descript);
 
                             string ogName = FindHTML(d, "\"name\": \"", "\"");
                             string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
@@ -1090,6 +1127,12 @@ namespace CloudStreamForms
                             }
 
                             MovieType movieType = (!keyWords.Contains("anime") ? (type == "Movie" ? MovieType.Movie : MovieType.TVSeries) : (type == "Movie" ? MovieType.AnimeMovie : MovieType.Anime)); // looks ugly but works
+
+                            if (movieType == MovieType.TVSeries) { // JUST IN CASE
+                                if (d.Contains(">Japan</a>") && d.Contains(">Japanese</a>") && d.Contains("Anime")) {
+                                    movieType = MovieType.Anime;
+                                }
+                            }
 
                             // ----- SET -----
                             activeMovie.title = new Title() {
@@ -1473,7 +1516,7 @@ namespace CloudStreamForms
                 string rUrl = "https://www.opensubtitles.org/en/search/sublanguageid-" + lang + "/imdbid-" + imdbTitleId + "/sort-7/asc-0"; // best match first
                 print(rUrl);
                 string d = DownloadString(rUrl);
-                if(d.Contains("<div class=\"msg warn\"><b>No results</b> found, try")) {
+                if (d.Contains("<div class=\"msg warn\"><b>No results</b> found, try")) {
                     return "";
                 }
                 string _url = "https://www.opensubtitles.org/" + lang + "/subtitles/" + FindHTML(d, "en/subtitles/", "\'");
@@ -1736,7 +1779,7 @@ namespace CloudStreamForms
                                     link = link.Replace("&amp;", "&");
 
                                     print("LINK: " + link + "|" + name);
-                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4","").Replace("orginalP", "Orginal Quality");
+                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality");
 
                                     if (CheckIfURLIsValid(link)) {
 
@@ -2813,13 +2856,18 @@ namespace CloudStreamForms
                 client.DownloadStringTaskAsync(url);
                 for (int i = 0; i < 1000; i++) {
                     Thread.Sleep(10);
-
-                    if (tempThred != null) {
-                        if (!GetThredActive((TempThred)tempThred)) {
-                            client.CancelAsync();
-                            return "";
+                    try {
+                        if (tempThred != null) {
+                            if (!GetThredActive((TempThred)tempThred)) {
+                                client.CancelAsync();
+                                return "";
+                            }
                         }
                     }
+                    catch (Exception) {
+
+                    }
+                    
 
                     if (done) {
                         //print(_s);

@@ -29,15 +29,23 @@
 
   <ItemGroup>
     <None Remove="Resource\gradient.png" />
+    <None Remove="Resource\imdbIcon.png" />
+    <None Remove="Resource\MALIcon.png" />
     <None Remove="Resource\playBtt.png" />
     <None Remove="Resource\play_png.png" />
+    <None Remove="Resource\shareIcon.png" />
+    <None Remove="Resource\subtitleIcon.png" />
     <None Remove="Resource\wStar.png" />
     <None Remove="star.png" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resource\gradient.png" />
+    <EmbeddedResource Include="Resource\imdbIcon.png" />
+    <EmbeddedResource Include="Resource\MALIcon.png" />
     <EmbeddedResource Include="Resource\play_png.png" />
+    <EmbeddedResource Include="Resource\shareIcon.png" />
+    <EmbeddedResource Include="Resource\subtitleIcon.png" />
     <EmbeddedResource Include="Resource\wStar.png" />
   </ItemGroup>
 

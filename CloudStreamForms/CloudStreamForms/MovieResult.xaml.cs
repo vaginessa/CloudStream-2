@@ -77,14 +77,20 @@ namespace CloudStreamForms
             MainThread.BeginInvokeOnMainThread(() => {
 
                 //  Grid.SetRow(RowSeason, SeasonPicker.IsVisible ? 3 - ((DubPicker.IsVisible ? 0 : 1) + (MALBtt.IsVisible ? 0 : 1)) : 0);
-                Grid.SetRow(RowDub, SeasonPicker.IsVisible ? (1 - (MALBtt.IsVisible ? 0 : 1)) : 0);
-                Grid.SetRow(RowMal, MALBtt.IsVisible ? 0 : 0);
+                //Grid.SetRow(RowDub, SeasonPicker.IsVisible ? (1 - (MALBtt.IsVisible ? 0 : 1)) : 0);
+                //Grid.SetRow(RowMal, MALBtt.IsVisible ? 0 : 0);
 
                 // MALBtt.IsVisible = MALBtt.IsVisible;
             });
 
         }
         public MainEpisodeView epView;
+
+        public ImageSource GetImageSource(string inp)
+        {
+            return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
+        }
+
         public MovieResult()
         {
 
@@ -92,7 +98,13 @@ namespace CloudStreamForms
 
             mainPoster = Search.mainPoster;
 
-            Gradient.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png", Assembly.GetExecutingAssembly());
+            Gradient.Source = GetImageSource("gradient.png");
+            IMDbBtt.Source = GetImageSource("imdbIcon.png");
+            MALBtt.Source = GetImageSource("MALIcon.png");
+            ShareBtt.Source = GetImageSource("shareIcon.png");
+            StarBtt.Source = GetImageSource("wStar.png");
+            SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
+
 
             //NameLabel.Text = activeMovie.title.name;
             NameLabel.Text = mainPoster.name;
@@ -227,6 +239,7 @@ namespace CloudStreamForms
             episodeView.HasUnevenRows = true;*/
             #endregion
             MALBtt.IsVisible = false;
+            MALTxt.IsVisible = false;
             epView = new MainEpisodeView();
             SetHeight();
 
@@ -255,8 +268,8 @@ namespace CloudStreamForms
             //  Grid.SetRow(RowSeason, 0);
             episodeView.ItemAppearing += EpisodeView_ItemAppearing;
             SizeChanged += MainPage_SizeChanged;
-            Grid.SetRow(RowDub, 0);
-            Grid.SetRow(RowMal, 0);
+            // Grid.SetRow(RowDub, 0);
+            //  Grid.SetRow(RowMal, 0);
 
             // episodeView.HeightRequest = 0;
 
@@ -288,10 +301,19 @@ namespace CloudStreamForms
 
             if (episodeResult.PosterUrl == "") {
                 if (activeMovie.title.posterUrl != "") {
-                    string posterUrl = activeMovie.title.trailers.FirstOrDefault().posterUrl;
-                    if (posterUrl == null) {
-                        posterUrl = "";
+                    string posterUrl = "";
+                    try {
+                        if (activeMovie.title.trailers.Count > 0) {
+                            if (activeMovie.title.trailers[0].posterUrl != null) {
+                                posterUrl = activeMovie.title.trailers[0].posterUrl;
+                            }
+                        }
                     }
+                    catch (Exception) {
+
+                    }
+                  
+
                     episodeResult.PosterUrl = posterUrl;
                 }
             }
@@ -546,6 +568,9 @@ namespace CloudStreamForms
                 }
                 RatingLabel.Text = rYear + " | " + e.title.runtime + " | " + extra + "★ " + e.title.rating;
                 DescriptionLabel.Text = e.title.description.Replace("\\u0027", "\'");
+                if (e.title.description == "") {
+                    DescriptionLabel.HeightRequest = 0;
+                }
 
                 // ---------------------------- SEASONS ----------------------------
 
@@ -579,7 +604,7 @@ namespace CloudStreamForms
                     if (CheckIfURLIsValid(p.posterUrl)) {
 
 
-                        ImageButton imageButton = new ImageButton() { HeightRequest = 100, WidthRequest = 65, Source = p.posterUrl, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
+                        ImageButton imageButton = new ImageButton() { HeightRequest = 130, WidthRequest = 85, Source = p.posterUrl, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
                         recBtts.Add(imageButton);
                         Recommendations.Children.Add(recBtts[i]);
                     }
@@ -706,6 +731,7 @@ namespace CloudStreamForms
                 DubPicker.IsVisible = DubPicker.Items.Count > 0;
                 print(DubPicker.IsVisible + "ENABLED");
                 MALBtt.IsVisible = CurrentMalLink != "";
+                MALTxt.IsVisible = MALBtt.IsVisible;
                 SetRows();
 
             });
@@ -735,9 +761,9 @@ namespace CloudStreamForms
                             string maxEp = FindHTML(subMax, "ep_end = \'", "\'");//FindHTML(d, "<a href=\"#\" class=\"active\" ep_start = \'0\' ep_end = \'", "\'");
                             print(i + "MAXEP" + maxEp);
                             print(baseUrls[i]);
-
-                            max += int.Parse(maxEp);
-                            activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(int.Parse(maxEp));
+                            int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
+                            max += _epCount;
+                            activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(_epCount);
                         }
 
                         MainThread.BeginInvokeOnMainThread(() => {
@@ -883,7 +909,7 @@ namespace CloudStreamForms
                     NormalStack.Opacity = 0.8f;
                     await Task.Delay(5000);
 
-                    if(SameAsActiveMovie()) {
+                    if (SameAsActiveMovie()) {
                         currentMovie = activeMovie;
                     }
 
@@ -895,8 +921,8 @@ namespace CloudStreamForms
                     //NormalStack.IsVisible = true;
                     if (episodeResult.mirrosUrls.Count > 0) {
                         string _sub = "";
-                        if(currentMovie.subtitles != null) {
-                            if(currentMovie.subtitles.Count > 0) {
+                        if (currentMovie.subtitles != null) {
+                            if (currentMovie.subtitles.Count > 0) {
                                 _sub = currentMovie.subtitles[0].data;
                             }
                         }

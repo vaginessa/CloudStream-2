@@ -78,14 +78,61 @@
                         <Label x:Name="RatingLabel" Text="" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
                     </Grid>
                     <Grid Grid.Row="3"  Grid.Column="0">
-                        <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="Gray"></Label>
+                        <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Fill" VerticalOptions="Start" Margin="10" MinimumHeightRequest="0" TranslationY="-20" TextColor="Gray"></Label>
                     </Grid>
 
                     <Grid Grid.Row="4"  Grid.Column="0">
-                        <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
+                        <Grid HorizontalOptions="Start" HeightRequest="80" TranslationX="10">
+                            <Grid>
+                                <Grid Grid.Row="0"  Grid.Column="0">
+                                    <ImageButton  Opacity="0.9" x:Name="StarBtt" BackgroundColor="Transparent" HeightRequest="50" ></ImageButton>
+                                </Grid>
+                                <Grid Grid.Row="1"  Grid.Column="0">
+                                    <Label Text="Bookmark" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                </Grid>
+                                
+                                <Grid Grid.Row="0"  Grid.Column="1">
+                                    <ImageButton Opacity="0.9" x:Name="SubtitleBtt" BackgroundColor="Transparent" HeightRequest="40" ></ImageButton>
+                                </Grid>
+                                <Grid Grid.Row="1"  Grid.Column="1">
+                                    <Label Text="Subtitles"  HorizontalOptions="Center" TextColor="Gray"></Label>
+                                </Grid>
+                                
+                                <Grid Grid.Row="0"  Grid.Column="2">
+                                    <ImageButton Opacity="0.9" x:Name="ShareBtt" BackgroundColor="Transparent" HeightRequest="40" ></ImageButton>
+                                </Grid>
+                                <Grid Grid.Row="1"  Grid.Column="2">
+                                    <Label Text="Share" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                </Grid>
+                                
+                                <Grid Grid.Row="0"  Grid.Column="3">
+                                    <ImageButton Opacity="0.9" Clicked="IMDb_Clicked" x:Name="IMDbBtt" BorderColor="White" BorderWidth="0" BackgroundColor="Transparent" HeightRequest="30" ></ImageButton>
+                                </Grid>
+                                 <Grid Grid.Row="1"  Grid.Column="3">
+                                    <Label Text="IMDb" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                </Grid>
+                                
+                                <Grid Grid.Row="0"  Grid.Column="4">
+                                    <ImageButton Opacity="0.9" Clicked="MAL_Clicked"  x:Name="MALBtt" BorderColor="White" BorderWidth="0" BackgroundColor="Transparent" HeightRequest="30" TranslationY="3" TranslationX="10"></ImageButton>
+                                </Grid>
+                                <Grid Grid.Row="1"  Grid.Column="4">
+                                    <Label Text="MAL" HorizontalOptions="Center"  x:Name="MALTxt"  TextColor="Gray" TranslationX="10" ></Label>
+                                </Grid>
+                            </Grid>
+
+                            <!-- 
+                <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
+                </Grid>
+                -->
+                        </Grid>
+
                     </Grid>
 
+
+                    <!-- <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
+                                                <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>-->
                 </Grid>
+
 
                 <Grid x:Name="MGRID"
 HorizontalOptions="Center"
@@ -93,12 +140,9 @@ HorizontalOptions="Center"
 				    VerticalOptions="Start" >
 
 
-                    <Grid Grid.Row="1"  Grid.Column="0" x:Name="RowMal" >
-                        <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>
-                    </Grid>
 
 
-                    <Grid Grid.Row="2"  Grid.Column="0" x:Name="RowDub">
+                    <Grid Grid.Row="0"  Grid.Column="0" x:Name="RowDub">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -225,7 +269,7 @@ HorizontalOptions="Center"
                     <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
                     <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
                         <StackLayout>
-                            <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="100">
+                            <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
 
                             </Grid>
                         </StackLayout>

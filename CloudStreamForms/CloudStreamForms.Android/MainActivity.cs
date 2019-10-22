@@ -14,6 +14,8 @@ using Android.Support.V4.Content;
 using Android;
 using Android.Support.V4.App;
 using Xamarin.Forms;
+using System.Threading.Tasks;
+using Android.Net;
 
 namespace CloudStreamForms.Droid
 {
@@ -79,160 +81,77 @@ namespace CloudStreamForms.Droid
     {
         public static void OpenPathAsVideo(string path, string name, string subtitleLoc)
         {
-            //   Main.print(">>>>>>>>>>>>>>> NAME : " + name);
-
-
-            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
-
-            Intent intent = new Intent(Intent.ActionView);
-            // intent.SetPackage("org.videolan.vlc");
-
-            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
-            intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
-            intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
-            intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
-
-            if (subtitleLoc != "") {
-                intent.PutExtra("subtitles_location", subtitleLoc);
-            }
-            intent.SetDataAndTypeAndNormalize(uri, "video/*");
-            intent.PutExtra("title", name);
-            //intent = intent.PutExtra("title", "title"); intent.PutExtra("title", "Kung Fury");
-
-           // var activity = (Activity)MainActivity.activity;
-
-            // Android.App.Application.Context.ApplicationContext.start
-            Android.App.Application.Context.StartService(intent);
-            /*
-            int vlcRequestCode = 42;
-
-            Intent vlcIntent = new Intent(Intent.ActionView);
-            vlcIntent.SetPackage("org.videolan.vlc");
-            vlcIntent.SetDataAndTypeAndNormalize(uri, "video/*");
-            vlcIntent.PutExtra("title", "Kung Fury");
-            vlcIntent.PutExtra("from_start", false);
-            vlcIntent.PutExtra("position", 5);
-            vlcIntent.SetComponent(new ComponentName("org.videolan.vlc", "org.videolan.vlc.gui.video.VideoPlayerActivity"));
-
-            // vlcIntent.PutExtra("subtitles_location", "/sdcard/Movies/Fifty-Fifty.srt");
-            var activity = (Activity)Application.Context;
-            activity.StartActivityForResult(vlcIntent, vlcRequestCode);
-            */
-            //   activity.StartActivityForResult(intent,42);
+            OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name }, subtitleLoc);
         }
 
 
-
-        public static void OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
+        public static Java.IO.File WriteFile(string name, string basePath, string write)
         {
+            try {
+                File.Delete(basePath + "/" + name);
+            }
+            catch (System.Exception) {
 
+            }
+            Java.IO.File file = new Java.IO.File(basePath, name);
+            file.CreateNewFile();
+            file.Mkdir();
+            Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
+            // Writes the content to the file
+            writer.Write(write);
+            writer.Flush();
+            writer.Close();
+            return file;
+        }
 
+        public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
+        {
             string absolutePath = Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads;
             Main.print("AVS: " + absolutePath);
 
-            string basePath = absolutePath;
-            string subPath = CloudStreamForms.App.baseM3u8Name;
-            string rootPath = basePath + "/" + subPath;
-            Main.print("ROOT: " + rootPath);
-
-            Console.WriteLine("_RROT" + rootPath);
-
-            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name);
-
-            try {
-                File.Delete(rootPath);
+            bool subtitlesEnabled = subtitleLoc != "";
+            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name);//,subtitlesEnabled, "file://" + absolutePath + "/");
+            Java.IO.File subFile = null;
+            WriteFile(CloudStreamForms.App.baseM3u8Name, absolutePath, writeData);
+            if (subtitlesEnabled) {
+                subFile = WriteFile(CloudStreamForms.App.baseSubtitleName, absolutePath, subtitleLoc);
             }
-            catch (System.Exception) {
 
-            }
-            Java.IO.File file = new Java.IO.File(basePath, subPath);
-            file.CreateNewFile();
-            file.Mkdir();
-            Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
-            // Writes the content to the file
-            writer.Write(writeData);
-            writer.Flush();
-            writer.Close();
+            // await Task.Delay(5000);
 
             Device.BeginInvokeOnMainThread(() => {
-               // OpenPathAsVideo(path.First(), name.First(), "");
-                _OpenPathAsVieo(rootPath);
-
+                // OpenPathAsVideo(path.First(), name.First(), "");
+                OpenVlcIntent(absolutePath + "/" + CloudStreamForms.App.baseM3u8Name, absolutePath + "/" + App.baseSubtitleName);
             });
-
-            //OpenPathAsVideo(path.First(), name.First(), subtitleLoc);
-            //  OpenPathAsVieo(rootPath);
-
-
-            /*
-            Console.WriteLine("ROOT: " + rootPath);
-            Main.print("ROOT: " + rootPath);
-
-
-            try {
-                File.Delete(rootPath);
-            }
-            catch (System.Exception) {
-
-            }
-            Java.IO.File file = new Java.IO.File(basePath, subPath);
-            file.CreateNewFile();
-            file.Mkdir();
-            Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
-            // Writes the content to the file
-            writer.Write(CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name));
-            writer.Flush();
-            writer.Close();*/
-
-
-
-
-
         }
 
-        public static void _OpenPathAsVieo(string path)
+
+
+
+        public static void OpenVlcIntent(string path, string subfile = "") //Java.IO.File subFile)
         {
-            Main.print("PATH:: " + path);
-            Console.WriteLine("PATH2: " + path);
-
-
             Android.Net.Uri uri = Android.Net.Uri.Parse(path);
 
             Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/*");
+            intent.SetPackage("org.videolan.vlc");
+            Main.print("Da_ " + Android.Net.Uri.Parse(subfile));
+
+            if (subfile != "") {
+                intent.PutExtra("subtitles_location", Android.Net.Uri.Parse(subfile));//Android.Net.Uri.FromFile(subFile));
+                                                                                      // intent.PutExtra("subtitles_location", );//Android.Net.Uri.FromFile(subFile));
+            }
 
             intent.AddFlags(ActivityFlags.GrantReadUriPermission);
             intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
             intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
             intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
+
             intent.AddFlags(ActivityFlags.NewTask);
-            
+
 
             // Android.App.Application.Context.ApplicationContext.start
             //Android.App.Application.Context.StartService(intent);
             Android.App.Application.Context.StartActivity(intent);
-        }
-
-        public static void OpenPathAsVieo(string path)
-        {
-            Android.Net.Uri uri = Android.Net.Uri.Parse(path);
-
-            Intent intent = new Intent(Intent.ActionView);
-            // intent.SetPackage("org.videolan.vlc");
-
-            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
-            intent.AddFlags(ActivityFlags.GrantWriteUriPermission);
-            intent.AddFlags(ActivityFlags.GrantPrefixUriPermission);
-            intent.AddFlags(ActivityFlags.GrantPersistableUriPermission);
-
-        
-            intent.SetDataAndTypeAndNormalize(uri, "video/*");
-          //  intent.PutExtra("title", name);
-            //intent = intent.PutExtra("title", "title"); intent.PutExtra("title", "Kung Fury");
-
-            var activity = (Activity)Android.App.Application.Context;
-
-            // Android.App.Application.Context.ApplicationContext.start
-            Android.App.Application.Context.StartService(intent);
         }
 
         public void PlayVlc(string url, string name, string subtitleLoc)
@@ -246,18 +165,13 @@ namespace CloudStreamForms.Droid
         }
         public void PlayVlc(List<string> url, List<string> name, string subtitleLoc)
         {
-            //try {
-            MainDroid.OpenPathsAsVideo(url, name, subtitleLoc);
-            /*
-        }
-        catch (Exception) {
             try {
-                MainDroid.OpenPathAsVideo(url.First(), name.First(), subtitleLoc);
+                MainDroid.OpenPathsAsVideo(url, name, subtitleLoc);
             }
             catch (Exception) {
                 CloudStreamForms.App.OpenBrowser(url.First());
             }
-        }*/
+
         }
         public void Awake()
         {
