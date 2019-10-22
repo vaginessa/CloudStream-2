@@ -1059,7 +1059,12 @@ namespace CloudStreamForms
                                 }
                             }
                             string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
-                            string descript = FindHTML(d, "\"description\": \"", "\"");
+                            string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ",""); // string descript = FindHTML(d, "\"description\": \"", "\"");
+                            if(descript == "") {
+                                descript = FindHTML(d, "\"description\": \"", "\"");
+                            }
+                            print("Dscript: " + descript);
+
                             string ogName = FindHTML(d, "\"name\": \"", "\"");
                             string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
                             string posterUrl = FindHTML(d, "\"image\": \"", "\"");
@@ -1466,7 +1471,11 @@ namespace CloudStreamForms
         {
             try {
                 string rUrl = "https://www.opensubtitles.org/en/search/sublanguageid-" + lang + "/imdbid-" + imdbTitleId + "/sort-7/asc-0"; // best match first
+                print(rUrl);
                 string d = DownloadString(rUrl);
+                if(d.Contains("<div class=\"msg warn\"><b>No results</b> found, try")) {
+                    return "";
+                }
                 string _url = "https://www.opensubtitles.org/" + lang + "/subtitles/" + FindHTML(d, "en/subtitles/", "\'");
 
                 d = DownloadString(_url);
