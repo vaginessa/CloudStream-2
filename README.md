@@ -19,15 +19,17 @@ CloudStream 2 is the successor to CloudStream and will have many more features.
 **COMMING SOON:**
 + Chromecast
 
----------------------------------------
 
-***Screenshots:***
+
+**SCREENSHOTS:**
 <p align="center">
     <img src="https://cdn.discordapp.com/attachments/516902391300227074/638075873945321473/Screenshot_20191027_190533_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
      <img src="https://cdn.discordapp.com/attachments/542987806285496322/638080537101074441/Screenshot_20191027_192406_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
     <img src="https://cdn.discordapp.com/attachments/542987806285496322/638079343075262480/cloudstream.PNG" width="500" title="hover text">
  
 </p>
+
+
 
 
 ***How it works:***
