@@ -61,6 +61,15 @@ namespace CloudStreamForms
 
 
 
+        public struct BookmarkPoster
+        {
+            public string name;
+            public string posterUrl;
+            public string id;
+            public Button button;
+        }
+
+        List<BookmarkPoster> bookmarkPosters = new List<BookmarkPoster>();
 
         public MainPage()
         {
@@ -80,17 +89,115 @@ namespace CloudStreamForms
             CloudStreamForms.App.OBrowser += App_OBrowser;
 
             bookmarkedVideos = new MainRecView();
-
             //LoadSeachPage();
 
-            PushPageFromUrlAndName("tt4869896", "Overlord");
+            //PushPageFromUrlAndName("tt4869896", "Overlord");
 
             //Page p = new MovieResult();
             //  Navigation.PushModalAsync(p);
             //imageButtons.Add(CreateButton(""));
             // GRID.Children.Add((ImageButton)imageButtons[imageButtons.Count - 1], 0, 0);
 
+
+
+
+
+
+
+            /*
+            for (int i = 0; i < RecomendedPosters.Count; i++) {
+                Poster p = e.title.recomended[i];
+                string posterURL = p.posterUrl.Replace(",76,113_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY113", "UY" + pheight).Replace("UX76", "UX" + pwidth);
+                if (CheckIfURLIsValid(posterURL)) {
+
+                    Grid stackLayout = new Grid();
+                    Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
+                    var ff = new FFImageLoading.Forms.CachedImage {
+                        Source = posterURL,
+                        HeightRequest = height,
+                        WidthRequest = width,
+                        BackgroundColor = Color.Transparent,
+                        VerticalOptions = LayoutOptions.Start,
+                        Transformations = {
+                                new FFImageLoading.Transformations.RoundedTransformation(10,1,1.5,10,"#303F9F")
+                            },
+                        InputTransparent = true,
+                    };
+
+                    //Source = p.posterUrl
+                    recBtts.Add(imageButton);
+
+                    stackLayout.Children.Add(ff);
+                    stackLayout.Children.Add(imageButton);
+
+                    Recommendations.Children.Add(stackLayout);
+
+                }
+            }*/
+
         }
+
+        void UpdateBookmarks()
+        {
+
+            int height = 100;
+            int width = 65;
+            if (Device.RuntimePlatform == Device.UWP) {
+                height = 130;
+                width = 85;
+            }
+
+            int pheight = height * 2;
+            int pwidth = width * 2;
+            Bookmarks.HeightRequest = height;
+            List<string> keys = App.GetKeys<string>("BookmarkData");
+            List<string> data = new List<string>();
+            bookmarkPosters = new List<BookmarkPoster>();
+            Bookmarks.Children.Clear();
+            for (int i = 0; i < keys.Count; i++) {
+                string name = FindHTML(keys[i], "Name=", "PosterUrl=");
+                string posterUrl = FindHTML(keys[i], "PosterUrl=", "Id=");
+                string id = FindHTML(keys[i], "Id=", "=EndAll");
+                if (name != "" && posterUrl != "" && id != "") {
+                    if (CheckIfURLIsValid(posterUrl)) {
+                        print(">>>>" + posterUrl);
+                        Grid stackLayout = new Grid();
+                        Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
+                        var ff = new FFImageLoading.Forms.CachedImage {
+                            Source = posterUrl,
+                            HeightRequest = height,
+                            WidthRequest = width,
+                            BackgroundColor = Color.Transparent,
+                            VerticalOptions = LayoutOptions.Start,
+                            Transformations = {
+                                new FFImageLoading.Transformations.RoundedTransformation(10,1,1.5,10,"#303F9F")
+                            },
+                            InputTransparent = true,
+                        };
+
+                        //Source = p.posterUrl
+
+                        stackLayout.Children.Add(ff);
+                        stackLayout.Children.Add(imageButton);
+                        bookmarkPosters.Add(new BookmarkPoster() { button = imageButton, id = id, name = name, posterUrl = posterUrl });
+                        Grid.SetColumn(stackLayout, Bookmarks.Children.Count);
+                        Bookmarks.Children.Add(stackLayout);
+
+                        // --- RECOMMENDATIONS CLICKED -----
+                        imageButton.Clicked += (o, _e) => {
+                            for (int z = 0; z < bookmarkPosters.Count; z++) {
+                                if (((Button)o).Id == bookmarkPosters[z].button.Id) {
+                                    PushPageFromUrlAndName(bookmarkPosters[z].id, bookmarkPosters[z].name);
+                                }
+                            }
+                        };
+                    }
+                }
+                print(keys[i] + "<<KEy");
+                // data.Add(App.GetKey("BookmarkData"))
+            }
+        }
+
 
         private void App_OBrowser(object sender, string e)
         {
@@ -141,6 +248,8 @@ namespace CloudStreamForms
 
         private void Current_PageAppearing(object sender, Page e)
         {
+            UpdateBookmarks();
+
             if (!initialized) {
                 initialized = true;
                 // Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
@@ -579,6 +688,7 @@ namespace CloudStreamForms
             public string posterUrl;
             public string description;
             public int seasons;
+            public string hdPosterUrl;
 
             public MALData MALData;
 
@@ -1118,7 +1228,8 @@ namespace CloudStreamForms
                                 descript = FindHTML(d, "\"description\": \"", "\"");
                             }
                             // print("Dscript: " + descript);
-
+                            string __d = RemoveOne(d, "<div class=\"poster\">");
+                            string hdPosterUrl = FindHTML(__d, "src=\"", "\"");
                             string ogName = FindHTML(d, "\"name\": \"", "\"");
                             string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
                             string posterUrl = FindHTML(d, "\"image\": \"", "\"");
@@ -1166,6 +1277,7 @@ namespace CloudStreamForms
                                 movieType = movieType,
                                 year = year,
                                 ogName = ogName,
+                                hdPosterUrl = hdPosterUrl,
                             };
 
                             activeMovie.title.trailers.Add(new Trailer() { url = trailerUrl, posterUrl = trailerImg, name = trailerName });
@@ -1397,6 +1509,7 @@ namespace CloudStreamForms
                             seasons = t.seasons,
                             trailers = t.trailers,
                             year = t.year,
+                            hdPosterUrl = t.hdPosterUrl,
                             movies123MetaData = new Movies123MetaData() { movieLink = "", seasonData = seasonData },
                         };
                     }

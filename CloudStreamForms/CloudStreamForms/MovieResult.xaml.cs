@@ -91,12 +91,21 @@ namespace CloudStreamForms
         {
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
         }
+
         private void StarBttClicked(object sender, EventArgs e)
         {
-            bool SetValue = !App.GetKey("Bookmark", currentMovie.title.id, false);
-            App.SetKey("Bookmark", currentMovie.title.id, SetValue);
-            ChangeStar(SetValue);
+            //bool SetValue = !App.GetKey("Bookmark", currentMovie.title.id, false);
+            //  App.SetKey("Bookmark", currentMovie.title.id, SetValue);
+            bool keyExists = App.KeyExists("BookmarkData", currentMovie.title.id);
+            if (keyExists) {
+                App.RemoveKey("BookmarkData", currentMovie.title.id);
+            }
+            else {
+                App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "PosterUrl=" + currentMovie.title.hdPosterUrl + "Id=" + currentMovie.title.id + "=EndAll");
+            }
+            ChangeStar(!keyExists);
         }
+
         private void SubtitleBttClicked(object sender, EventArgs e)
         {
             bool SetValue = !App.GetKey("Settings", "Subtitles", true);
@@ -105,8 +114,8 @@ namespace CloudStreamForms
         }
         private void ShareBttClicked(object sender, EventArgs e)
         {
-            if(currentMovie.title.id != "" && currentMovie.title.name != "") {
-                string _s = Main.ShareMovieCode(currentMovie.title.id +"Name=" + currentMovie.title.name + "=EndAll");
+            if (currentMovie.title.id != "" && currentMovie.title.name != "") {
+                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
                 if (_s != "") {
                     Clipboard.SetTextAsync(_s);
 
@@ -118,16 +127,15 @@ namespace CloudStreamForms
         void ChangeStar(bool? overrideBool = null)
         {
 
-            bool res = false;
+            bool keyExists = false;
             if (overrideBool == null) {
-                res = App.GetKey("Bookmark", currentMovie.title.id, false);
-                print(res + "<< BOOKMARKED");
+                keyExists = App.KeyExists("BookmarkData", currentMovie.title.id);
             }
             else {
-                res = (bool)overrideBool;
+                keyExists = (bool)overrideBool;
             }
             Device.BeginInvokeOnMainThread(() => {
-                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? "#303F9F" : "#595959")) };
+                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(keyExists ? "#303F9F" : "#595959")) };
             });
         }
         void ChangeSubtitle(bool? overrideBool = null)

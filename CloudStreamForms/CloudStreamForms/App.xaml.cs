@@ -52,7 +52,7 @@ namespace CloudStreamForms
         static string GetKeyPath(string folder, string name = "")
         {
             string _s = ":" + folder + "-";
-            if(name != "") {
+            if (name != "") {
                 _s += name + ":";
             }
             return _s;
@@ -87,8 +87,23 @@ namespace CloudStreamForms
             foreach (var key in keyNames) {
                 allKeys.Add((T)Current.Properties[key]);
             }
-            
+
             return allKeys;
+        }
+
+        public static bool KeyExists(string folder, string name)
+        {
+            string path = GetKeyPath(folder, name);
+            return (Current.Properties.ContainsKey(path));
+
+        }
+        public static void RemoveKey(string folder, string name)
+        {
+            string path = GetKeyPath(folder, name);
+            if (Current.Properties.ContainsKey(path)) {
+                Current.Properties.Remove(path);
+            }
+
         }
 
 
