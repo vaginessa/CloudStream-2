@@ -10,16 +10,17 @@ CloudStream 2 is the successor to CloudStream and will have many more features.
 + Recommendations
 + Trailer
 + Movie and Episode description
-+ Subtitles (From https://www.opensubtitles.org)
++ Subtitles
++ Title sharing
 
 **WILL BE ADDED BEFORE FIRST RELEASE:**
-+ Bookmarks
 + Download 
-+ Title sharing (Something like: https://js.do/code/348388)
 
 **COMMING SOON:**
 + Chromecast
+
 ---------------------------------------
+
 ***How it works:***
 
 This app dosen't use a p2p connection or any private servers hosted by me, **IT IS NOT A BITTORRENT**. It takes all the links from established streaming sites by downloading the sites and extracting the useful information.
@@ -41,8 +42,3 @@ https://www9.gogoanime.io/ (Anime HD links)
 https://www.opensubtitles.org (Subtitles)
 
 https://js.do/code (Title sharing)
-
-***Github Libraries used:***
-
-https://github.com/sebastienros/jint (JS interpreter, to avoid bot detection)
-
