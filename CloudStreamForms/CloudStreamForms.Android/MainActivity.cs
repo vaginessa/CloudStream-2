@@ -53,7 +53,7 @@ namespace CloudStreamForms.Droid
 
 namespace CloudStreamForms.Droid
 {
-    [Activity(Label = "CloudStream 2", Icon = "@drawable/bicon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation), IntentFilter(new[] { Intent.ActionView }, DataScheme = "CloudStreamForms", Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable })]
+    [Activity(Label = "CloudStream 2", Icon = "@drawable/bicon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation), IntentFilter(new[] { Intent.ActionView }, DataScheme = "cloudstreamforms", Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable })]
 
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
@@ -64,6 +64,7 @@ namespace CloudStreamForms.Droid
         {
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
+
             Window window = this.Window;
             window.AddFlags(WindowManagerFlags.Fullscreen); // REMOVES STATUS BAR
 
@@ -87,6 +88,12 @@ namespace CloudStreamForms.Droid
 
             mainDroid = new MainDroid();
             mainDroid.Awake();
+
+            if (Intent.DataString != null) {
+                if (Intent.DataString != "") {
+                    Main.PushPageFromUrlAndName(Intent.DataString);
+                }
+            }
             RequestPermission(this);
         }
 
@@ -216,7 +223,7 @@ namespace CloudStreamForms.Droid
         public void ShowToast(string message, double duration)
         {
             ToastLength toastLength = ToastLength.Short;
-            if(duration >= 3) {
+            if (duration >= 3) {
                 toastLength = ToastLength.Long;
             }
             Toast.MakeText(Android.App.Application.Context, message, toastLength).Show();

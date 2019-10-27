@@ -53,7 +53,7 @@
         <uap:LockScreen BadgeLogo="Assets\BadgeLogo.png" Notification="badge"/>
       </uap:VisualElements>
       <Extensions>
-        <uap:Extension Category="windows.protocol" EntryPoint="CloudStreamForms.UWP.App">
+        <uap:Extension Category="windows.protocol"   Executable="$targetnametoken$.exe" EntryPoint="CloudStreamForms.UWP.App">
           <uap:Protocol Name="cloudstreamforms" DesiredView="default">
             <uap:DisplayName>CloudStream 2</uap:DisplayName>
             <uap:Logo>Assets\Square150x150Logo.png</uap:Logo>

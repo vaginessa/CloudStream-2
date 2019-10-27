@@ -15,6 +15,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using Xamarin.Forms.Xaml;
+
 namespace CloudStreamForms.UWP
 {
     /// <summary>
@@ -45,8 +47,7 @@ namespace CloudStreamForms.UWP
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
-            if (rootFrame == null)
-            {
+            if (rootFrame == null) {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
 
@@ -54,8 +55,7 @@ namespace CloudStreamForms.UWP
 
                 Xamarin.Forms.Forms.Init(e);
                 FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
+                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) {
                     //TODO: Load state from previously suspended application
                 }
 
@@ -63,8 +63,7 @@ namespace CloudStreamForms.UWP
                 Window.Current.Content = rootFrame;
             }
 
-            if (rootFrame.Content == null)
-            {
+            if (rootFrame.Content == null) {
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
@@ -100,18 +99,53 @@ namespace CloudStreamForms.UWP
 
         protected override void OnActivated(IActivatedEventArgs args) // INTENTDATA
         {
-            if (args.Kind == ActivationKind.Protocol) {
+            base.OnActivated(args);
 
+
+
+            if (args.Kind == ActivationKind.Protocol) {
+                //Main.print("DATA RECIVED");
                 ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
+
+                Window.Current.Activate();
+
+
+                /*
+                Frame rootFrame = Window.Current.Content as Frame;
+                if (rootFrame == null) {
+                    rootFrame = new Frame();
+                }
+                Window.Current.Content = rootFrame;
+                rootFrame.Navigate(typeof( App));*/
+                /// Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { 
+
+
+                //  });
+                // new Frame().Navigate(typeof(MainPage), args);
+
                 var url = eventArgs.Uri.AbsoluteUri;
+                if (url != null) {
+
+                    if (url != "") {
+
+                        Main.PushPageFromUrlAndName(url);
+                    }
+                }
                 try {
                     CloudStreamForms.MainPage.intentData = eventArgs.Data.ToString();
                 }
                 catch (Exception) {
 
-                }    
+                }
+                /*
+                try {
+                    CloudStreamForms.MainPage.intentData = eventArgs.Data.ToString();
+                }
+                catch (Exception) {
+
+                }*/
             }
-            base.OnActivated(args);
+
         }
     }
 }

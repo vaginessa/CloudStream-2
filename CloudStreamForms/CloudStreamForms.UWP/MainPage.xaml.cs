@@ -41,6 +41,8 @@ namespace CloudStreamForms.UWP
             mainUWP.Awake();
         }
 
+        
+
     }
 
     public class MainUWP : CloudStreamForms.App.IPlatformDep

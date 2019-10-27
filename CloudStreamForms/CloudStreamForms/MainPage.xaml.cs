@@ -16,6 +16,7 @@ using Xamarin.Essentials;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace CloudStreamForms
 {
@@ -58,17 +59,8 @@ namespace CloudStreamForms
             return new ImageButton { Source = source, HeightRequest = POSTER_HIGHT, WidthRequest = POSTER_WITH, Margin = new Thickness() { Top = 0, Bottom = 0, Left = 0, Right = 0 }, Padding = new Thickness() { Top = 0, Bottom = 0, Left = 0, Right = 0 }, VerticalOptions = LayoutOptions.Start, BackgroundColor = Color.Transparent };
         }*/
 
-        public static void PushPageFromUrlAndName(string url, string name)
-        {
-            try {
-                Poster _p = new Poster() { url = url, name = name };
-                Search.PushPage(_p, mainPage.Navigation);
-            }
-            catch (Exception) {
 
-            }
 
-        }
 
         public MainPage()
         {
@@ -269,6 +261,30 @@ namespace CloudStreamForms
 
     public static class Main
     {
+
+        public static void PushPageFromUrlAndName(string url, string name)
+        {
+            try {
+                Poster _p = new Poster() { url = url, name = name };
+                Search.PushPage(_p, MainPage.mainPage.Navigation);
+            }
+            catch (Exception) {
+
+            }
+
+        }
+
+        public static async Task PushPageFromUrlAndName(string intentData)
+        {
+            string url = FindHTML(intentData, "cloudstreamforms:", "Name=");
+            string name = FindHTML(intentData, "Name=", "=EndAll");
+            //Task.Delay(10000);
+            if (name != "" && url != "") {
+                PushPageFromUrlAndName(url, System.Web.HttpUtility.UrlDecode(name));
+            }
+        }
+
+
         // -------------------- CONSTS --------------------
 
 
@@ -281,7 +297,7 @@ namespace CloudStreamForms
         public const bool SEARCH_FOR_UPDATES_ENABLED = true;
 
         public const bool INLINK_SUBTITLES_ENABLED = false;
-        public const bool GLOBAL_SUBTITLES_ENABLED = true;
+        public static bool globalSubtitlesEnabled = true;
         public const bool GOMOSTEAM_ENABLED = true;
         public const bool SUBHDMIRROS_ENABLED = true;
         public const bool BAN_SUBTITLE_ADS = true;
@@ -1570,7 +1586,7 @@ namespace CloudStreamForms
 
         public static void DownloadSubtitlesAndAdd(string lang = "eng", bool isEpisode = false, int episodeCounter = 0)
         {
-            if (!GLOBAL_SUBTITLES_ENABLED) { return; }
+            if (!globalSubtitlesEnabled) { return; }
 
             TempThred tempThred = new TempThred();
             tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
@@ -2868,7 +2884,7 @@ namespace CloudStreamForms
                     catch (Exception) {
 
                     }
-                    
+
 
                     if (done) {
                         //print(_s);

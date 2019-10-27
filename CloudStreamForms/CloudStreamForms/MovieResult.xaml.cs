@@ -91,6 +91,61 @@ namespace CloudStreamForms
         {
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
         }
+        private void StarBttClicked(object sender, EventArgs e)
+        {
+            bool SetValue = !App.GetKey("Bookmark", currentMovie.title.id, false);
+            App.SetKey("Bookmark", currentMovie.title.id, SetValue);
+            ChangeStar(SetValue);
+        }
+        private void SubtitleBttClicked(object sender, EventArgs e)
+        {
+            bool SetValue = !App.GetKey("Settings", "Subtitles", true);
+            App.SetKey("Settings", "Subtitles", SetValue);
+            ChangeSubtitle(SetValue);
+        }
+        private void ShareBttClicked(object sender, EventArgs e)
+        {
+            if(currentMovie.title.id != "" && currentMovie.title.name != "") {
+                string _s = Main.ShareMovieCode(currentMovie.title.id +"Name=" + currentMovie.title.name + "=EndAll");
+                if (_s != "") {
+                    Clipboard.SetTextAsync(_s);
+
+                    App.ShowToast("Copied Link to Clipboard");
+                }
+            }
+        }
+
+        void ChangeStar(bool? overrideBool = null)
+        {
+
+            bool res = false;
+            if (overrideBool == null) {
+                res = App.GetKey("Bookmark", currentMovie.title.id, false);
+                print(res + "<< BOOKMARKED");
+            }
+            else {
+                res = (bool)overrideBool;
+            }
+            Device.BeginInvokeOnMainThread(() => {
+                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? "#303F9F" : "#595959")) };
+            });
+        }
+        void ChangeSubtitle(bool? overrideBool = null)
+        {
+
+            bool res = false;
+            if (overrideBool == null) {
+                res = App.GetKey("Settings", "Subtitles", true);
+            }
+            else {
+                res = (bool)overrideBool;
+            }
+            Main.globalSubtitlesEnabled = res;
+
+            Device.BeginInvokeOnMainThread(() => {
+                SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? "#303F9F" : "#595959")) };
+            });
+        }
 
         public MovieResult()
         {
@@ -105,7 +160,7 @@ namespace CloudStreamForms
             ShareBtt.Source = GetImageSource("shareIcon.png");
             StarBtt.Source = GetImageSource("wStar.png");
             SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
-
+            ChangeSubtitle();
 
             //NameLabel.Text = activeMovie.title.name;
             NameLabel.Text = mainPoster.name;
@@ -244,7 +299,7 @@ namespace CloudStreamForms
             epView = new MainEpisodeView();
             SetHeight();
 
-            if(Device.RuntimePlatform == Device.UWP) {
+            if (Device.RuntimePlatform == Device.UWP) {
                 DubPicker.TranslationY = 13.5;
             }
 
@@ -555,6 +610,7 @@ namespace CloudStreamForms
                 catch (Exception) {
                     TrailerBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.gradient.png", Assembly.GetExecutingAssembly());
                 }
+                ChangeStar();
 
                 if (!RunningWindows) {
                     //Gradient.IsVisible = false;
@@ -645,7 +701,7 @@ namespace CloudStreamForms
                     }
                 }
                 RecomendationLoaded.IsVisible = false;
-                for (int i = 0; i < recBtts.Count; i++) { 
+                for (int i = 0; i < recBtts.Count; i++) {
 
                     // --- TOAST ---
                     recBtts[i].Pressed += (o, _e) => {
@@ -666,7 +722,6 @@ namespace CloudStreamForms
                     };
                     recBtts[i].Released += (o, _e) => {
                         guidIdRecomendations = new Guid();
-                        
                     };
 
                     // --- RECOMMENDATIONS CLICKED -----
@@ -832,6 +887,8 @@ namespace CloudStreamForms
                             print(baseUrls[i]);
                             int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
                             max += _epCount;
+                            if (!SameAsActiveMovie()) return;
+
                             activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(_epCount);
                         }
 
@@ -1062,10 +1119,6 @@ namespace CloudStreamForms
             // episodeView.HeightRequest = stack.Height;
         }
 
-        private void ImageButton_Clicked_1(object sender, EventArgs e)
-        {
-
-        }
 
         private void SeasonPicker_Focused(object sender, FocusEventArgs e)
         {
@@ -1135,7 +1188,7 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
             grid.Children.Add(exePicker);
             //   grid.Children.Add(playBtt);
 
-            if (GLOBAL_SUBTITLES_ENABLED) {
+            if (globalSubtitlesEnabled) {
                 Grid.SetColumn(subPicker, 1);
                 if (PLAY_SELECT_ENABLED) {
                     Grid.SetColumn(exePicker, 2);
@@ -1149,8 +1202,8 @@ public class ListViewDataTemplateSelector : DataTemplateSelector
             }
             exePicker.IsEnabled = PLAY_SELECT_ENABLED;
             exePicker.IsVisible = PLAY_SELECT_ENABLED;
-            subPicker.IsEnabled = GLOBAL_SUBTITLES_ENABLED;
-            subPicker.IsVisible = GLOBAL_SUBTITLES_ENABLED;
+            subPicker.IsEnabled = globalSubtitlesEnabled;
+            subPicker.IsVisible = globalSubtitlesEnabled;
 
             grid.SetBinding(Grid.IsVisibleProperty, "EpVis");
 
