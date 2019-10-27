@@ -144,34 +144,20 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                 </Grid>
 
 
-                <Grid x:Name="MGRID"
-HorizontalOptions="Center"
-            RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
-				    VerticalOptions="Start" >
+                
 
 
 
-
-                    <Grid Grid.Row="0"  Grid.Column="0" x:Name="RowDub">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid>
-                            <Grid Grid.Row="0"  Grid.Column="0">
-                                <Picker x:Name="SeasonPicker" TitleColor="Blue" Focused="SeasonPicker_Focused" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
-                            </Grid>
-                            <Grid Grid.Row="0"  Grid.Column="1">
-                                <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
-                            </Grid>
-                        </Grid>
-                    </Grid>
                     <!-- 
                 <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
                 </Grid>
                 -->
-                </Grid>
+                <StackLayout Orientation="Horizontal">
+               
+                        <Picker x:Name="SeasonPicker" TitleColor="Blue" Focused="SeasonPicker_Focused" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
+                        <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
+                </StackLayout>
+
 
                 <!--
 
@@ -223,23 +209,23 @@ HorizontalOptions="Center"
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
-                                                
-                                                    <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
 
-                                                    <ff:CachedImage  WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
+                                                <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
 
-                                                        <ff:CachedImage.Transformations>
-                                                            <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
+                                                <ff:CachedImage  WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
 
-                                                            </ffTransformations:RoundedTransformation>
-                                                        </ff:CachedImage.Transformations>
-                                                    </ff:CachedImage>
-                                                    <ff:CachedImage PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent">
+                                                    <ff:CachedImage.Transformations>
+                                                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
 
-                                                    </ff:CachedImage>
+                                                        </ffTransformations:RoundedTransformation>
+                                                    </ff:CachedImage.Transformations>
+                                                </ff:CachedImage>
+                                                <ff:CachedImage PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent">
+
+                                                </ff:CachedImage>
 
 
-                                           
+
 
                                                 <!-- Source="{Binding PosterUrl}"-->
                                             </Grid>
@@ -259,7 +245,7 @@ HorizontalOptions="Center"
                                                         <Label Text="{Binding Title}" />
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
-                                                        <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="4" />
+                                                        <Label Text="{Binding Description}"  TextColor="Gray" MaxLines="4"  />
                                                     </Grid>
                                                     <Grid Grid.Row="2"  Grid.Column="0" >
                                                         <Picker IsVisible="{Binding LoadedLinks}"></Picker>

@@ -244,6 +244,10 @@ namespace CloudStreamForms
             epView = new MainEpisodeView();
             SetHeight();
 
+            if(Device.RuntimePlatform == Device.UWP) {
+                DubPicker.TranslationY = 13.5;
+            }
+
             BindingContext = epView;
 
             // listView.HeightRequest = 100;
@@ -641,24 +645,31 @@ namespace CloudStreamForms
                     }
                 }
                 RecomendationLoaded.IsVisible = false;
-                for (int i = 0; i < recBtts.Count; i++) { // --- RECOMMENDATIONS CLICKED -----
+                for (int i = 0; i < recBtts.Count; i++) { 
+
+                    // --- TOAST ---
                     recBtts[i].Pressed += (o, _e) => {
                         for (int z = 0; z < recBtts.Count; z++) {
                             if (((Button)o).Id == recBtts[z].Id) {
                                 guidIdRecomendations = recBtts[z].Id;
                                 extraZRecomend = z;
+                                extraScrollPos = MScroll.ScrollX;
+#pragma warning disable
                                 WaitFor(500, new Action(() => {
-                                    if (recBtts[extraZRecomend].Id == guidIdRecomendations) {
+                                    if (recBtts[extraZRecomend].Id == guidIdRecomendations && Math.Abs(MScroll.ScrollX - extraScrollPos) < 10) {
                                         App.ShowToast(RecomendedPosters[extraZRecomend].name);
                                     }
                                 }));
-                                //
+#pragma warning restore
                             }
                         }
                     };
                     recBtts[i].Released += (o, _e) => {
                         guidIdRecomendations = new Guid();
+                        
                     };
+
+                    // --- RECOMMENDATIONS CLICKED -----
                     recBtts[i].Clicked += (o, _e) => {
                         for (int z = 0; z < recBtts.Count; z++) {
                             if (((Button)o).Id == recBtts[z].Id) {
@@ -686,6 +697,7 @@ namespace CloudStreamForms
         }
         Guid guidIdRecomendations = new Guid();
         int extraZRecomend;
+        double extraScrollPos = 0;
         async Task WaitFor(int miliSec, Action a)
         {
             await Task.Delay(miliSec);
