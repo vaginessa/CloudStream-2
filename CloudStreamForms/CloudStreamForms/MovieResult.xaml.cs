@@ -23,6 +23,7 @@ namespace CloudStreamForms
         public Poster mainPoster;
         public string trailerUrl = "";
         List<Button> recBtts = new List<Button>();
+
         public static List<Movie> lastMovie;
         List<Poster> RecomendedPosters { set { currentMovie.title.recomended = value; } get { return currentMovie.title.recomended; } }  //= new List<Poster>();
 
@@ -600,17 +601,25 @@ namespace CloudStreamForms
                 }
                 Recommendations.Children.Clear();
 
-                const int height = 100;
-                const int width = 65;
+                int height = 100;
+                int width = 65;
+                if (Device.RuntimePlatform == Device.UWP) {
+                    height = 130;
+                    width = 85;
+                }
+
+                int pheight = height * 2;
+                int pwidth = width * 2;
                 Recommendations.HeightRequest = height;
                 for (int i = 0; i < RecomendedPosters.Count; i++) {
                     Poster p = e.title.recomended[i];
-                    if (CheckIfURLIsValid(p.posterUrl)) {
+                    string posterURL = p.posterUrl.Replace(",76,113_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY113", "UY" + pheight).Replace("UX76", "UX" + pwidth);
+                    if (CheckIfURLIsValid(posterURL)) {
 
                         Grid stackLayout = new Grid();
                         Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
                         var ff = new FFImageLoading.Forms.CachedImage {
-                            Source = p.posterUrl,
+                            Source = posterURL,
                             HeightRequest = height,
                             WidthRequest = width,
                             BackgroundColor = Color.Transparent,
@@ -633,6 +642,23 @@ namespace CloudStreamForms
                 }
                 RecomendationLoaded.IsVisible = false;
                 for (int i = 0; i < recBtts.Count; i++) { // --- RECOMMENDATIONS CLICKED -----
+                    recBtts[i].Pressed += (o, _e) => {
+                        for (int z = 0; z < recBtts.Count; z++) {
+                            if (((Button)o).Id == recBtts[z].Id) {
+                                guidIdRecomendations = recBtts[z].Id;
+                                extraZRecomend = z;
+                                WaitFor(500, new Action(() => {
+                                    if (recBtts[extraZRecomend].Id == guidIdRecomendations) {
+                                        App.ShowToast(RecomendedPosters[extraZRecomend].name);
+                                    }
+                                }));
+                                //
+                            }
+                        }
+                    };
+                    recBtts[i].Released += (o, _e) => {
+                        guidIdRecomendations = new Guid();
+                    };
                     recBtts[i].Clicked += (o, _e) => {
                         for (int z = 0; z < recBtts.Count; z++) {
                             if (((Button)o).Id == recBtts[z].Id) {
@@ -658,6 +684,15 @@ namespace CloudStreamForms
 
 
         }
+        Guid guidIdRecomendations = new Guid();
+        int extraZRecomend;
+        async Task WaitFor(int miliSec, Action a)
+        {
+            await Task.Delay(miliSec);
+            a();
+        }
+
+
 
         private void DubPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -1022,7 +1057,7 @@ namespace CloudStreamForms
 
         private void SeasonPicker_Focused(object sender, FocusEventArgs e)
         {
-            ((Picker)sender).TitleColor  = Color.Red;
+            ((Picker)sender).TitleColor = Color.Red;
         }
     }
 

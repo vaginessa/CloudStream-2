@@ -212,5 +212,14 @@ namespace CloudStreamForms.Droid
         {
             App.platformDep = this;
         }
+
+        public void ShowToast(string message, double duration)
+        {
+            ToastLength toastLength = ToastLength.Short;
+            if(duration >= 3) {
+                toastLength = ToastLength.Long;
+            }
+            Toast.MakeText(Android.App.Application.Context, message, toastLength).Show();
+        }
     }
 }

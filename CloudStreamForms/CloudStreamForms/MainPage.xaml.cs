@@ -105,6 +105,7 @@ namespace CloudStreamForms
             OpenBrowser(e);
         }
 
+
         public void LoadSeachPage()
         {
             Page p = new Search();

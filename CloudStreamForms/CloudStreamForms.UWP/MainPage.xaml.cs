@@ -145,5 +145,50 @@ namespace CloudStreamForms.UWP
                 CloudStreamForms.App.OpenBrowser(url.FirstOrDefault());
             }
         }
+
+        public void ShowToast(string message, double duration)
+        {
+            Message.ShowMessage(message, duration);
+        }
+    }
+
+    public static class Message
+    {
+        private const double LONG_DELAY = 3.5;
+        private const double SHORT_DELAY = 2.0;
+
+        public static void LongAlert(string message) =>
+          ShowMessage(message, LONG_DELAY);
+
+        public static void ShortAlert(string message) =>
+          ShowMessage(message, SHORT_DELAY);
+
+        public static void ShowMessage(string message, double duration)
+        {
+            var label = new TextBlock {
+                Text = message,
+                Foreground = new SolidColorBrush(Windows.UI.Colors.Black),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            var style = new Style { TargetType = typeof(FlyoutPresenter) };
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Windows.UI.Colors.White)));
+            style.Setters.Add(new Setter(FrameworkElement.MaxHeightProperty, 1));
+            var flyout = new Flyout {
+                Content = label,
+                Placement = FlyoutPlacementMode.Bottom,
+               
+                FlyoutPresenterStyle = style,
+            };
+
+            flyout.ShowAt(Window.Current.Content as FrameworkElement);
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(duration) };
+            timer.Tick += (sender, e) => {
+                timer.Stop();
+                flyout.Hide();
+            };
+            timer.Start();
+        }
     }
 }

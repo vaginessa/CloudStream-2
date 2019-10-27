@@ -17,6 +17,8 @@ namespace CloudStreamForms
         {
             void PlayVlc(string url, string name, string subtitleLoc);
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
+
+            void ShowToast(string message, double duration);
            // void OBrowser(string url);
         }
         public static IPlatformDep platformDep;
@@ -33,6 +35,11 @@ namespace CloudStreamForms
         {
             //PlayVlc?.Invoke(null, url);
             platformDep.PlayVlc(url, name, subtitleLoc);
+        }
+
+        public static void ShowToast(string message, double duration = 2.5)
+        {
+            platformDep.ShowToast(message, duration);
         }
 
         public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")
