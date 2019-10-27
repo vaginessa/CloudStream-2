@@ -16,6 +16,40 @@ using Android.Support.V4.App;
 using Xamarin.Forms;
 using System.Threading.Tasks;
 using Android.Net;
+using Xamarin.Forms.Platform.Android;
+using Android.Content.Res;
+using Android.Graphics;
+using CloudStreamForms.Droid;
+
+
+[assembly: ExportRenderer(typeof(Picker), typeof(CustomPickerRenderer))]
+namespace CloudStreamForms.Droid
+{
+    public class CustomPickerRenderer : PickerRenderer
+    {
+        private Context context;
+        public CustomPickerRenderer(Context context) : base(context)
+        {
+            this.context = context;
+        }
+
+
+        protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
+        {
+            base.OnElementChanged(e);
+
+            if (Control == null || e.NewElement == null) return;
+
+
+            //Control.Typeface = Control.IsFocused ? Typeface.DefaultBold : Typeface.Default;
+            //for example ,change the line to red:
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
+                Control.BackgroundTintList = ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#303F9F"));
+            else
+                Control.Background.SetColorFilter(Android.Graphics.Color.ParseColor("#303F9F"), PorterDuff.Mode.SrcAtop);
+        }
+    }
+}
 
 namespace CloudStreamForms.Droid
 {
@@ -46,12 +80,13 @@ namespace CloudStreamForms.Droid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            FFImageLoading.Forms.Platform.CachedImageRenderer.Init(enableFastRenderer: true);
+
             LoadApplication(new App());
             activity = this;
 
             mainDroid = new MainDroid();
             mainDroid.Awake();
-
             RequestPermission(this);
         }
 

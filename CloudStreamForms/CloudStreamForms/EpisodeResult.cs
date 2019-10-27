@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Xamarin.Forms;
 
 namespace CloudStreamForms.Models
 {
@@ -19,6 +20,18 @@ namespace CloudStreamForms.Models
         public bool epVis { set; get; }
         public LoadResult loadResult { set; get; }
         public bool LoadedLinks { set; get; }
+
+        public double TranslateYOffset
+        {
+            get {
+                if (Device.RuntimePlatform == Device.UWP) {
+                    return -20;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
     }
 
     public enum LoadSelection { Play,Download,CopyLink,CopySubtitleLink }

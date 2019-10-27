@@ -4,6 +4,9 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:CloudStreamForms"
+            xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"  
+xmlns:ffSvg="clr-namespace:FFImageLoading.Svg.Forms;assembly=FFImageLoading.Svg.Forms"  
+xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"  
              mc:Ignorable="d"
              
              x:Class="CloudStreamForms.MovieResult">
@@ -31,6 +34,7 @@
 
                 </AbsoluteLayout>
             </StackLayout>
+
             <StackLayout x:Name="NormalStack">
                 <!--
         <Grid
@@ -66,7 +70,7 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0"  Grid.Column="0">
-                        <Image x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></Image>
+                        <ff:CachedImage x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></ff:CachedImage>
                         <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
@@ -85,33 +89,39 @@
                         <Grid HorizontalOptions="Start" HeightRequest="80" TranslationX="10">
                             <Grid>
                                 <Grid Grid.Row="0"  Grid.Column="0">
-                                    <ImageButton  Opacity="0.9" x:Name="StarBtt" BackgroundColor="Transparent" HeightRequest="50" ></ImageButton>
+                                    <ff:CachedImage x:Name="StarBtt" HeightRequest="50"  BackgroundColor="Transparent" >
+                                        <ff:CachedImage.Transformations>
+                                            <ffTransformations:TintTransformation HexColor="#303F9F" ></ffTransformations:TintTransformation>
+
+                                        </ff:CachedImage.Transformations>
+                                    </ff:CachedImage>
+                                    <ImageButton BackgroundColor="Transparent" Clicked="ImageButton_Clicked_1"></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="0">
                                     <Label Text="Bookmark" HorizontalOptions="Center" TextColor="Gray"></Label>
                                 </Grid>
-                                
+
                                 <Grid Grid.Row="0"  Grid.Column="1">
                                     <ImageButton Opacity="0.9" x:Name="SubtitleBtt" BackgroundColor="Transparent" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="1">
                                     <Label Text="Subtitles"  HorizontalOptions="Center" TextColor="Gray"></Label>
                                 </Grid>
-                                
+
                                 <Grid Grid.Row="0"  Grid.Column="2">
                                     <ImageButton Opacity="0.9" x:Name="ShareBtt" BackgroundColor="Transparent" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="2">
                                     <Label Text="Share" HorizontalOptions="Center" TextColor="Gray"></Label>
                                 </Grid>
-                                
+
                                 <Grid Grid.Row="0"  Grid.Column="3">
                                     <ImageButton Opacity="0.9" Clicked="IMDb_Clicked" x:Name="IMDbBtt" BorderColor="White" BorderWidth="0" BackgroundColor="Transparent" HeightRequest="30" ></ImageButton>
                                 </Grid>
-                                 <Grid Grid.Row="1"  Grid.Column="3">
+                                <Grid Grid.Row="1"  Grid.Column="3">
                                     <Label Text="IMDb" HorizontalOptions="Center" TextColor="Gray"></Label>
                                 </Grid>
-                                
+
                                 <Grid Grid.Row="0"  Grid.Column="4">
                                     <ImageButton Opacity="0.9" Clicked="MAL_Clicked"  x:Name="MALBtt" BorderColor="White" BorderWidth="0" BackgroundColor="Transparent" HeightRequest="30" TranslationY="3" TranslationX="10"></ImageButton>
                                 </Grid>
@@ -150,7 +160,7 @@ HorizontalOptions="Center"
                         </Grid.ColumnDefinitions>
                         <Grid>
                             <Grid Grid.Row="0"  Grid.Column="0">
-                                <Picker x:Name="SeasonPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
+                                <Picker x:Name="SeasonPicker" TitleColor="Blue" Focused="SeasonPicker_Focused" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
                             </Grid>
                             <Grid Grid.Row="0"  Grid.Column="1">
                                 <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Start" HorizontalOptions="Start" TranslationX="10"></Picker>
@@ -172,7 +182,7 @@ HorizontalOptions="Center"
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="ListView_ItemTapped" RowHeight="100"
-                    x:Name="episodeView"                    >
+                    x:Name="episodeView"  SeparatorColor="Transparent"                  >
 
 
 
@@ -212,9 +222,26 @@ HorizontalOptions="Center"
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126">
-                                                <ImageButton Source="{Binding PosterUrl}" Clicked="ImageButton_Clicked" BackgroundColor="Transparent"></ImageButton>
-                                                <Image Source="play_png.png" PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent"></Image>
+                                            <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
+                                                
+                                                    <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
+
+                                                    <ff:CachedImage  WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
+
+                                                        <ff:CachedImage.Transformations>
+                                                            <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
+
+                                                            </ffTransformations:RoundedTransformation>
+                                                        </ff:CachedImage.Transformations>
+                                                    </ff:CachedImage>
+                                                    <ff:CachedImage PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent">
+
+                                                    </ff:CachedImage>
+
+
+                                           
+
+                                                <!-- Source="{Binding PosterUrl}"-->
                                             </Grid>
                                             <Grid  Grid.Row="0"  Grid.Column="1">
                                                 <Grid RowSpacing="0" Padding="0" >
