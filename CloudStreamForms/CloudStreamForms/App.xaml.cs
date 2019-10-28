@@ -4,6 +4,7 @@ using System.Text;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Linq;
+using System.Reflection;
 
 namespace CloudStreamForms
 {
@@ -105,7 +106,10 @@ namespace CloudStreamForms
             }
 
         }
-
+        public static ImageSource GetImageSource(string inp)
+        {
+            return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
+        }
 
         public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name, bool isSubtitleEnabled = false, string beforePath = "")
         {

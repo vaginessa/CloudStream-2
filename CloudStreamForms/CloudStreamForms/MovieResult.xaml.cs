@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using CloudStreamForms.Models;
 using Xamarin.Essentials;
 using CloudStreamForms;
+using static CloudStreamForms.App;
 
 
 namespace CloudStreamForms
@@ -87,10 +88,7 @@ namespace CloudStreamForms
         }
         public MainEpisodeView epView;
 
-        public ImageSource GetImageSource(string inp)
-        {
-            return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
-        }
+
 
         private void StarBttClicked(object sender, EventArgs e)
         {
@@ -103,6 +101,8 @@ namespace CloudStreamForms
             else {
                 App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "PosterUrl=" + currentMovie.title.hdPosterUrl + "Id=" + currentMovie.title.id + "=EndAll");
             }
+            
+
             ChangeStar(!keyExists);
         }
 
@@ -124,6 +124,9 @@ namespace CloudStreamForms
             }
         }
 
+        const string primaryColor = "#303F9F";
+        const string defColor = "#595959";
+
         void ChangeStar(bool? overrideBool = null)
         {
 
@@ -134,9 +137,11 @@ namespace CloudStreamForms
             else {
                 keyExists = (bool)overrideBool;
             }
+            StarBtt.Source = GetImageSource((keyExists ? "bookmarkedBtt.png" : "notBookmarkedBtt.png"));
             Device.BeginInvokeOnMainThread(() => {
-                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(keyExists ? "#303F9F" : "#595959")) };
+                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(keyExists ? primaryColor : defColor)) };
             });
+
         }
         void ChangeSubtitle(bool? overrideBool = null)
         {
@@ -151,7 +156,7 @@ namespace CloudStreamForms
             Main.globalSubtitlesEnabled = res;
 
             Device.BeginInvokeOnMainThread(() => {
-                SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? "#303F9F" : "#595959")) };
+                SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? primaryColor : defColor)) };
             });
         }
 
@@ -166,7 +171,7 @@ namespace CloudStreamForms
             IMDbBtt.Source = GetImageSource("imdbIcon.png");
             MALBtt.Source = GetImageSource("MALIcon.png");
             ShareBtt.Source = GetImageSource("shareIcon.png");
-            StarBtt.Source = GetImageSource("wStar.png");
+            StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
             SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
             ChangeSubtitle();
 
@@ -888,6 +893,9 @@ namespace CloudStreamForms
                         for (int i = 0; i < baseUrls.Count; i++) {
                             string dstring = baseUrls[i]; dstring = dstring.Replace("-dub", "") + (isDub ? "-dub" : "");
                             string d = DownloadString("https://www9.gogoanime.io/category/" + dstring);
+                            if (d == "") {
+                                return;
+                            }
                             if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                             string subMax = FindHTML(d, "class=\"active\" ep_start = \'", ">");
                             string maxEp = FindHTML(subMax, "ep_end = \'", "\'");//FindHTML(d, "<a href=\"#\" class=\"active\" ep_start = \'0\' ep_end = \'", "\'");
@@ -951,12 +959,12 @@ namespace CloudStreamForms
         private void IMDb_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            OpenBrowser("https://www.imdb.com/title/" + mainPoster.url);
+            Main.OpenBrowser("https://www.imdb.com/title/" + mainPoster.url);
         }
         private void MAL_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            OpenBrowser(CurrentMalLink);
+            Main.OpenBrowser(CurrentMalLink);
         }
 
         List<FFImageLoading.Forms.CachedImage> play_btts = new List<FFImageLoading.Forms.CachedImage>();

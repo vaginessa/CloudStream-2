@@ -18,6 +18,7 @@ namespace CloudStreamForms
         public ObservableCollection<SearchResult> mySearchResultCollection;
         public static Poster mainPoster;
         ListView listView;
+        public string startText = "";
         public Search()
         {
             InitializeComponent();
@@ -100,6 +101,9 @@ namespace CloudStreamForms
                     listView
                 }
             };
+            searchBar.Text = startText;
+            print(">>" + startText);
+            searchBar.Focus();
             // print(MainSearchResultList.ItemsSource.ToString()  + "<<<<<<<<<");
 
         }

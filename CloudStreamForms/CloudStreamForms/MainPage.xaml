@@ -1,26 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
+             xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
+             mc:Ignorable="d"                    
              x:Class="CloudStreamForms.MainPage">
 
 
+    <ContentPage Title="Home" IconImageSource="homeIcon.png">
+        <StackLayout>
 
-    <StackLayout>
-        <Button Text="Seach" Clicked="Button_Clicked"></Button>
-        <Label Text="Bookmarks" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Medium" TextColor="White"></Label>
-        <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
-            <StackLayout>
-                <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
-                    
-                </Grid>
-            </StackLayout>
-        </ScrollView>
 
-    </StackLayout>
 
+
+
+            <Label Text="Bookmarks" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Medium" TextColor="White" Margin="5" x:Name="BTxt"></Label>
+            <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" >
+                <StackLayout>
+                    <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
+
+                    </Grid>
+                </StackLayout>
+            </ScrollView>
+
+        </StackLayout>
+    </ContentPage>
+    <ContentPage Title="Search" IconImageSource="searchIcon.png">
+
+    </ContentPage>
+    <ContentPage Title="Downloads" IconImageSource="downloadIcon.png">
+
+    </ContentPage>
+    <ContentPage Title="Settings" IconImageSource="settingsIcon.png">
+
+    </ContentPage>
 
     <!--
     <ScrollView >
@@ -237,4 +252,4 @@
 -->
 
 
-</ContentPage>
+</TabbedPage>

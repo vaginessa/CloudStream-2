@@ -17,6 +17,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Xamarin.Forms.PlatformConfiguration.AndroidSpecific;
+using Button = Xamarin.Forms.Button;
+using Application = Xamarin.Forms.Application;
 
 namespace CloudStreamForms
 {
@@ -37,7 +40,7 @@ namespace CloudStreamForms
 
 
     [DesignTimeVisible(false)]
-    public partial class MainPage : ContentPage
+    public partial class MainPage : Xamarin.Forms.TabbedPage
     {
         //public const int POSTER_WITH = 90;
         //public const int POSTER_HIGHT = 135;
@@ -89,6 +92,25 @@ namespace CloudStreamForms
             CloudStreamForms.App.OBrowser += App_OBrowser;
 
             bookmarkedVideos = new MainRecView();
+            //SBtt.BackgroundColor = Color.FromHex("#303F9F");
+            /*
+            SBtt.BorderColor = Color.Transparent;
+            SBtt.BackgroundColor = Color.Transparent;
+            Sbar.BackgroundColor = Color.FromHex("#303F9F");*/
+            On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
+            /*
+            SBtt.TextColor = Color.FromHex("#303F9F");
+            BTxt.TextColor = Color.FromHex("#303F9F");*/
+            //SBtt.BorderColor = Color.FromHex("##636363");
+            //SBtt.BorderWidth = 2;
+            /*
+            MainSearch.TextChanged += (o, e) => {
+                if (MainSearch.Text != "") {
+                    MainSearch.Text = "";
+                    LoadSeachPage(e.NewTextValue);
+                }
+            };*/
+            //SearchBtt.Source = App.GetImageSource("searchBtt.png");
             //LoadSeachPage();
 
             //PushPageFromUrlAndName("tt4869896", "Overlord");
@@ -205,10 +227,12 @@ namespace CloudStreamForms
         }
 
 
-        public void LoadSeachPage()
+        public void LoadSeachPage(string startTxt = "")
         {
-            Page p = new Search();
-            Navigation.PushModalAsync(p);
+            Page p = new Search() { startText = startTxt };
+
+            Navigation.PushModalAsync(p,false);
+
             //NavigationPage.SetHasBackButton(p, true);
 
         }
@@ -653,7 +677,8 @@ namespace CloudStreamForms
             public string name;
             public bool dubExists;
             public bool subExists;
-            public string baseUrl;
+            public string subUrl;
+            public string dubUrl;
             public string japName;
             public string engName;
             public List<string> synonyms;
@@ -1043,20 +1068,21 @@ namespace CloudStreamForms
 
                                         bool containsSyno = false;
                                         for (int s = 0; s < ms.synonyms.Count; s++) {
-                                            if (ms.synonyms[s] == animeTitle) {
+                                            if (ToLowerAndReplace(ms.synonyms[s]) == ToLowerAndReplace(animeTitle)) {
                                                 containsSyno = true;
                                             }
                                             //  print("SYNO: " + ms.synonyms[s]);
                                         }
 
-                                        print(animeTitle + "|" + ms.name + "|" + ms.engName + "|" + ___year + "___" + ___year2 + "|" + containsSyno);
+                                        //  print(animeTitle.ToLower() + "|" + ms.name.ToLower() + "|" + ms.engName.ToLower() + "|" + ___year + "___" + ___year2 + "|" + containsSyno);
 
-                                        if (ms.name == animeTitle || ms.engName == animeTitle || containsSyno) {
+                                        if (ToLowerAndReplace(ms.name) == ToLowerAndReplace(animeTitle) || ToLowerAndReplace(ms.engName) == ToLowerAndReplace(animeTitle) || containsSyno) {
+                                            print(ur);
                                             if (animeTitle == title) {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
+                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, subUrl = ur, dubUrl = ms.dubUrl, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
                                             }
                                             else {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, baseUrl = ur, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
+                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, dubUrl = ur.Replace("-dub", "") + "-dub", subUrl = ms.subUrl, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
                                             }
                                         }
                                     }
@@ -1069,10 +1095,10 @@ namespace CloudStreamForms
                                 MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
 
                                 if (ms.dubExists) {
-                                    print(i + ". " + ms.name + " | Dub E" + ms.baseUrl);
+                                    print(i + ". " + ms.name + " | Dub E" + ms.dubUrl);
                                 }
                                 if (ms.subExists) {
-                                    print(i + ". " + ms.name + " | Sub E" + ms.baseUrl);
+                                    print(i + ". " + ms.name + " | Sub E" + ms.subUrl);
                                 }
                             }
                         }
@@ -1181,6 +1207,12 @@ namespace CloudStreamForms
                             }
                         }
                     }*/
+
+
+        public static string ToLowerAndReplace(string inp)
+        {
+            return inp.ToLower().Replace("-", " ");
+        }
         public static void GetImdbTitle(Poster imdb, bool purgeCurrentTitleThread = true, bool autoSearchTrailer = true)
         {
             if (purgeCurrentTitleThread) {
@@ -1606,9 +1638,11 @@ namespace CloudStreamForms
                                 string date = FindHTML(d, "<div class=\"airdate\">", "<").Replace("\n", "").Replace("  ", "");
                                 string posterUrl = FindHTML(d, "src=\"", "\"");
 
-                                if (descript != "Know what this is about?") {
-                                    activeMovie.episodes.Add(new Episode() { date = date, name = name, description = descript, rating = rating, posterUrl = posterUrl, id = id });
+                                if (descript == "Know what this is about?") {
+                                    descript = "";
                                 }
+                                activeMovie.episodes.Add(new Episode() { date = date, name = name, description = descript, rating = rating, posterUrl = posterUrl, id = id });
+
                             }
                             catch (Exception) {
 
@@ -1684,7 +1718,7 @@ namespace CloudStreamForms
 
                     if ((ms.dubExists && isDub) || (ms.subExists && !isDub)) {
                         //  dstring = ms.baseUrl;
-                        string burl = ms.baseUrl;
+                        string burl = isDub ? ms.dubUrl : ms.subUrl;
                         if (!baseUrls.Contains(burl)) {
                             baseUrls.Add(burl);
                         }
@@ -2955,7 +2989,18 @@ namespace CloudStreamForms
         /// <param name="url"></param>
         /// <param name="UTF8Encoding"></param>
         /// <returns></returns>
-        public static string DownloadString(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
+        public static string DownloadString(string url, TempThred? tempThred = null, bool UTF8Encoding = true, int repeats = 5)
+        {
+            string s = "";
+            for (int i = 0; i < repeats; i++) {
+                if (s == "") {
+                    s = DownloadStringOnece(url, tempThred, UTF8Encoding);
+                }
+            }
+            return s;
+        }
+
+        public static string DownloadStringOnece(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
         {
             WebClient client = new WebClient();
             if (UTF8Encoding) {
@@ -3015,8 +3060,6 @@ namespace CloudStreamForms
                 return "";
             }
         }
-
-
 
 
 

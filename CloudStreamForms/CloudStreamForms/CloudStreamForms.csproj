@@ -28,23 +28,35 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resource\bookmarkedBtt.png" />
     <None Remove="Resource\gradient.png" />
+    <None Remove="Resource\homeIcon.png" />
     <None Remove="Resource\imdbIcon.png" />
     <None Remove="Resource\MALIcon.png" />
+    <None Remove="Resource\notBookmarkedBtt.png" />
     <None Remove="Resource\playBtt.png" />
     <None Remove="Resource\play_png.png" />
+    <None Remove="Resource\searchIcon.png" />
+    <None Remove="Resource\settingsIcon.png" />
     <None Remove="Resource\shareIcon.png" />
+    <None Remove="Resource\starBtt.png" />
     <None Remove="Resource\subtitleIcon.png" />
     <None Remove="Resource\wStar.png" />
     <None Remove="star.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resource\bookmarkedBtt.png" />
     <EmbeddedResource Include="Resource\gradient.png" />
+    <EmbeddedResource Include="Resource\homeIcon.png" />
     <EmbeddedResource Include="Resource\imdbIcon.png" />
     <EmbeddedResource Include="Resource\MALIcon.png" />
+    <EmbeddedResource Include="Resource\notBookmarkedBtt.png" />
     <EmbeddedResource Include="Resource\play_png.png" />
+    <EmbeddedResource Include="Resource\searchIcon.png" />
+    <EmbeddedResource Include="Resource\settingsIcon.png" />
     <EmbeddedResource Include="Resource\shareIcon.png" />
+    <EmbeddedResource Include="Resource\starBtt.png" />
     <EmbeddedResource Include="Resource\subtitleIcon.png" />
     <EmbeddedResource Include="Resource\wStar.png" />
   </ItemGroup>
