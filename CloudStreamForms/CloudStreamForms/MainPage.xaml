@@ -6,36 +6,7 @@
              xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
              xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
              mc:Ignorable="d"                    
-             x:Class="CloudStreamForms.MainPage">
-
-
-    <ContentPage Title="Home" IconImageSource="homeIcon.png">
-        <StackLayout>
-
-
-
-
-
-            <Label Text="Bookmarks" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Medium" TextColor="White" Margin="5" x:Name="BTxt"></Label>
-            <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" >
-                <StackLayout>
-                    <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
-
-                    </Grid>
-                </StackLayout>
-            </ScrollView>
-
-        </StackLayout>
-    </ContentPage>
-    <ContentPage Title="Search" IconImageSource="searchIcon.png">
-
-    </ContentPage>
-    <ContentPage Title="Downloads" IconImageSource="downloadIcon.png">
-
-    </ContentPage>
-    <ContentPage Title="Settings" IconImageSource="settingsIcon.png">
-
-    </ContentPage>
+             x:Class="CloudStreamForms.MainPage" >
 
     <!--
     <ScrollView >

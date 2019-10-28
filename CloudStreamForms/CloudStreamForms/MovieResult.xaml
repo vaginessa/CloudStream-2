@@ -86,7 +86,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     </Grid>
 
                     <Grid Grid.Row="4"  Grid.Column="0">
-                        <Grid HorizontalOptions="Start" HeightRequest="80" TranslationX="10" WidthRequest="360">
+                        <Grid HorizontalOptions="Start" HeightRequest="60" TranslationX="7" WidthRequest="330">
                             <Grid>
                                 <Grid Grid.Row="0"  Grid.Column="0">
                                     <!--595959-->
@@ -199,8 +199,8 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                     <ListView.ItemTemplate>
                         <DataTemplate >
-                            <ViewCell >
-                                <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill">
+                            <ViewCell Tapped="ViewCell_Tapped">
+                                <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill" >
                                     <!--SizeChanged="ViewCell_SizeChanged"-->
                                     <Grid.RowDefinitions >
                                         <RowDefinition Height="Auto" />
@@ -237,7 +237,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                                                 <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
 
-                                                <ff:CachedImage  WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
+                                                <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
 
                                                     <ff:CachedImage.Transformations>
                                                         <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >

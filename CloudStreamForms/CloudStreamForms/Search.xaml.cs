@@ -31,9 +31,16 @@ namespace CloudStreamForms
             };
 
             SearchBar searchBar = new SearchBar() {
-                Placeholder = "Movie Search",
+                Placeholder = "Movie Search...",
             };
             searchBar.TextChanged += SearchBar_TextChanged;
+            if (Device.RuntimePlatform == Device.Android) {
+                /*
+                searchBar.TextColor = Color.FromHex(MainPage.primaryColor);
+                searchBar.PlaceholderColor = Color.FromHex(MainPage.primaryColor);
+                searchBar.CancelButtonColor = Color.FromHex(MainPage.primaryColor);
+                */
+            }
             listView = new ListView {
                 // Source of data items.
                 ItemsSource = mySearchResultCollection,
@@ -90,6 +97,7 @@ namespace CloudStreamForms
                 })
             };
             listView.ItemTapped += ListView_ItemTapped;
+            listView.SeparatorColor = Color.Transparent;
             // Accomodate iPhone status bar.
             // this.Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
 

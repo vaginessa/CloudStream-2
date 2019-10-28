@@ -26,43 +26,16 @@ namespace CloudStreamForms
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
 
-    public class MainRecView
-    {
-        private ObservableCollection<Poster> _MyEpisodeRecCollection;
-        public ObservableCollection<Poster> MyEpisodeRecCollection { set { _MyEpisodeRecCollection = value; } get { return _MyEpisodeRecCollection; } }
-
-
-        public MainRecView()
-        {
-            MyEpisodeRecCollection = new ObservableCollection<Poster>();
-        }
-    }
-
 
     [DesignTimeVisible(false)]
     public partial class MainPage : Xamarin.Forms.TabbedPage
     {
-        //public const int POSTER_WITH = 90;
-        //public const int POSTER_HIGHT = 135;
+        public const string primaryColor = "#303F9F";
+        public const string defColor = "#595959";
+        public const string backgroundColor = "#111111";
 
-        //public static int PosterAtScreenWith { get { return GetPostersWithAtCurrentScreen(); } }
-        //  public static int PosterAtScreenHight { get { return GetPostersHightAtCurrentScreen(); } }
-
-        public static bool initialized = false;
         public static string intentData = "";
         public static MainPage mainPage;
-        public MainRecView bookmarkedVideos;
-
-
-        /*
-        public List<ImageButton> imageButtons = new List<ImageButton>();
-
-        ImageButton CreateButton(string source = "")
-        {
-            return new ImageButton { Source = source, HeightRequest = POSTER_HIGHT, WidthRequest = POSTER_WITH, Margin = new Thickness() { Top = 0, Bottom = 0, Left = 0, Right = 0 }, Padding = new Thickness() { Top = 0, Bottom = 0, Left = 0, Right = 0 }, VerticalOptions = LayoutOptions.Start, BackgroundColor = Color.Transparent };
-        }*/
-
-
 
         public struct BookmarkPoster
         {
@@ -72,221 +45,25 @@ namespace CloudStreamForms
             public Button button;
         }
 
-        List<BookmarkPoster> bookmarkPosters = new List<BookmarkPoster>();
 
         public MainPage()
         {
             InitializeComponent(); mainPage = this;
-            /*
-            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-                       delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-                                               System.Security.Cryptography.X509Certificates.X509Chain chain,
-                                               System.Net.Security.SslPolicyErrors sslPolicyErrors)
-                       {
-                           return true; // **** Always accept
-                       };*/
-            //ApplicationView.PreferredLaunchViewSize = new Size(480, 800);
-            //  ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize
-            Application.Current.PageAppearing += Current_PageAppearing;
-            searchLoaded += MainPage_searchLoaded;
-            CloudStreamForms.App.OBrowser += App_OBrowser;
 
-            bookmarkedVideos = new MainRecView();
-            //SBtt.BackgroundColor = Color.FromHex("#303F9F");
-            /*
-            SBtt.BorderColor = Color.Transparent;
-            SBtt.BackgroundColor = Color.Transparent;
-            Sbar.BackgroundColor = Color.FromHex("#303F9F");*/
+            List<string> names = new List<string>() { "Home", "Search", "Downloads", "Settings" };
+            List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "settingsIcon.png" };
+            List<Page> pages = new List<Page>() { new Home(), new Search(), new Download(), new Settings(), };
+
+            for (int i = 0; i < names.Count; i++) {
+                Children.Add(pages[i]);
+                Children[i].Title = names[i];
+                Children[i].IconImageSource = icons[i];
+            }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
-            /*
-            SBtt.TextColor = Color.FromHex("#303F9F");
-            BTxt.TextColor = Color.FromHex("#303F9F");*/
-            //SBtt.BorderColor = Color.FromHex("##636363");
-            //SBtt.BorderWidth = 2;
-            /*
-            MainSearch.TextChanged += (o, e) => {
-                if (MainSearch.Text != "") {
-                    MainSearch.Text = "";
-                    LoadSeachPage(e.NewTextValue);
-                }
-            };*/
-            //SearchBtt.Source = App.GetImageSource("searchBtt.png");
-            //LoadSeachPage();
-
             //PushPageFromUrlAndName("tt4869896", "Overlord");
 
-            //Page p = new MovieResult();
-            //  Navigation.PushModalAsync(p);
-            //imageButtons.Add(CreateButton(""));
-            // GRID.Children.Add((ImageButton)imageButtons[imageButtons.Count - 1], 0, 0);
-
-
-
-
-
-
-
-            /*
-            for (int i = 0; i < RecomendedPosters.Count; i++) {
-                Poster p = e.title.recomended[i];
-                string posterURL = p.posterUrl.Replace(",76,113_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY113", "UY" + pheight).Replace("UX76", "UX" + pwidth);
-                if (CheckIfURLIsValid(posterURL)) {
-
-                    Grid stackLayout = new Grid();
-                    Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
-                    var ff = new FFImageLoading.Forms.CachedImage {
-                        Source = posterURL,
-                        HeightRequest = height,
-                        WidthRequest = width,
-                        BackgroundColor = Color.Transparent,
-                        VerticalOptions = LayoutOptions.Start,
-                        Transformations = {
-                                new FFImageLoading.Transformations.RoundedTransformation(10,1,1.5,10,"#303F9F")
-                            },
-                        InputTransparent = true,
-                    };
-
-                    //Source = p.posterUrl
-                    recBtts.Add(imageButton);
-
-                    stackLayout.Children.Add(ff);
-                    stackLayout.Children.Add(imageButton);
-
-                    Recommendations.Children.Add(stackLayout);
-
-                }
-            }*/
-
+        
         }
-
-        void UpdateBookmarks()
-        {
-
-            int height = 100;
-            int width = 65;
-            if (Device.RuntimePlatform == Device.UWP) {
-                height = 130;
-                width = 85;
-            }
-
-            int pheight = height * 2;
-            int pwidth = width * 2;
-            Bookmarks.HeightRequest = height;
-            List<string> keys = App.GetKeys<string>("BookmarkData");
-            List<string> data = new List<string>();
-            bookmarkPosters = new List<BookmarkPoster>();
-            Bookmarks.Children.Clear();
-            for (int i = 0; i < keys.Count; i++) {
-                string name = FindHTML(keys[i], "Name=", "PosterUrl=");
-                string posterUrl = FindHTML(keys[i], "PosterUrl=", "Id=");
-                string id = FindHTML(keys[i], "Id=", "=EndAll");
-                if (name != "" && posterUrl != "" && id != "") {
-                    if (CheckIfURLIsValid(posterUrl)) {
-                        print(">>>>" + posterUrl);
-                        Grid stackLayout = new Grid();
-                        Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
-                        var ff = new FFImageLoading.Forms.CachedImage {
-                            Source = posterUrl,
-                            HeightRequest = height,
-                            WidthRequest = width,
-                            BackgroundColor = Color.Transparent,
-                            VerticalOptions = LayoutOptions.Start,
-                            Transformations = {
-                                new FFImageLoading.Transformations.RoundedTransformation(10,1,1.5,10,"#303F9F")
-                            },
-                            InputTransparent = true,
-                        };
-
-                        //Source = p.posterUrl
-
-                        stackLayout.Children.Add(ff);
-                        stackLayout.Children.Add(imageButton);
-                        bookmarkPosters.Add(new BookmarkPoster() { button = imageButton, id = id, name = name, posterUrl = posterUrl });
-                        Grid.SetColumn(stackLayout, Bookmarks.Children.Count);
-                        Bookmarks.Children.Add(stackLayout);
-
-                        // --- RECOMMENDATIONS CLICKED -----
-                        imageButton.Clicked += (o, _e) => {
-                            for (int z = 0; z < bookmarkPosters.Count; z++) {
-                                if (((Button)o).Id == bookmarkPosters[z].button.Id) {
-                                    PushPageFromUrlAndName(bookmarkPosters[z].id, bookmarkPosters[z].name);
-                                }
-                            }
-                        };
-                    }
-                }
-                print(keys[i] + "<<KEy");
-                // data.Add(App.GetKey("BookmarkData"))
-            }
-        }
-
-
-        private void App_OBrowser(object sender, string e)
-        {
-            OpenBrowser(e);
-        }
-
-
-        public void LoadSeachPage(string startTxt = "")
-        {
-            Page p = new Search() { startText = startTxt };
-
-            Navigation.PushModalAsync(p,false);
-
-            //NavigationPage.SetHasBackButton(p, true);
-
-        }
-
-        private void MainPage_searchLoaded(object sender, List<Poster> e)
-        {
-            /*
-            MainThread.BeginInvokeOnMainThread(() => {
-                foreach (var item in GRID.Children) {
-                    Grid.SetColumn(item, 0);
-                    Grid.SetRow(item, 0);
-                }
-                GRID.Children.Clear();
-
-                imageButtons = new List<ImageButton>();
-                for (int i = 0; i < e.Count; i++) {
-                    string _url =  e[i].posterUrl;//.Replace("@@", "@").Replace("@._V1_.jpg", "@._CR0,0,0,0_UX402_UY596._SY298_SX201_AL_.jpg");
-                    imageButtons.Add(CreateButton(_url));
-                    print(i + ". " + e[i].posterUrl);
-                    GRID.Children.Add((ImageButton)imageButtons[imageButtons.Count - 1], 20, 20);
-                }
-
-                MainPage_SizeChanged(null, null);
-
-            });
-            */
-
-
-
-        }
-
-
-        private void SeachBar_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            QuickSearch(e.NewTextValue);
-        }
-
-        private void Current_PageAppearing(object sender, Page e)
-        {
-            UpdateBookmarks();
-
-            if (!initialized) {
-                initialized = true;
-                // Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
-
-
-                /*
-                Application.Current.MainPage.SizeChanged += MainPage_SizeChanged;
-                MainPage_SizeChanged(null, null); */
-            }
-        }
-
-
-
 
 
 
@@ -294,102 +71,106 @@ namespace CloudStreamForms
 
         // -------------------------------- END --------------------------------
 
-        public struct Vector2
-        {
-            public int x;
-            public int y;
-            public Vector2(int X, int Y)
-            {
-                x = X;
-                y = Y;
-            }
-
-        }
-        private void MainPage_SizeChanged(object sender, EventArgs e)
-        {
-
-            /*
-            if (imageButtons.Count == 0 || !initialized) return;
-
-            if (Device.OS == TargetPlatform.Windows) {
-                GRID.RowSpacing = -POSTER_HIGHT - 5;
-            }
-            for (int i = 0; i < imageButtons.Count; i++) {
-                try {
-                    Grid.SetColumn(imageButtons[i], i % PosterAtScreenWith);
-                    Grid.SetRow(imageButtons[i], (int)(i / PosterAtScreenWith));
-                }
-                catch (Exception) {
-                    throw;
-                }
-
-            }*/
-
-
-        }
         /*
-        public static Vector2 GetRez()
-        {
-            int intHeight = (int)DeviceDisplay.MainDisplayInfo.Height;
-            int intWidth = (int)DeviceDisplay.MainDisplayInfo.Width;
+       public struct Vector2
+       {
+           public int x;
+           public int y;
+           public Vector2(int X, int Y)
+           {
+               x = X;
+               y = Y;
+           }
 
-            if (Device.OS == TargetPlatform.Android) {
-                bool reverse = intHeight < intWidth;
+       }
 
-                int rows = reverse ? 5 : 3;
-                float f = (float)(POSTER_WITH * rows) / (float)intWidth;
-                intWidth = POSTER_WITH * rows;
-                intHeight = (int)(intHeight * f);
-            }
-            else if (Device.OS == TargetPlatform.Windows) {
-                intHeight = (int)Application.Current.MainPage.Height;
-                intWidth = (int)Application.Current.MainPage.Width;
-            }
-            //intHeight = (int)Application.Current.MainPage.Height;
-            //intWidth = (int)Application.Current.MainPage.Width;
 
-            /*
+       //public const int POSTER_WITH = 90;
+       //public const int POSTER_HIGHT = 135;
+
+       //public static int PosterAtScreenWith { get { return GetPostersWithAtCurrentScreen(); } }
+       //  public static int PosterAtScreenHight { get { return GetPostersHightAtCurrentScreen(); } }
+       private void MainPage_SizeChanged(object sender, EventArgs e)
+       {
+
+           /*
+           if (imageButtons.Count == 0 || !initialized) return;
+
+           if (Device.OS == TargetPlatform.Windows) {
+               GRID.RowSpacing = -POSTER_HIGHT - 5;
+           }
+           for (int i = 0; i < imageButtons.Count; i++) {
+               try {
+                   Grid.SetColumn(imageButtons[i], i % PosterAtScreenWith);
+                   Grid.SetRow(imageButtons[i], (int)(i / PosterAtScreenWith));
+               }
+               catch (Exception) {
+                   throw;
+               }
+
+           }
+
+
+       }
+
+       public static Vector2 GetRez()
+       {
+           int intHeight = (int)DeviceDisplay.MainDisplayInfo.Height;
+           int intWidth = (int)DeviceDisplay.MainDisplayInfo.Width;
+
+           if (Device.OS == TargetPlatform.Android) {
+               bool reverse = intHeight < intWidth;
+
+               int rows = reverse ? 5 : 3;
+               float f = (float)(POSTER_WITH * rows) / (float)intWidth;
+               intWidth = POSTER_WITH * rows;
+               intHeight = (int)(intHeight * f);
+           }
+           else if (Device.OS == TargetPlatform.Windows) {
+               intHeight = (int)Application.Current.MainPage.Height;
+               intWidth = (int)Application.Current.MainPage.Width;
+           }
+           //intHeight = (int)Application.Current.MainPage.Height;
+           //intWidth = (int)Application.Current.MainPage.Width;
+
+           /*
 #if __ANDROID__
-         intHeight = (int)(App.Current.Resources["DisplayMetrics"].HeightPixels / App.Current.Resources["DisplayMetrics"].Density);
-         intWidth = (int)(App.Current.Resources["DisplayMetrics"].WidthPixels / App.Current.Resources["DisplayMetrics"].Density);
+        intHeight = (int)(App.Current.Resources["DisplayMetrics"].HeightPixels / App.Current.Resources["DisplayMetrics"].Density);
+        intWidth = (int)(App.Current.Resources["DisplayMetrics"].WidthPixels / App.Current.Resources["DisplayMetrics"].Density);
 #else
 #if __IOS___
-         intHeight = UIScreen.MainScreen.Bounds.Height; 
-         intWidth = UIScreen.MainScreen.Bounds.Width;
+        intHeight = UIScreen.MainScreen.Bounds.Height; 
+        intWidth = UIScreen.MainScreen.Bounds.Width;
 #else
 #if WINDOWS_PHONE_APP
-         intHeight = Window.Current.Bounds.Height; 
-         intWidth = Window.Current.Bounds.Width;
+        intHeight = Window.Current.Bounds.Height; 
+        intWidth = Window.Current.Bounds.Width;
 #else
-                 intHeight = (int)Application.Current.MainPage.Height;
-                 intWidth = (int)Application.Current.MainPage.Width;
+                intHeight = (int)Application.Current.MainPage.Height;
+                intWidth = (int)Application.Current.MainPage.Width;
 #endif
 #endif
 #endif
 
-            return new Vector2(intWidth, intHeight);
-        }*/
-        /*
-        private static int GetPostersWithAtCurrentScreen()
-        {
+           return new Vector2(intWidth, intHeight);
+       }
+
+       private static int GetPostersWithAtCurrentScreen()
+       {
 
 
-            return (int)((double)GetRez().x / (double)POSTER_WITH);
+           return (int)((double)GetRez().x / (double)POSTER_WITH);
 
-        }
-        private static int GetPostersHightAtCurrentScreen()
-        {
-            //print(Application.Current.MainPage.Width + "|" + POSTER_WITH);
+       }
+       private static int GetPostersHightAtCurrentScreen()
+       {
+           //print(Application.Current.MainPage.Width + "|" + POSTER_WITH);
 
-            // return (int)(Application.Current.MainPage.Height / (double)POSTER_HIGHT);
-            return (int)((double)GetRez().y / (double)POSTER_HIGHT);
+           // return (int)(Application.Current.MainPage.Height / (double)POSTER_HIGHT);
+           return (int)((double)GetRez().y / (double)POSTER_HIGHT);
 
-        }*/
+       }*/
 
-        private void Button_Clicked(object sender, EventArgs e)
-        {
-            LoadSeachPage();
-        }
     }
 
     public static class Main

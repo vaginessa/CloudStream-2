@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="CloudStreamForms.Home">
+    <StackLayout>
+        <Label Margin="3" Text="Home" HorizontalOptions="Center" TextColor="#303F9F" FontSize="Large" FontAttributes="Bold" ></Label>
+        <Label Text="Bookmarks" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Medium" TextColor="#303F9F" x:Name="BTxt"></Label>
+        <BoxView HeightRequest="1" Color="#303F9F"></BoxView>
+        <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" >
+            <StackLayout>
+                <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
+
+                </Grid>
+            </StackLayout>
+        </ScrollView>
+        <BoxView HeightRequest="1" Color="#303F9F"></BoxView>
+
+    </StackLayout>
+</ContentPage>

@@ -13,7 +13,7 @@ using CloudStreamForms.Models;
 using Xamarin.Essentials;
 using CloudStreamForms;
 using static CloudStreamForms.App;
-
+using static CloudStreamForms.MainPage;
 
 namespace CloudStreamForms
 {
@@ -124,8 +124,7 @@ namespace CloudStreamForms
             }
         }
 
-        const string primaryColor = "#303F9F";
-        const string defColor = "#595959";
+       
 
         void ChangeStar(bool? overrideBool = null)
         {
@@ -1139,6 +1138,11 @@ namespace CloudStreamForms
         private void SeasonPicker_Focused(object sender, FocusEventArgs e)
         {
             ((Picker)sender).TitleColor = Color.Red;
+        }
+
+        private void ViewCell_Tapped(object sender, EventArgs e) // MORE INFO HERE
+        {
+            episodeView.SelectedItem = null;
         }
     }
 
