@@ -14,7 +14,9 @@ using Android;
 using Android.Support.V4.App;
 using Xamarin.Forms;
 using System.Threading.Tasks;
-
+using System.Net;
+using System.Text.RegularExpressions;
+using static CloudStreamForms.Main;
 
 namespace CloudStreamForms.Droid
 {
@@ -100,9 +102,15 @@ namespace CloudStreamForms.Droid
             catch (System.Exception) {
 
             }
+            //name = Regex.Replace(name, @"[^A-Za-z0-9\.]+", String.Empty);
+            //name.Replace(" ", "");
+          //  name = name.ToLower();
+
             Java.IO.File file = new Java.IO.File(basePath, name);
+            Java.IO.File _file = new Java.IO.File(basePath);
+            Main.print("PATH: " + basePath + "/" + name);
+            _file.Mkdirs();
             file.CreateNewFile();
-            file.Mkdir();
             Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
             // Writes the content to the file
             writer.Write(write);
@@ -110,6 +118,7 @@ namespace CloudStreamForms.Droid
             writer.Close();
             return file;
         }
+   
 
         public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
         {
@@ -187,11 +196,59 @@ namespace CloudStreamForms.Droid
 
         public void ShowToast(string message, double duration)
         {
-            ToastLength toastLength = ToastLength.Short;
-            if (duration >= 3) {
-                toastLength = ToastLength.Long;
+            Device.BeginInvokeOnMainThread(() => {
+                ToastLength toastLength = ToastLength.Short;
+                if (duration >= 3) {
+                    toastLength = ToastLength.Long;
+                }
+                Toast.MakeText(Android.App.Application.Context, message, toastLength).Show();
+            });
+     
+        }
+
+        public string GetPath(bool mainPath, string extraPath)
+        {
+            return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : AppDomain.CurrentDomain.BaseDirectory) + extraPath;
+        }
+        public void DownloadFile(string file, string fileName, bool mainPath, string extraPath)
+        {
+            WriteFile(fileName, GetPath(mainPath,extraPath), file );
+        }
+
+        public void DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        {
+            try {
+
+                TempThred tempThred = new TempThred();
+                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                tempThred.Thread = new System.Threading.Thread(() =>
+                {
+                    try {
+                        WebClient webClient = new WebClient();
+                        string basePath = GetPath(mainPath, extraPath);
+                        Main.print(basePath);
+                        Java.IO.File _file = new Java.IO.File(basePath);
+
+                        _file.Mkdirs();
+                        basePath += "/" + fileName;
+                        Main.print(basePath);
+                        webClient.DownloadFile(url, basePath);
+
+                        //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                    }
+                    finally {
+                        JoinThred(tempThred);
+                    }
+                });
+                tempThred.Thread.Name = "Download Thread";
+                tempThred.Thread.Start();
+
+              
             }
-            Toast.MakeText(Android.App.Application.Context, message, toastLength).Show();
+            catch (Exception) {
+                App.ShowToast("Download Failed");
+            }
         }
     }
 }

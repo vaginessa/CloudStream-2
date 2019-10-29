@@ -11,7 +11,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
              
              x:Class="CloudStreamForms.MovieResult">
 
-    <ScrollView SizeChanged="ScrollView_SizeChanged" VerticalScrollBarVisibility="Never">
+    <ScrollView  VerticalScrollBarVisibility="Never">
 
         <StackLayout>
             <StackLayout x:Name="LoadingStack" IsVisible="False" IsEnabled="False">
@@ -86,7 +86,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     </Grid>
 
                     <Grid Grid.Row="4"  Grid.Column="0">
-                        <Grid HorizontalOptions="Start" HeightRequest="60" TranslationX="7" WidthRequest="330">
+                        <Grid HorizontalOptions="Start" HeightRequest="60" TranslationX="7" WidthRequest="330" x:Name="QuickMenu">
                             <Grid>
                                 <Grid Grid.Row="0"  Grid.Column="0">
                                     <!--595959-->
@@ -179,7 +179,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                 -->
                 <StackLayout Orientation="Horizontal" TranslationX="10">
                
-                        <Picker x:Name="SeasonPicker" TitleColor="Blue" Focused="SeasonPicker_Focused" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
+                        <Picker x:Name="SeasonPicker" TitleColor="Blue" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
                         <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
                 </StackLayout>
 

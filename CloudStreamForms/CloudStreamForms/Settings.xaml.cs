@@ -12,6 +12,8 @@ namespace CloudStreamForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Settings : ContentPage
     {
+        public const string errorEpisodeToast = "No Links Found";
+        public static int loadingMiliSec = 5000;
         public Settings()
         {
             InitializeComponent();

@@ -1724,7 +1724,7 @@ namespace CloudStreamForms
                                     link = link.Replace("&amp;", "&");
 
                                     print("LINK: " + link + "|" + name);
-                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality");
+                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality").Replace("-","");
 
                                     if (CheckIfURLIsValid(link)) {
 
@@ -2294,7 +2294,7 @@ namespace CloudStreamForms
                         string d = "";
                         // print(".." + url);
                         // Tries 5 times to connect
-                        for (int i = 0; i < 5; i++) {
+                        //for (int i = 0; i < 5; i++) {
                             if (d == "") {
                                 try {
                                     d = DownloadString(url, tempThred, false); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
@@ -2302,10 +2302,10 @@ namespace CloudStreamForms
                                 }
                                 catch (System.Exception) {
                                     debug("Error gogo");
-                                    Thread.Sleep(1000);
+                                  //  Thread.Sleep(1000);
                                 }
                             }
-                        }
+                        //}
 
 
 

@@ -25,6 +25,7 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace CloudStreamForms.UWP
 {
@@ -41,7 +42,7 @@ namespace CloudStreamForms.UWP
             mainUWP.Awake();
         }
 
-        
+
 
     }
 
@@ -49,7 +50,7 @@ namespace CloudStreamForms.UWP
     {
 
 
-        public static async Task CreateFile(string filename, byte[] write)
+        public static async Task CreateFile(string filename, byte[] write, bool autoOpen = true)
         {
 
             Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
@@ -59,7 +60,9 @@ namespace CloudStreamForms.UWP
 
             s.Write(write, 0, write.Length);
             s.Close();
-            var success = await Windows.System.Launcher.LaunchFileAsync(file);
+            if (autoOpen) {
+                var success = await Windows.System.Launcher.LaunchFileAsync(file);
+            }
         }
 
         public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc = "")
@@ -152,6 +155,31 @@ namespace CloudStreamForms.UWP
         {
             Message.ShowMessage(message, duration);
         }
+
+        public void DownloadFile(string file, string fileName, bool mainPath, string extraPath)
+        {
+            DownloadFile(Encoding.UTF8.GetBytes(file), fileName, mainPath, extraPath);
+           
+        }
+        public void DownloadFile(byte[] file, string fileName, bool mainPath, string extraPath)
+        {
+            CreateFile(fileName, file, false);
+        }
+
+
+        public async void DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        {
+            try {
+
+                WebClient webClient = new WebClient();
+                byte[] data = webClient.DownloadData(url);
+                DownloadFile(data, fileName, mainPath, extraPath);
+
+            }
+            catch (Exception) {
+                CloudStreamForms.App.ShowToast("Download Failed");
+            }
+        }
     }
 
     public static class Message
@@ -179,7 +207,7 @@ namespace CloudStreamForms.UWP
             var flyout = new Flyout {
                 Content = label,
                 Placement = FlyoutPlacementMode.Bottom,
-               
+
                 FlyoutPresenterStyle = style,
             };
 

@@ -21,6 +21,8 @@ namespace CloudStreamForms
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
 
             void ShowToast(string message, double duration);
+            void DownloadFile(string file, string fileName, bool mainPath, string extraPath);
+            void DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
             // void OBrowser(string url);
         }
         public static IPlatformDep platformDep;
@@ -109,6 +111,16 @@ namespace CloudStreamForms
         public static ImageSource GetImageSource(string inp)
         {
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
+        }
+
+        public static void DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "")
+        {
+            platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
+
+        }
+        public static void DownloadFile(string file, string fileName, bool mainPath = true, string extraPath = "")
+        {
+            platformDep.DownloadFile(file, fileName, mainPath, extraPath);
         }
 
         public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name, bool isSubtitleEnabled = false, string beforePath = "")

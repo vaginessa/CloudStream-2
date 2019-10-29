@@ -14,6 +14,7 @@ using Xamarin.Essentials;
 using CloudStreamForms;
 using static CloudStreamForms.App;
 using static CloudStreamForms.MainPage;
+using static CloudStreamForms.Settings;
 
 namespace CloudStreamForms
 {
@@ -101,7 +102,7 @@ namespace CloudStreamForms
             else {
                 App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "PosterUrl=" + currentMovie.title.hdPosterUrl + "Id=" + currentMovie.title.id + "=EndAll");
             }
-            
+
 
             ChangeStar(!keyExists);
         }
@@ -124,7 +125,7 @@ namespace CloudStreamForms
             }
         }
 
-       
+
 
         void ChangeStar(bool? overrideBool = null)
         {
@@ -188,6 +189,11 @@ namespace CloudStreamForms
             linkAdded += MovieResult_linkAdded;
             linksProbablyDone += MovieResult_linksProbablyDone;
             movie123FishingDone += MovieResult_movie123FishingDone;
+
+            if (Device.RuntimePlatform == Device.UWP) {
+                QuickMenu.WidthRequest = 500;
+            }
+
             //  myEpisodeResultCollection;
 
             //  FakePlayBtt.Source = ImageSource.FromUri(new System.Uri("https://m.media-amazon.com/images/M/MV5BMjEyNzQ0MjE2OF5BMl5BanBnXkFtZTcwMTkyNjE5Ng@@._V1_CR0,60,640,360_AL_UX477_CR0,0,477,268_AL_.jpg"));
@@ -1014,7 +1020,24 @@ namespace CloudStreamForms
             //ProgressBar progressBar = (ProgressBar)((Grid)((Grid)((ImageButton)sender).Children.ElementAt(0)).Children.ElementAt(0)).Children.ElementAt(2)).Children.ElementAt(0);
 
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
-            if (episodeResult.LoadedLinks) {
+            LoadLinksForEpisode(episodeResult);
+            episodeView.SelectedItem = null;
+            //MainThread.BeginInvokeOnMainThread(() => {
+            //   epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress = 1;
+
+
+            // print(epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress + "-->><<");
+            //});
+
+        }
+
+        bool loadingLinks = false;
+
+        async Task<EpisodeResult> LoadLinksForEpisode(EpisodeResult episodeResult, bool autoPlay = true, bool overrideLoaded = false)
+        {
+            if (loadingLinks) return episodeResult;
+
+            if (episodeResult.LoadedLinks && !overrideLoaded) {
                 print("OPEN : " + episodeResult.Title);
                 if (!CheckIfURLIsValid(episodeResult.loadResult.url)) {
                     try {
@@ -1026,7 +1049,9 @@ namespace CloudStreamForms
                     }
 
                 }
-                App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros);
+                if (autoPlay) {
+                    PlayEpisode(episodeResult);
+                }
                 //  App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls.First(), episodeResult.Mirros.First());
 
                 /*
@@ -1042,7 +1067,7 @@ namespace CloudStreamForms
             else {
                 GetEpisodeLink(isMovie ? -1 : (episodeResult.Id + 1), currentSeason, isDub: isDub);
 
-                Device.InvokeOnMainThreadAsync(async () => {
+                await Device.InvokeOnMainThreadAsync(async () => {
                     /* progressBars[episodeResult.Id].Progress = 0.01f;
                      progressBars[episodeResult.Id].IsVisible = true;
                      await progressBars[episodeResult.Id].ProgressTo(1, 3000, Easing.SinIn);
@@ -1052,8 +1077,10 @@ namespace CloudStreamForms
                     NormalStack.IsEnabled = false;
                     // LoadingStack.IsVisible = true;
                     // NormalStack.IsVisible = false;
-                    NormalStack.Opacity = 0.8f;
-                    await Task.Delay(5000);
+                    NormalStack.Opacity = 0.7f;
+                    loadingLinks = true;
+                    await Task.Delay(loadingMiliSec);
+                    loadingLinks = false;
 
                     if (SameAsActiveMovie()) {
                         currentMovie = activeMovie;
@@ -1066,14 +1093,12 @@ namespace CloudStreamForms
 
                     //NormalStack.IsVisible = true;
                     if (episodeResult.mirrosUrls.Count > 0) {
-                        string _sub = "";
-                        if (currentMovie.subtitles != null) {
-                            if (currentMovie.subtitles.Count > 0) {
-                                _sub = currentMovie.subtitles[0].data;
-                            }
-                        }
-                        App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros, _sub);
+
+                        if (autoPlay) { PlayEpisode(episodeResult); }
                         episodeResult.LoadedLinks = true;
+                    }
+                    else {
+                        App.ShowToast(errorEpisodeToast);
                     }
 
                 });
@@ -1097,13 +1122,17 @@ namespace CloudStreamForms
                 // SetProgress(3, ((EpisodeResult)((ImageButton)sender).BindingContext).Id);
 
             }
-            //MainThread.BeginInvokeOnMainThread(() => {
-            //   epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress = 1;
-
-
-            // print(epView.MyEpisodeResultCollection[((EpisodeResult)((ImageButton)sender).BindingContext).Id].Progress + "-->><<");
-            //});
-            episodeView.SelectedItem = null;
+            return episodeResult;
+        }
+        void PlayEpisode(EpisodeResult episodeResult)
+        {
+            string _sub = "";
+            if (currentMovie.subtitles != null) {
+                if (currentMovie.subtitles.Count > 0) {
+                    _sub = currentMovie.subtitles[0].data;
+                }
+            }
+            App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros, _sub);
         }
 
         private void ProgressBar_BindingContextChanged(object sender, EventArgs e)
@@ -1121,44 +1150,135 @@ namespace CloudStreamForms
                  }
              }*/
         }
-        public double MaxWidthRequest { set; get; } = 10;
-        private void ScrollView_SizeChanged(object sender, EventArgs e)
+
+        async void EpisodeSettings(EpisodeResult episodeResult)
         {
-            //  MaxWidthRequest = ((ScrollView)sender).ContentSize.Width;
+            episodeView.SelectedItem = null;
+
+            if (!episodeResult.LoadedLinks) {
+                try {
+                    await LoadLinksForEpisode(episodeResult, false);
+
+                }
+                catch (Exception) {
+
+                }
+
+            }
+            if (loadingLinks) {
+                await Task.Delay(loadingMiliSec + 40);
+            }
+            if (!episodeResult.LoadedLinks) {
+                App.ShowToast(errorEpisodeToast);
+                return;
+            }
+
+            string action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, "Play", "Download", "Download Subtitles", "Copy Link", "Reload");
+            if (action == "Play") {
+                PlayEpisode(episodeResult);
+            }
+            else if (action == "Copy Link") {
+                string copy = await DisplayActionSheet("Copy Link", "Cancel", null, episodeResult.Mirros.ToArray());
+                for (int i = 0; i < episodeResult.Mirros.Count; i++) {
+                    if (episodeResult.Mirros[i] == copy) {
+                        await Clipboard.SetTextAsync(episodeResult.mirrosUrls[i]);
+                        App.ShowToast("Copied Link to Clipboard");
+                    }
+                }
+            }
+            else if (action == "Download") {
+                string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
+                for (int i = 0; i < episodeResult.Mirros.Count; i++) {
+                    if (episodeResult.Mirros[i] == download) {
+                        App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/"+GetPathFromType() );
+                    }
+                }
+            }
+            else if (action == "Reload") {
+                try {
+                    await LoadLinksForEpisode(episodeResult, false, true);
+                }
+                catch (Exception) {
+                }
+
+                await Task.Delay(loadingMiliSec + 40);
+
+                if (!episodeResult.LoadedLinks) {
+                    App.ShowToast(errorEpisodeToast);
+                    return;
+                }
+                EpisodeSettings(episodeResult);
+            }
+            else if (action == "Download Subtitles") {
+
+                TempThred tempThred = new TempThred();
+                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                tempThred.Thread = new System.Threading.Thread(() =>
+                {
+                    try {
+
+                        string id = (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
+                        if (id.Replace(" ","") == "") { App.ShowToast("Id not found"); return; }
+                        
+                        string s = DownloadSubtitle(id);
+                        if (s == "") {
+                            App.ShowToast("No Subtitles Found");
+                            return;
+                        }
+                        else {
+                            App.DownloadFile(s, episodeResult.Title + ".srt", true, "/Subtitles");
+                            App.ShowToast("Subtitles Downloaded");
+                        }
+
+                        //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                    }
+                    finally {
+                        JoinThred(tempThred);
+                    }
+                });
+                tempThred.Thread.Name = "Subtitle Download";
+                tempThred.Thread.Start();
+
+               
+            }
         }
 
-        private void absLayout_SizeChanged(object sender, EventArgs e)
+        string GetPathFromType()
         {
-            StackLayout stack = ((StackLayout)sender);
-            // print(stack.Height + "<--");
-            // episodeView.HeightRequest = stack.Height;
-        }
-
-
-        private void SeasonPicker_Focused(object sender, FocusEventArgs e)
-        {
-            ((Picker)sender).TitleColor = Color.Red;
+            string path = "Movies";
+            if (currentMovie.title.movieType == MovieType.Anime) {
+                path = "Anime";
+            }
+            else if(currentMovie.title.movieType == MovieType.TVSeries) {
+                path = "TVSeries";
+            }
+            return path;
         }
 
         private void ViewCell_Tapped(object sender, EventArgs e) // MORE INFO HERE
         {
-            episodeView.SelectedItem = null;
+            EpisodeResult episodeResult = ((EpisodeResult)(((ViewCell)sender).BindingContext));
+            EpisodeSettings(episodeResult);
         }
-    }
 
-    public class MainEpisodeView
-    {
-        private ObservableCollection<EpisodeResult> _MyEpisodeResultCollection;
-        public ObservableCollection<EpisodeResult> MyEpisodeResultCollection { set { Added?.Invoke(null, null); _MyEpisodeResultCollection = value; } get { return _MyEpisodeResultCollection; } }
-
-        public event EventHandler Added;
-
-        public MainEpisodeView()
-        {
-            MyEpisodeResultCollection = new ObservableCollection<EpisodeResult>();
-        }
     }
 }
+
+public class MainEpisodeView
+{
+    private ObservableCollection<EpisodeResult> _MyEpisodeResultCollection;
+    public ObservableCollection<EpisodeResult> MyEpisodeResultCollection { set { Added?.Invoke(null, null); _MyEpisodeResultCollection = value; } get { return _MyEpisodeResultCollection; } }
+
+    public event EventHandler Added;
+
+    public MainEpisodeView()
+    {
+        MyEpisodeResultCollection = new ObservableCollection<EpisodeResult>();
+    }
+}
+
+
 
 public class ListViewDataTemplateSelector : DataTemplateSelector
 {
