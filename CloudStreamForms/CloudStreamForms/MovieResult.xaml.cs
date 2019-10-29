@@ -109,9 +109,10 @@ namespace CloudStreamForms
 
         private void SubtitleBttClicked(object sender, EventArgs e)
         {
-            bool SetValue = !App.GetKey("Settings", "Subtitles", true);
-            App.SetKey("Settings", "Subtitles", SetValue);
-            ChangeSubtitle(SetValue);
+            // bool SetValue = !App.GetKey("Settings", "Subtitles", true);
+            // App.SetKey("Settings", "Subtitles", SetValue);
+            Settings.SubtitlesEnabled = !Settings.SubtitlesEnabled;
+            ChangeSubtitle(SubtitlesEnabled);
         }
         private void ShareBttClicked(object sender, EventArgs e)
         {
@@ -148,12 +149,12 @@ namespace CloudStreamForms
 
             bool res = false;
             if (overrideBool == null) {
-                res = App.GetKey("Settings", "Subtitles", true);
+                res = SubtitlesEnabled;
             }
             else {
                 res = (bool)overrideBool;
+                //SubtitlesEnabled = res;
             }
-            Main.globalSubtitlesEnabled = res;
 
             Device.BeginInvokeOnMainThread(() => {
                 SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? primaryColor : defColor)) };
@@ -853,14 +854,21 @@ namespace CloudStreamForms
 
                     isDub = dubExists;
 
-                    if (dubExists) {
-                        DubPicker.Items.Add("Dub");
-                        print("BBBBBBBBBBBBBBBBBB");
+                    if(Settings.DefaultDub) {
+                        if (dubExists) {
+                            DubPicker.Items.Add("Dub");
+                        }
                     }
+                
                     if (subExists) {
                         DubPicker.Items.Add("Sub");
-                        print("AAAAAAAAAAAAAAA");
                     }
+                    if (!Settings.DefaultDub) {
+                        if (dubExists) {
+                            DubPicker.Items.Add("Dub");
+                        }
+                    }
+
                     if (DubPicker.Items.Count > 0) {
                         DubPicker.SelectedIndex = 0;
                     }
@@ -1279,165 +1287,4 @@ public class MainEpisodeView
 }
 
 
-
-public class ListViewDataTemplateSelector : DataTemplateSelector
-{
-    protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
-    {
-        return new DataTemplate(() => {
-            //print(((EpisodeResult)item).Title + " ------------------->>>>>>>");
-            EpisodeResult result = (EpisodeResult)item;
-            Label nameLabel = new Label();
-            Label desLabel = new Label();
-            nameLabel.SetBinding(Label.TextProperty, "Title");
-            desLabel.SetBinding(Label.TextProperty, "Description");
-            desLabel.FontSize = nameLabel.FontSize / 1.2f;
-
-            desLabel.TextColor = Color.Gray;
-            nameLabel.TranslationX = 5;
-            desLabel.TranslationX = 5;
-
-            ProgressBar progressBar = new ProgressBar();
-            progressBar.IsVisible = false;
-            progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
-
-            Picker linkPicker = new Picker();
-            // linkPicker.Items.Add("Mirror 1");
-            //  linkPicker.Items.Add("Mirror 2");
-            // linkPicker.Items.Add("Mirror 3");
-            linkPicker.SetBinding(Picker.ItemsSourceProperty, "Mirros");
-
-
-            Picker subPicker = new Picker();
-            subPicker.SetBinding(Picker.ItemsSourceProperty, "Subtitles");
-
-            //   subPicker.Items.Add("English");
-            //   subPicker.Items.Add("Swedish");
-
-            Picker exePicker = new Picker();
-            exePicker.Items.Add("Play");
-            exePicker.Items.Add("Download");
-            exePicker.Items.Add("Copy Link");
-            exePicker.Items.Add("Copy Subtitle Link");
-
-            // Button playBtt = new Button() { Text="Play" };
-
-            Grid grid = new Grid();
-            grid.Children.Add(linkPicker);
-            grid.Children.Add(subPicker);
-            grid.Children.Add(exePicker);
-            //   grid.Children.Add(playBtt);
-
-            if (globalSubtitlesEnabled) {
-                Grid.SetColumn(subPicker, 1);
-                if (PLAY_SELECT_ENABLED) {
-                    Grid.SetColumn(exePicker, 2);
-                }
-            }
-            else {
-                if (PLAY_SELECT_ENABLED) {
-
-                    Grid.SetColumn(exePicker, 1);
-                }
-            }
-            exePicker.IsEnabled = PLAY_SELECT_ENABLED;
-            exePicker.IsVisible = PLAY_SELECT_ENABLED;
-            subPicker.IsEnabled = globalSubtitlesEnabled;
-            subPicker.IsVisible = globalSubtitlesEnabled;
-
-            grid.SetBinding(Grid.IsVisibleProperty, "EpVis");
-
-            try {
-                exePicker.SelectedIndex = 0;
-                subPicker.SelectedIndex = 0;
-                linkPicker.SelectedIndex = 0;
-            }
-            catch (Exception) {
-
-            }
-            if (!PLAY_SELECT_ENABLED) { // NOT FINAL, REMOVE THIS 
-
-                Button copyBtt = new Button() { Text = "Copy Link" };
-                copyBtt.Clicked += (o, e) => {
-                    if (linkPicker.SelectedIndex != -1) {
-                        try {
-                            Clipboard.SetTextAsync(result.mirrosUrls[linkPicker.SelectedIndex]);
-
-                        }
-                        catch (Exception) {
-
-                        }
-                    }
-                };
-                grid.Children.Add(copyBtt);
-
-                Grid.SetColumn(copyBtt, 1);
-            }
-
-
-            grid.WidthRequest = 1000000;
-
-            linkPicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.loadResult;
-                result.loadResult = new LoadResult() { url = result.mirrosUrls[linkPicker.SelectedIndex], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
-            };
-
-            exePicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.loadResult;
-                LoadSelection[] loadSelections = { LoadSelection.Play, LoadSelection.Download, LoadSelection.CopyLink, LoadSelection.CopySubtitleLink };
-                LoadSelection loadSelection = loadSelections[exePicker.SelectedIndex];
-                result.loadResult = new LoadResult() { url = cl.url, loadSelection = loadSelection, subtitleUrl = cl.subtitleUrl };
-            };
-
-            subPicker.SelectedIndexChanged += (o, e) => {
-                LoadResult cl = result.loadResult;
-                result.loadResult = new LoadResult() { url = cl.url, loadSelection = cl.loadSelection, subtitleUrl = subPicker.SelectedIndex == 0 ? "" : result.subtitlesUrls[subPicker.SelectedIndex - 1] };
-            };
-
-
-            //grid.IsVisible = true;
-            //    Grid.SetColumn(playBtt, 3);
-
-            //nameLabel.SetBinding(Label.d, "Extra");
-            /*
-            Label birthdayLabel = new Label();
-            birthdayLabel.SetBinding(Label.TextProperty,
-                new Binding("Birthday", BindingMode.OneWay,
-                    null, null, "Born {0:d}"));
-
-            BoxView boxView = new BoxView();
-            boxView.SetBinding(BoxView.ColorProperty, "FavoriteColor");*/
-
-            // Return an assembled ViewCell.
-            return new ViewCell {
-                View = new StackLayout {
-                    // Padding = new Thickness(0, 5),
-                    //  HeightRequest = MovieResult.heightRequestPerEpisode,
-                    //MinimumHeightRequest = MovieResult.heightRequestPerEpisode,
-                    //  Orientation = StackOrientation.Horizontal,
-                    // VerticalOptions = LayoutOptions.Start,
-                    Children =
-                {
-                                //boxView,
-                                new StackLayout
-                                {
-                                    Padding= new Thickness (0,10),
-                                    VerticalOptions = LayoutOptions.FillAndExpand,
-                                    HorizontalOptions = LayoutOptions.FillAndExpand,
-                                    Spacing = 10,
-                                    Children =
-                                    {
-                                        nameLabel,
-                                        desLabel,
-                                        grid,
-                                        progressBar,
-                                        //birthdayLabel
-                                    }
-                                }
-                            }
-                }
-            };
-        });
-    }
-}
 

@@ -54,6 +54,9 @@ namespace CloudStreamForms.UWP
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
                 Xamarin.Forms.Forms.Init(e);
+                ((Style)this.Resources["TabbedPageStyle"]).Setters[0] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[0];
+               // ((Style)this.Resources["TabbedPageStyle"]).Setters[2] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[1];
+
                 FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) {
                     //TODO: Load state from previously suspended application

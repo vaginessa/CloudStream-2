@@ -4,12 +4,36 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="CloudStreamForms.Settings">
-    <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+             x:Class="CloudStreamForms.Settings"
+             >
+    <ContentPage.Content >
+
+        <StackLayout >
+
+            <Label Margin="3" Text="Settings" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold" ></Label>
+
+            <TableView>
+                <TableRoot>
+                    <TableSection>
+                        <SwitchCell Text="Force Black Background (Requires Restart)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Record View History" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Subtitles Enabled" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Anime default dub" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+            <Label Text="Build Version: " x:Name="BuildNumber"></Label>
+            <Button Text="Star me on Github :)" x:Name="StarMe">
+                <!--★-->
+                
+            </Button>
         </StackLayout>
+       
     </ContentPage.Content>
 </ContentPage>

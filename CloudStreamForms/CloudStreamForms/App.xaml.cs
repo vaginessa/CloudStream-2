@@ -23,6 +23,8 @@ namespace CloudStreamForms
             void ShowToast(string message, double duration);
             void DownloadFile(string file, string fileName, bool mainPath, string extraPath);
             void DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
+
+         //   string GetBuildNumber();
             // void OBrowser(string url);
         }
         public static IPlatformDep platformDep;
@@ -44,6 +46,12 @@ namespace CloudStreamForms
         public static void ShowToast(string message, double duration = 2.5)
         {
             platformDep.ShowToast(message, duration);
+        }
+
+        public static string GetBuildNumber()
+        {
+            var v = Assembly.GetExecutingAssembly().GetName().Version;
+            return v.Major + "." + v.Minor + "." + v.Build;
         }
 
         public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")

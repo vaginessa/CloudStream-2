@@ -250,5 +250,13 @@ namespace CloudStreamForms.Droid
                 App.ShowToast("Download Failed");
             }
         }
+
+        public string GetBuildNumber()
+        {
+            var context = Android.App.Application.Context;
+            var VersionNumber = context.PackageManager.GetPackageInfo(context.PackageName, PackageInfoFlags.MetaData).VersionName;
+            var BuildNumber = context.PackageManager.GetPackageInfo(context.PackageName, PackageInfoFlags.MetaData).VersionCode.ToString();
+            return BuildNumber + " " + VersionNumber;
+        }
     }
 }

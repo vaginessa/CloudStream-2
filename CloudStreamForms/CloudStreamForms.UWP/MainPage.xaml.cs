@@ -32,14 +32,17 @@ namespace CloudStreamForms.UWP
     public sealed partial class MainPage
     {
         MainUWP mainUWP;
+        public static MainPage mainPage;
         public MainPage()
         {
             this.InitializeComponent();
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
            Windows.UI.Core.AppViewBackButtonVisibility.Visible;
             LoadApplication(new CloudStreamForms.App());
+            mainPage = this;
             mainUWP = new MainUWP();
             mainUWP.Awake();
+
         }
 
 
@@ -159,7 +162,7 @@ namespace CloudStreamForms.UWP
         public void DownloadFile(string file, string fileName, bool mainPath, string extraPath)
         {
             DownloadFile(Encoding.UTF8.GetBytes(file), fileName, mainPath, extraPath);
-           
+
         }
         public void DownloadFile(byte[] file, string fileName, bool mainPath, string extraPath)
         {
@@ -179,6 +182,12 @@ namespace CloudStreamForms.UWP
             catch (Exception) {
                 CloudStreamForms.App.ShowToast("Download Failed");
             }
+        }
+
+        public string GetBuildNumber()
+        {
+            var v = Assembly.GetExecutingAssembly().GetName().Version;
+            return v.Major + "." + v.Minor + "." + v.Build;
         }
     }
 

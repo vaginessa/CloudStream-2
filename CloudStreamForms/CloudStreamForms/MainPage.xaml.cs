@@ -211,7 +211,7 @@ namespace CloudStreamForms
         public const bool SEARCH_FOR_UPDATES_ENABLED = true;
 
         public const bool INLINK_SUBTITLES_ENABLED = false;
-        public static bool globalSubtitlesEnabled = true;
+        public static bool globalSubtitlesEnabled { get { return Settings.SubtitlesEnabled; } }
         public const bool GOMOSTEAM_ENABLED = true;
         public const bool SUBHDMIRROS_ENABLED = true;
         public const bool BAN_SUBTITLE_ADS = true;

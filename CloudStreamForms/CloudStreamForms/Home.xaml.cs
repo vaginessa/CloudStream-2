@@ -17,6 +17,7 @@ namespace CloudStreamForms
         public Home()
         {
             InitializeComponent();
+            BackgroundColor = Color.Black;
         }
 
         protected override void OnAppearing()
