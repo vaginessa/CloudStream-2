@@ -31,6 +31,7 @@ namespace CloudStreamForms
     public partial class MainPage : Xamarin.Forms.TabbedPage
     {
         public const string primaryColor = "#303F9F";
+        public const string primaryLightColor = "#829eff";
         public const string defColor = "#595959";
         public const string backgroundColor = "#111111";
 
@@ -60,9 +61,10 @@ namespace CloudStreamForms
                 Children[i].IconImageSource = icons[i];
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
+            
             //PushPageFromUrlAndName("tt4869896", "Overlord");
 
-        
+
         }
 
 
@@ -232,15 +234,7 @@ namespace CloudStreamForms
 
         public static void OpenBrowser(string url)
         {
-            print("Trying to open: " + url);
-            if (CheckIfURLIsValid(url)) {
-                try {
-                    Launcher.OpenAsync(new Uri(url));
-                }
-                catch (Exception) {
-                    print("BROWSER LOADED ERROR, SHOULD NEVER HAPPEND!!");
-                }
-            }
+            App.OpenBrowser(url);
         }
 
 
@@ -1724,7 +1718,7 @@ namespace CloudStreamForms
                                     link = link.Replace("&amp;", "&");
 
                                     print("LINK: " + link + "|" + name);
-                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality").Replace("-","");
+                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality").Replace("-", "");
 
                                     if (CheckIfURLIsValid(link)) {
 
@@ -2295,16 +2289,16 @@ namespace CloudStreamForms
                         // print(".." + url);
                         // Tries 5 times to connect
                         //for (int i = 0; i < 5; i++) {
-                            if (d == "") {
-                                try {
-                                    d = DownloadString(url, tempThred, false); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                        if (d == "") {
+                            try {
+                                d = DownloadString(url, tempThred, false); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
-                                }
-                                catch (System.Exception) {
-                                    debug("Error gogo");
-                                  //  Thread.Sleep(1000);
-                                }
                             }
+                            catch (System.Exception) {
+                                debug("Error gogo");
+                                //  Thread.Sleep(1000);
+                            }
+                        }
                         //}
 
 

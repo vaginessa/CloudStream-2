@@ -17,13 +17,13 @@ namespace CloudStreamForms
         public Home()
         {
             InitializeComponent();
-            BackgroundColor = Color.Black;
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
             UpdateBookmarks();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
         }
 
         List<BookmarkPoster> bookmarkPosters = new List<BookmarkPoster>();

@@ -16,7 +16,15 @@ namespace CloudStreamForms
     public partial class Settings : ContentPage
     {
         public const string errorEpisodeToast = "No Links Found";
-        public static int loadingMiliSec = 5000;
+        public static int LoadingMiliSec
+        {
+            set {
+                App.SetKey("Settings", nameof(LoadingMiliSec), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(LoadingMiliSec), 5000);
+            }
+        }
 
         public static bool DefaultDub
         {
@@ -59,13 +67,61 @@ namespace CloudStreamForms
             }
         }
 
+        public static bool EpDecEnabled
+        {
+            set {
+                App.SetKey("Settings", nameof(EpDecEnabled), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(EpDecEnabled), true);
+            }
+        }
+        public static bool MovieDecEnabled
+        {
+            set {
+                App.SetKey("Settings", nameof(MovieDecEnabled), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(MovieDecEnabled), true);
+            }
+        }
+        public static bool SearchEveryCharEnabled
+        {
+            set {
+                App.SetKey("Settings", nameof(SearchEveryCharEnabled), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(SearchEveryCharEnabled), true);
+            }
+        }
 
-        public string MainColor { get { return "#303F9F"; } }
+
+        public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#ffffff"; } }
+
+        public static string MainBackgroundColor
+        {
+            get {
+                if (BlackBg) {
+                    return "#000000";
+                }
+                string color = "#111111";
+                if (Device.RuntimePlatform == Device.UWP) {
+                    color = "#000811";
+                }
+
+                return color;
+            }
+        }
+
 
         public Settings()
         {
             InitializeComponent();
+
+            //Main.print("COLOR: "+ BlackBgToggle.OnColor);
+            //  if (Device.RuntimePlatform == Device.UWP) {
             BindingContext = this;
+            // }
             StarMe.Clicked += (o, e) => {
                 App.OpenBrowser("https://github.com/LagradOst/CloudStream-2");
             };
@@ -86,7 +142,20 @@ namespace CloudStreamForms
             SubtitesToggle.OnChanged += (o, e) => {
                 SubtitlesEnabled = e.Value;
             };
+            EpsDecToggle.OnChanged += (o, e) => {
+                EpDecEnabled = e.Value;
+            };
+            DecToggle.OnChanged += (o, e) => {
+                MovieDecEnabled = e.Value;
+            };
+            SearchToggle.OnChanged += (o, e) => {
+                SearchEveryCharEnabled = e.Value;
+            };
+            LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
+            LoadingSlider.Value = ((LoadingMiliSec - 1000.0) / 9000.0);
+
         }
+
         protected override void OnAppearing()
         {
             base.OnAppearing();
@@ -95,8 +164,17 @@ namespace CloudStreamForms
             BlackBgToggle.On = BlackBg;
             DubToggle.On = DefaultDub;
             ViewHistoryToggle.On = ViewHistory;
+            DecToggle.On = MovieDecEnabled;
+            EpsDecToggle.On = EpDecEnabled;
+            SearchToggle.On = SearchEveryCharEnabled;
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
 
         }
 
+        private void Slider_DragCompleted(object sender, EventArgs e)
+        {
+            LoadingMiliSec = (int)Math.Round(((Slider)sender).Value * 9000) + 1000;
+            LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
+        }
     }
 }

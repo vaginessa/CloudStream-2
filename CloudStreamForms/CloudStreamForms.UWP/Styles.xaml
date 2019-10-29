@@ -26,8 +26,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="uwp:FormsPivot">
-                    <Grid x:Name="RootElement" Background="#000811" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
-                        <!--{TemplateBinding Background}-->
+                    <Grid x:Name="RootElement" Background="{TemplateBinding Background}" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                        <!-- #000811-->
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>

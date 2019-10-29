@@ -5,6 +5,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Linq;
 using System.Reflection;
+using Xamarin.Essentials;
 
 namespace CloudStreamForms
 {
@@ -29,8 +30,6 @@ namespace CloudStreamForms
         }
         public static IPlatformDep platformDep;
 
-        // public static event EventHandler<string> PlayVlc;
-        public static event EventHandler<string> OBrowser;
         public App()
         {
             InitializeComponent();
@@ -150,9 +149,15 @@ namespace CloudStreamForms
 
         public static void OpenBrowser(string url)
         {
-            //platformDep.OBrowser(url);
-
-            OBrowser?.Invoke(null, url);
+            Main.print("Trying to open: " + url);
+            if (Main.CheckIfURLIsValid(url)) {
+                try {
+                    Launcher.OpenAsync(new Uri(url));
+                }
+                catch (Exception) {
+                    Main.print("BROWSER LOADED ERROR, SHOULD NEVER HAPPEND!!");
+                }
+            }
         }
         protected override void OnStart()
         {

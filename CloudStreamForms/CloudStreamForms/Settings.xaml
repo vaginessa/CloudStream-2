@@ -15,23 +15,35 @@
             <TableView>
                 <TableRoot>
                     <TableSection>
-                        <SwitchCell Text="Force Black Background (Requires Restart)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Force black background (Restart Recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}" ></SwitchCell>
                     </TableSection>
                     <TableSection>
                         <SwitchCell Text="Record View History" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Subtitles Enabled" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Anime default dub" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Default Anime Dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Search every character" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                    
                 </TableRoot>
             </TableView>
-            <Label Text="Build Version: " x:Name="BuildNumber"></Label>
-            <Button Text="Star me on Github :)" x:Name="StarMe">
+            <Label Text="Loading Time" x:Name="LoadingTime"></Label>
+            <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider"></Slider>
+            <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
+            <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5"></Label>
+            <Button Text="Star me on Github" x:Name="StarMe">
                 <!--★-->
-                
             </Button>
         </StackLayout>
        

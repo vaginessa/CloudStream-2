@@ -78,6 +78,7 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomSwitchCellRenderer.cs" />
     <Compile Include="CustomSearchBarRenderer.cs" />
     <Compile Include="CustomPickerRenderer.cs" />
     <Compile Include="MainActivity.cs" />

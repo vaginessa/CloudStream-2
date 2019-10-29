@@ -15,6 +15,7 @@ using CloudStreamForms;
 using static CloudStreamForms.App;
 using static CloudStreamForms.MainPage;
 using static CloudStreamForms.Settings;
+using System.Threading;
 
 namespace CloudStreamForms
 {
@@ -174,6 +175,8 @@ namespace CloudStreamForms
             ShareBtt.Source = GetImageSource("shareIcon.png");
             StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
             SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
+            //ViewToggle.Source = GetImageSource("viewOnState.png");
+            ChangeViewToggle();
             ChangeSubtitle();
 
             //NameLabel.Text = activeMovie.title.name;
@@ -192,7 +195,7 @@ namespace CloudStreamForms
             movie123FishingDone += MovieResult_movie123FishingDone;
 
             if (Device.RuntimePlatform == Device.UWP) {
-                QuickMenu.WidthRequest = 500;
+                //QuickMenu.WidthRequest = 500;
             }
 
             //  myEpisodeResultCollection;
@@ -372,8 +375,16 @@ namespace CloudStreamForms
         }
         List<Grid> grids = new List<Grid>();
         List<ProgressBar> progressBars = new List<ProgressBar>();
+
+
         public void AddEpisode(EpisodeResult episodeResult)
         {
+            episodeResult.ogTitle = Title;
+            string id = GetId(episodeResult);
+            if (id != "") {
+                episodeResult.MainTextColor = App.KeyExists("ViewHistory", id) ? primaryLightColor : "#ffffff";
+                //print(App.KeyExists("ViewHistory", id) + "|" + id);
+            }
             if (episodeResult.Rating != "") {
                 episodeResult.Title += " | ★ " + episodeResult.Rating;
             }
@@ -592,7 +603,7 @@ namespace CloudStreamForms
         {
             if (!SameAsActiveMovie()) return;
 
-            EpisodeResult episodeResult = ((MainEpisodeView)((ListView)sender).BindingContext).MyEpisodeResultCollection[e.ItemIndex];
+            // EpisodeResult episodeResult = ((MainEpisodeView)((ListView)sender).BindingContext).MyEpisodeResultCollection[e.ItemIndex];
 
 
         }
@@ -647,7 +658,7 @@ namespace CloudStreamForms
                     rYear = e.title.year;
                 }
                 RatingLabel.Text = rYear + " | " + e.title.runtime + " | " + extra + "★ " + e.title.rating;
-                DescriptionLabel.Text = e.title.description.Replace("\\u0027", "\'");
+                DescriptionLabel.Text = Settings.MovieDecEnabled ? e.title.description.Replace("\\u0027", "\'") : "";
                 if (e.title.description == "") {
                     DescriptionLabel.HeightRequest = 0;
                 }
@@ -854,12 +865,12 @@ namespace CloudStreamForms
 
                     isDub = dubExists;
 
-                    if(Settings.DefaultDub) {
+                    if (Settings.DefaultDub) {
                         if (dubExists) {
                             DubPicker.Items.Add("Dub");
                         }
                     }
-                
+
                     if (subExists) {
                         DubPicker.Items.Add("Sub");
                     }
@@ -1085,9 +1096,9 @@ namespace CloudStreamForms
                     NormalStack.IsEnabled = false;
                     // LoadingStack.IsVisible = true;
                     // NormalStack.IsVisible = false;
-                    NormalStack.Opacity = 0.7f;
+                    NormalStack.Opacity = 0.3f;
                     loadingLinks = true;
-                    await Task.Delay(loadingMiliSec);
+                    await Task.Delay(LoadingMiliSec);
                     loadingLinks = false;
 
                     if (SameAsActiveMovie()) {
@@ -1132,8 +1143,38 @@ namespace CloudStreamForms
             }
             return episodeResult;
         }
+
+        void ToggleEpisode(EpisodeResult episodeResult)
+        {
+            string id = GetId(episodeResult);
+            if (id != "") {
+
+                if (App.KeyExists("ViewHistory", id)) {
+                    App.RemoveKey("ViewHistory", id);
+                }
+                else {
+                    App.SetKey("ViewHistory", id, true);
+                }
+            }
+            episodeResult.MainTextColor = App.KeyExists("ViewHistory", id) ? primaryLightColor : "#ffffff";
+
+            ForceUpdate();
+        }
+
         void PlayEpisode(EpisodeResult episodeResult)
         {
+            string id = GetId(episodeResult);
+            if (id != "") {
+                if (ViewHistory) {
+                    App.SetKey("ViewHistory", id, true);
+                    episodeResult.MainTextColor = primaryLightColor;
+
+                    // FORCE UPDATE
+                    ForceUpdate();
+                }
+            }
+
+
             string _sub = "";
             if (currentMovie.subtitles != null) {
                 if (currentMovie.subtitles.Count > 0) {
@@ -1141,6 +1182,24 @@ namespace CloudStreamForms
                 }
             }
             App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls, episodeResult.Mirros, _sub);
+        }
+
+        async Task ForceUpdate()
+        {
+
+            var _e = epView.MyEpisodeResultCollection.ToList();
+            Device.BeginInvokeOnMainThread(() => {
+
+                epView.MyEpisodeResultCollection.Clear();
+
+                for (int i = 0; i < _e.Count; i++) {
+                   // print("Main::" + _e[i].MainTextColor);
+                    EpisodeResult e = _e[i];
+                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = e.Title, Description = e.Description, MainTextColor = e.MainTextColor, Rating = e.Rating, epVis = e.epVis, Id = e.Id, LoadedLinks = e.LoadedLinks, loadResult = e.loadResult, Mirros = e.Mirros, mirrosUrls = e.mirrosUrls, ogTitle = e.ogTitle, PosterUrl = e.PosterUrl, Progress = e.Progress, subtitles = e.subtitles, subtitlesUrls = e.subtitlesUrls });
+                }
+
+            });
+            
         }
 
         private void ProgressBar_BindingContextChanged(object sender, EventArgs e)
@@ -1174,7 +1233,7 @@ namespace CloudStreamForms
 
             }
             if (loadingLinks) {
-                await Task.Delay(loadingMiliSec + 40);
+                await Task.Delay(LoadingMiliSec + 40);
             }
             if (!episodeResult.LoadedLinks) {
                 App.ShowToast(errorEpisodeToast);
@@ -1198,7 +1257,7 @@ namespace CloudStreamForms
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {
-                        App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/"+GetPathFromType() );
+                        App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
                     }
                 }
             }
@@ -1209,7 +1268,7 @@ namespace CloudStreamForms
                 catch (Exception) {
                 }
 
-                await Task.Delay(loadingMiliSec + 40);
+                await Task.Delay(LoadingMiliSec + 40);
 
                 if (!episodeResult.LoadedLinks) {
                     App.ShowToast(errorEpisodeToast);
@@ -1221,13 +1280,12 @@ namespace CloudStreamForms
 
                 TempThred tempThred = new TempThred();
                 tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-                tempThred.Thread = new System.Threading.Thread(() =>
-                {
+                tempThred.Thread = new System.Threading.Thread(() => {
                     try {
 
-                        string id = (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
-                        if (id.Replace(" ","") == "") { App.ShowToast("Id not found"); return; }
-                        
+                        string id = GetId(episodeResult);
+                        if (id.Replace(" ", "") == "") { App.ShowToast("Id not found"); return; }
+
                         string s = DownloadSubtitle(id);
                         if (s == "") {
                             App.ShowToast("No Subtitles Found");
@@ -1248,17 +1306,21 @@ namespace CloudStreamForms
                 tempThred.Thread.Name = "Subtitle Download";
                 tempThred.Thread.Start();
 
-               
+
             }
         }
 
+        string GetId(EpisodeResult episodeResult)
+        {
+            return (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
+        }
         string GetPathFromType()
         {
             string path = "Movies";
             if (currentMovie.title.movieType == MovieType.Anime) {
                 path = "Anime";
             }
-            else if(currentMovie.title.movieType == MovieType.TVSeries) {
+            else if (currentMovie.title.movieType == MovieType.TVSeries) {
                 path = "TVSeries";
             }
             return path;
@@ -1267,10 +1329,30 @@ namespace CloudStreamForms
         private void ViewCell_Tapped(object sender, EventArgs e) // MORE INFO HERE
         {
             EpisodeResult episodeResult = ((EpisodeResult)(((ViewCell)sender).BindingContext));
-            EpisodeSettings(episodeResult);
+            episodeView.SelectedItem = null;
+
+            if (toggleViewState) {
+                ToggleEpisode(episodeResult);
+            }
+            else {
+                EpisodeSettings(episodeResult);
+            }
+
+        }
+        bool toggleViewState = false;
+        private void ViewToggle_Clicked(object sender, EventArgs e)
+        {
+            toggleViewState = !toggleViewState;
+            ChangeViewToggle();
         }
 
+        void ChangeViewToggle()
+        {
+            ViewToggle.Source = GetImageSource((toggleViewState ? "viewOffIcon.png" : "viewOnIcon.png"));
+            ViewToggle.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(toggleViewState ? primaryColor : defColor)) };
+        }
     }
+
 }
 
 public class MainEpisodeView

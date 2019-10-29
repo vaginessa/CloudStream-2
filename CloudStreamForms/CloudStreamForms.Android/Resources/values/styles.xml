@@ -14,23 +14,44 @@
     <item name="colorPrimary">#3F51B5</item>
     <!-- colorPrimaryDark is used for the status bar -->
     <item name="colorPrimaryDark">#3F51B5</item>
-    <item name="android:windowBackground">@color/windowBackground</item>
+
     
     <!-- colorAccent is used as the default value for colorControlActivated
          which is used to tint widgets -->
-    <item name="colorAccent">#1976D2</item>
+    
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="colorAccent">#1976D2</item>
+    <!--1976D2-->
+
     <item name="android:navigationBarColor">@color/mtrl_btn_transparent_bg_color</item>
     <item name="android:statusBarColor">@color/mtrl_btn_transparent_bg_color</item>
-    <item name="android:colorPressedHighlight">@color/ListViewSelected</item>
     <item name="android:colorLongPressedHighlight">@color/ListViewHighlighted</item>
+    
+    <item name="android:colorPressedHighlight">@color/ListViewSelected</item>
     <item name="android:colorFocusedHighlight">@color/ListViewSelected</item>
     <item name="android:colorActivatedHighlight">@color/ListViewSelected</item>
-    <item name="android:activatedBackgroundIndicator">@color/ListViewSelected</item>
+    <!--
+    <item name="android:activatedBackgroundIndicator">@color/ListViewSelected</item>-->
+        <item name="windowActionModeOverlay">true</item>
+    
+    <!-- active thumb & track color (30% transparency) -->
+    <!--
+    <item name="android:colorControlActivated">#f1f1f1</item>
+    <item name="colorSwitchThumbNormal">#f1f1f1</item>
+    <item name="android:colorControlHighlight">#f1f1f1</item>
+    <item name="android:colorControlNormal">#f1f1f1</item>
+    -->
+    <!--
+    <item name="android:alertDialogTheme">@color/mtrl_btn_transparent_bg_color</item>
+-->    
+    
+    
     <!-- You can also set colorControlNormal, colorControlActivated
          colorControlHighlight and colorSwitchThumbNormal. -->
-    <item name="windowActionModeOverlay">true</item>
 
+    <!-- 
     <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
+    -->
   </style>
 
   <style name="AppCompatDialogStyle" parent="Theme.AppCompat.Light.Dialog">

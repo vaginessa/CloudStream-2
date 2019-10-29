@@ -19,6 +19,12 @@ namespace CloudStreamForms
         public static Poster mainPoster;
         ListView listView;
         public string startText = "";
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+        }
         public Search()
         {
             InitializeComponent();
@@ -34,6 +40,7 @@ namespace CloudStreamForms
                 Placeholder = "Movie Search...",
             };
             searchBar.TextChanged += SearchBar_TextChanged;
+            searchBar.SearchButtonPressed += SearchBar_SearchButtonPressed;
             if (Device.RuntimePlatform == Device.Android) {
                 /*
                 searchBar.TextColor = Color.FromHex(MainPage.primaryColor);
@@ -109,11 +116,16 @@ namespace CloudStreamForms
                     listView
                 }
             };
-            searchBar.Text = startText;
-            print(">>" + startText);
-            searchBar.Focus();
+            // searchBar.Text = startText;
+            // print(">>" + startText);
+            //searchBar.Focus();
             // print(MainSearchResultList.ItemsSource.ToString()  + "<<<<<<<<<");
 
+        }
+
+        private void SearchBar_SearchButtonPressed(object sender, EventArgs e)
+        {
+            QuickSearch(((SearchBar)sender).Text);
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -140,7 +152,10 @@ namespace CloudStreamForms
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
         {
-            QuickSearch(e.NewTextValue);
+            if (Settings.SearchEveryCharEnabled) {
+
+                QuickSearch(e.NewTextValue);
+            }
         }
 
         List<Poster> activePosters = new List<Poster>();
