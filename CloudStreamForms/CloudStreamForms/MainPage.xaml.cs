@@ -61,7 +61,7 @@ namespace CloudStreamForms
                 Children[i].IconImageSource = icons[i];
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
-            
+
             //PushPageFromUrlAndName("tt4869896", "Overlord");
 
 
@@ -498,6 +498,8 @@ namespace CloudStreamForms
             public List<Poster> recomended;
 
             public Movies123MetaData movies123MetaData;
+
+            public string shortEpView;
         }
 
         public struct Movies123MetaData
@@ -1085,6 +1087,7 @@ namespace CloudStreamForms
                                 year = year,
                                 ogName = ogName,
                                 hdPosterUrl = hdPosterUrl,
+
                             };
 
                             activeMovie.title.trailers.Add(new Trailer() { url = trailerUrl, posterUrl = trailerImg, name = trailerName });
@@ -1317,6 +1320,7 @@ namespace CloudStreamForms
                             trailers = t.trailers,
                             year = t.year,
                             hdPosterUrl = t.hdPosterUrl,
+                            shortEpView = t.shortEpView,
                             movies123MetaData = new Movies123MetaData() { movieLink = "", seasonData = seasonData },
                         };
                     }
@@ -1642,24 +1646,26 @@ namespace CloudStreamForms
 
                             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
                             print(mp4);
-                            try {
-                                string _d = DownloadString(mp4, tempThred);
-                                if (!GetThredActive(tempThred)) { return; };
-                                string mxLink = Getmp4UploadByFile(_d);
-                                print(mxLink);
+                            if (mp4 != "https://www.mp4upload.com/embed-") {
+                                try {
+                                    string _d = DownloadString(mp4, tempThred);
+                                    if (!GetThredActive(tempThred)) { return; };
+                                    string mxLink = Getmp4UploadByFile(_d);
+                                    print(mxLink);
 
-                                if (CheckIfURLIsValid(mxLink)) {
-                                    Episode ep = activeMovie.episodes[normalEpisode];
-                                    if (ep.links == null) {
-                                        activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                                    if (CheckIfURLIsValid(mxLink)) {
+                                        Episode ep = activeMovie.episodes[normalEpisode];
+                                        if (ep.links == null) {
+                                            activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                                        }
+                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                        linkAdded?.Invoke(null, 1);
                                     }
-                                    activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                    linkAdded?.Invoke(null, 1);
                                 }
-                            }
-                            catch (System.Exception) {
-                                print("BrowserMp4: " + mp4);
+                                catch (System.Exception) {
+                                    print("BrowserMp4: " + mp4);
 
+                                }
                             }
 
                             string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");

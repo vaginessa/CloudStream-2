@@ -18,6 +18,8 @@
             </StackLayout>
         </ScrollView>
      <!--   <BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
-
+        <Picker x:Name="MovieTypePicker">
+            
+        </Picker>
     </StackLayout>
 </ContentPage>

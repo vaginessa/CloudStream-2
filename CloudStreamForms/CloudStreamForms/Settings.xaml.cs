@@ -96,7 +96,7 @@ namespace CloudStreamForms
         }
 
 
-        public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#ffffff"; } }
+        public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#1976D2"; } }
 
         public static string MainBackgroundColor
         {
@@ -106,6 +106,7 @@ namespace CloudStreamForms
                 }
                 string color = "#111111";
                 if (Device.RuntimePlatform == Device.UWP) {
+                    return "#000000";
                     color = "#000811";
                 }
 
@@ -117,6 +118,7 @@ namespace CloudStreamForms
         public Settings()
         {
             InitializeComponent();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
 
             //Main.print("COLOR: "+ BlackBgToggle.OnColor);
             //  if (Device.RuntimePlatform == Device.UWP) {
@@ -126,9 +128,10 @@ namespace CloudStreamForms
                 App.OpenBrowser("https://github.com/LagradOst/CloudStream-2");
             };
             BuildNumber.Text = "Build Version: " + App.GetBuildNumber();
+            Apper();
 
             ViewHistoryToggle.OnChanged += (o, e) => {
-                ViewHistory = e.Value;
+                ViewHistory = !e.Value;
             };
 
             DubToggle.OnChanged += (o, e) => {
@@ -151,30 +154,67 @@ namespace CloudStreamForms
             SearchToggle.OnChanged += (o, e) => {
                 SearchEveryCharEnabled = e.Value;
             };
-            LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
-            LoadingSlider.Value = ((LoadingMiliSec - 1000.0) / 9000.0);
 
+        }
+
+        void Apper()
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
+                LoadingSlider.Value = ((LoadingMiliSec - 1000.0) / 9000.0);
+                SubtitesToggle.On = SubtitlesEnabled;
+                DubToggle.On = DefaultDub;
+                ViewHistoryToggle.On = !ViewHistory;
+                DecToggle.On = MovieDecEnabled;
+                EpsDecToggle.On = EpDecEnabled;
+                SearchToggle.On = SearchEveryCharEnabled;
+                if (Device.RuntimePlatform == Device.UWP) {
+                    BlackBgToggle.IsEnabled = false;
+                    BlackBgToggle.On = true;
+                }
+                else {
+                    BlackBgToggle.On = BlackBg;
+                }
+            });
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            Apper();
 
-            SubtitesToggle.On = SubtitlesEnabled;
-            BlackBgToggle.On = BlackBg;
-            DubToggle.On = DefaultDub;
-            ViewHistoryToggle.On = ViewHistory;
-            DecToggle.On = MovieDecEnabled;
-            EpsDecToggle.On = EpDecEnabled;
-            SearchToggle.On = SearchEveryCharEnabled;
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
 
         }
+
 
         private void Slider_DragCompleted(object sender, EventArgs e)
         {
             LoadingMiliSec = (int)Math.Round(((Slider)sender).Value * 9000) + 1000;
             LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
+        }
+
+        private void TextCell_Tapped(object sender, EventArgs e)
+        {
+            ClearHistory();
+        }
+        private void TextCell_Tapped2(object sender, EventArgs e)
+        {
+            ClearBookmarks();
+        }
+        async void ClearBookmarks()
+        {
+            string action = await DisplayActionSheet("Clear bookmarks", "Cancel", null, "Clear bookmarks");
+            if (action == "Clear bookmarks") {
+                App.RemoveFolder("BookmarkData");
+            }
+        }
+        async void ClearHistory()
+        {
+            string action = await DisplayActionSheet("Clear watch history", "Cancel", null, "Clear history");
+            if (action == "Clear history") {
+                App.RemoveFolder("ViewHistory");
+            }
         }
     }
 }

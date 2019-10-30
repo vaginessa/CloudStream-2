@@ -18,8 +18,12 @@
                         <SwitchCell Text="Force black background (Restart Recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}" ></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Record View History" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Instant Search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
+                    <TableSection>
+                        <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                    </TableSection>
+                 
                     <TableSection>
                         <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
@@ -33,12 +37,18 @@
                         <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Search every character" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <TextCell Text="Clear watch history"  Detail="This will clear all episodes/movies you have watched" Tapped="TextCell_Tapped">
+
+                        </TextCell>
                     </TableSection>
-                    
+                    <TableSection>
+                        <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2">
+
+                        </TextCell>
+                    </TableSection>
                 </TableRoot>
             </TableView>
-            <Label Text="Loading Time" x:Name="LoadingTime"></Label>
+            <Label Text="Loading Time" x:Name="LoadingTime" TranslationX="5"></Label>
             <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider"></Slider>
             <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
             <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5"></Label>

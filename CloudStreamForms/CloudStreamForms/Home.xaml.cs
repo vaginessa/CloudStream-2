@@ -17,6 +17,14 @@ namespace CloudStreamForms
         public Home()
         {
             InitializeComponent();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+            MovieTypePicker.ItemsSource = genresNames;
+            MovieTypePicker.SelectedIndexChanged += (o, e) => {
+                print(MovieTypePicker.SelectedIndex + "<<Selected" );
+            };
+            MovieTypePicker.SelectedIndex = 0;
+            MovieTypePicker.IsEnabled = false;
+            MovieTypePicker.IsVisible = false;
         }
 
         protected override void OnAppearing()
@@ -44,9 +52,9 @@ namespace CloudStreamForms
             bookmarkPosters = new List<BookmarkPoster>();
             Bookmarks.Children.Clear();
             for (int i = 0; i < keys.Count; i++) {
-                string name = FindHTML(keys[i], "Name=", "PosterUrl=");
-                string posterUrl = FindHTML(keys[i], "PosterUrl=", "Id=");
-                string id = FindHTML(keys[i], "Id=", "=EndAll");
+                string name = FindHTML(keys[i], "Name=", "|||");
+                string posterUrl = FindHTML(keys[i], "PosterUrl=", "|||");
+                string id = FindHTML(keys[i], "Id=", "|||");
                 if (name != "" && posterUrl != "" && id != "") {
                     if (CheckIfURLIsValid(posterUrl)) {
                         print(">>>>" + posterUrl);
@@ -86,6 +94,9 @@ namespace CloudStreamForms
                 // data.Add(App.GetKey("BookmarkData"))
             }
         }
+
+        List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
+        List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
 
     }
 

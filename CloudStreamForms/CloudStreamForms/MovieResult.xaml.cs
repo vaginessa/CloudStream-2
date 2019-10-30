@@ -101,7 +101,7 @@ namespace CloudStreamForms
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
             else {
-                App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "PosterUrl=" + currentMovie.title.hdPosterUrl + "Id=" + currentMovie.title.id + "=EndAll");
+                App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "|||PosterUrl=" + currentMovie.title.hdPosterUrl + "|||Id=" + currentMovie.title.id + "|||TypeId=" + ((int)currentMovie.title.movieType) + "|||ShortEpView=" + currentMovie.title.shortEpView + "|||=EndAll");
             }
 
 
@@ -830,7 +830,7 @@ namespace CloudStreamForms
                     if (currentMovie.title.movieType != MovieType.Anime) {
                         for (int i = 0; i < currentEpisodes.Count; i++) {
                             AddEpisode(new EpisodeResult() { Title = (i + 1) + ". " + currentEpisodes[i].name, Id = i, Description = currentEpisodes[i].description.Replace("\n", "").Replace("  ", ""), PosterUrl = currentEpisodes[i].posterUrl, Rating = currentEpisodes[i].rating, Progress = 0, epVis = false, subtitles = new List<string>() { "None" }, Mirros = new List<string>() });
-
+                            //print("ADDEPU" + currentEpisodes[i].name);
                         }
                     }
                 }

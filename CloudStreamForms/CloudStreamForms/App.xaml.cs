@@ -25,7 +25,7 @@ namespace CloudStreamForms
             void DownloadFile(string file, string fileName, bool mainPath, string extraPath);
             void DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
 
-         //   string GetBuildNumber();
+            //   string GetBuildNumber();
             // void OBrowser(string url);
         }
         public static IPlatformDep platformDep;
@@ -67,13 +67,17 @@ namespace CloudStreamForms
             }
             return _s;
         }
+
         public static void SetKey(string folder, string name, object value)
         {
             string path = GetKeyPath(folder, name);
             if (Current.Properties.ContainsKey(path)) {
+                Main.print("CONTAINS KEY");
                 Current.Properties[path] = value;
             }
             else {
+                Main.print("ADD KEY");
+
                 Current.Properties.Add(path, value);
             }
         }
@@ -81,6 +85,19 @@ namespace CloudStreamForms
         public static T GetKey<T>(string folder, string name, T defVal)
         {
             string path = GetKeyPath(folder, name);
+            return GetKey<T>(path, defVal);
+        }
+
+        public static void RemoveFolder(string folder)
+        {
+            List<string> keys = App.GetKeysPath(folder);
+            for (int i = 0; i < keys.Count; i++) {
+                RemoveKey(keys[i]);
+            }
+        }
+
+        public static T GetKey<T>(string path, T defVal)
+        {
             if (Current.Properties.ContainsKey(path)) {
                 return (T)Current.Properties[path];
             }
@@ -91,7 +108,7 @@ namespace CloudStreamForms
 
         public static List<T> GetKeys<T>(string folder)
         {
-            List<string> keyNames = Current.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();
+            List<string> keyNames = GetKeysPath(folder);
 
             List<T> allKeys = new List<T>();
             foreach (var key in keyNames) {
@@ -100,20 +117,31 @@ namespace CloudStreamForms
 
             return allKeys;
         }
+        public static List<string> GetKeysPath(string folder)
+        {
+            List<string> keyNames = Current.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();
+            return keyNames;
+        }
 
         public static bool KeyExists(string folder, string name)
         {
             string path = GetKeyPath(folder, name);
+            return KeyExists(path);
+        }
+        public static bool KeyExists(string path)
+        {
             return (Current.Properties.ContainsKey(path));
-
         }
         public static void RemoveKey(string folder, string name)
         {
             string path = GetKeyPath(folder, name);
+            RemoveKey(path);
+        }
+        public static void RemoveKey(string path)
+        {
             if (Current.Properties.ContainsKey(path)) {
                 Current.Properties.Remove(path);
             }
-
         }
         public static ImageSource GetImageSource(string inp)
         {

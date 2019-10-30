@@ -28,6 +28,7 @@ namespace CloudStreamForms
         public Search()
         {
             InitializeComponent();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
 
             searchLoaded += Search_searchLoaded;
 

@@ -15,6 +15,8 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
+            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+
         }
 
         protected override void OnAppearing()
