@@ -228,47 +228,57 @@ namespace CloudStreamForms.Droid
 
         public string GetPath(bool mainPath, string extraPath)
         {
-            return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : AppDomain.CurrentDomain.BaseDirectory) + extraPath;
+            return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads + "/Extra")) + extraPath;
         }
         public string DownloadFile(string file, string fileName, bool mainPath, string extraPath)
         {
-            return WriteFile(fileName, GetPath(mainPath, extraPath), file).Path;
+            return WriteFile(CensorFilename(fileName), GetPath(mainPath, extraPath), file).Path;
         }
 
         public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
         {
             try {
 
-                TempThred tempThred = new TempThred();
-                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-                tempThred.Thread = new System.Threading.Thread(() => {
-                    try {
-                        WebClient webClient = new WebClient();
-                        string basePath = GetPath(mainPath, extraPath);
-                        Main.print(basePath);
-                        Java.IO.File _file = new Java.IO.File(basePath);
+                string basePath = GetPath(mainPath, extraPath);
+                Main.print(basePath);
+                Java.IO.File _file = new Java.IO.File(basePath);
 
-                        _file.Mkdirs();
-                        basePath += "/" + fileName;
-                        Main.print(basePath);
-                        webClient.DownloadFile(url, basePath);
-                        //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                    }
-                    finally {
-                        JoinThred(tempThred);
-                    }
-                });
-                tempThred.Thread.Name = "Download Thread";
-                tempThred.Thread.Start();
-
+                _file.Mkdirs();
+                basePath += "/" + CensorFilename(fileName);
+                Main.print(basePath);
+                //webClient.DownloadFile(url, basePath);
+                using (WebClient wc = new WebClient()) {
+                    wc.DownloadProgressChanged += (o, e) => {
+                       // print(e.ProgressPercentage + "|" + basePath);
+                    };
+                    wc.DownloadFileAsync(
+                        // Param1 = Link of file
+                        new System.Uri(url),
+                        // Param2 = Path to save
+                        basePath
+                    );
+                }
 
             }
             catch (Exception) {
                 App.ShowToast("Download Failed");
                 return "";
             }
-            return GetPath(mainPath, extraPath) + "/" + fileName;
+            return GetPath(mainPath, extraPath) + "/" + CensorFilename(fileName);
+        }
+
+        private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            print("Progress:" + e.ProgressPercentage);
+            //  throw new NotImplementedException();
+        }
+
+        static string CensorFilename(string name)
+        {
+            name = Regex.Replace(name, @"[^A-Za-z0-9\.]+", String.Empty);
+            name.Replace(" ", "");
+            name = name.ToLower();
+            return name;
         }
 
         public string GetBuildNumber()
