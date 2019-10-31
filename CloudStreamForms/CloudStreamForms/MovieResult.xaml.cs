@@ -991,8 +991,8 @@ namespace CloudStreamForms
             Main.OpenBrowser(CurrentMalLink);
         }
 
-        List<FFImageLoading.Forms.CachedImage> play_btts = new List<FFImageLoading.Forms.CachedImage>();
 
+        List<FFImageLoading.Forms.CachedImage> play_btts = new List<FFImageLoading.Forms.CachedImage>();
         private void Image_PropertyChanging(object sender, PropertyChangingEventArgs e)
         {
 
@@ -1193,13 +1193,13 @@ namespace CloudStreamForms
                 epView.MyEpisodeResultCollection.Clear();
 
                 for (int i = 0; i < _e.Count; i++) {
-                   // print("Main::" + _e[i].MainTextColor);
+                    // print("Main::" + _e[i].MainTextColor);
                     EpisodeResult e = _e[i];
                     epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = e.Title, Description = e.Description, MainTextColor = e.MainTextColor, Rating = e.Rating, epVis = e.epVis, Id = e.Id, LoadedLinks = e.LoadedLinks, loadResult = e.loadResult, Mirros = e.Mirros, mirrosUrls = e.mirrosUrls, ogTitle = e.ogTitle, PosterUrl = e.PosterUrl, Progress = e.Progress, subtitles = e.subtitles, subtitlesUrls = e.subtitlesUrls });
                 }
 
             });
-            
+
         }
 
         private void ProgressBar_BindingContextChanged(object sender, EventArgs e)
@@ -1257,7 +1257,12 @@ namespace CloudStreamForms
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {
-                        App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
+                        string dpath = App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
+                        string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
+                        string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
+                        string key = "_dpath=" + dpath + "|||_ppath=" + ppath + "|||_mppath=" + mppath + "|||_descript=" + episodeResult.Description + "|||_maindescript=" + currentMovie.title.description + "|||_epCounter=" + episodeResult.Id + "|||_epId=" + GetId(episodeResult) + "|||_movieId=" + currentMovie.title.id + "|||_title=" + episodeResult.Title + "|||_movieTitle=" + currentMovie.title.name + "|||=EndAll";
+                        print("DKEY: " + key);
+                        App.SetKey("Download", currentMovie.title.id, key);
                     }
                 }
             }

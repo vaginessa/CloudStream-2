@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Text.RegularExpressions;
 using static CloudStreamForms.Main;
+using Android.Provider;
 
 namespace CloudStreamForms.Droid
 {
@@ -92,6 +93,25 @@ namespace CloudStreamForms.Droid
         {
             OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name }, subtitleLoc);
         }
+        public void DeleteFile(string path)
+        {
+            //Context context = Android.App.Application.Context;
+            Java.IO.File file = new Java.IO.File(path);
+            if (file.Exists()) {
+
+                file.Delete();
+            }
+            /*
+
+            string where = MediaStore.MediaColumns.Data + "=?";
+            string[] selectionArgs = new string[] { file.AbsolutePath };
+            ContentResolver contentResolver = context.ContentResolver;
+            Android.Net.Uri filesUri = MediaStore.Files.GetContentUri("external");
+
+            if (file.Exists()) {
+                contentResolver.Delete(filesUri, where, selectionArgs);
+            }*/
+        }
 
 
         public static Java.IO.File WriteFile(string name, string basePath, string write)
@@ -104,7 +124,7 @@ namespace CloudStreamForms.Droid
             }
             //name = Regex.Replace(name, @"[^A-Za-z0-9\.]+", String.Empty);
             //name.Replace(" ", "");
-          //  name = name.ToLower();
+            //  name = name.ToLower();
 
             Java.IO.File file = new Java.IO.File(basePath, name);
             Java.IO.File _file = new Java.IO.File(basePath);
@@ -118,7 +138,7 @@ namespace CloudStreamForms.Droid
             writer.Close();
             return file;
         }
-   
+
 
         public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
         {
@@ -203,26 +223,25 @@ namespace CloudStreamForms.Droid
                 }
                 Toast.MakeText(Android.App.Application.Context, message, toastLength).Show();
             });
-     
+
         }
 
         public string GetPath(bool mainPath, string extraPath)
         {
             return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : AppDomain.CurrentDomain.BaseDirectory) + extraPath;
         }
-        public void DownloadFile(string file, string fileName, bool mainPath, string extraPath)
+        public string DownloadFile(string file, string fileName, bool mainPath, string extraPath)
         {
-            WriteFile(fileName, GetPath(mainPath,extraPath), file );
+            return WriteFile(fileName, GetPath(mainPath, extraPath), file).Path;
         }
 
-        public void DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
         {
             try {
 
                 TempThred tempThred = new TempThred();
                 tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-                tempThred.Thread = new System.Threading.Thread(() =>
-                {
+                tempThred.Thread = new System.Threading.Thread(() => {
                     try {
                         WebClient webClient = new WebClient();
                         string basePath = GetPath(mainPath, extraPath);
@@ -233,7 +252,6 @@ namespace CloudStreamForms.Droid
                         basePath += "/" + fileName;
                         Main.print(basePath);
                         webClient.DownloadFile(url, basePath);
-
                         //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                     }
@@ -244,11 +262,13 @@ namespace CloudStreamForms.Droid
                 tempThred.Thread.Name = "Download Thread";
                 tempThred.Thread.Start();
 
-              
+
             }
             catch (Exception) {
                 App.ShowToast("Download Failed");
+                return "";
             }
+            return GetPath(mainPath, extraPath) + "/" + fileName;
         }
 
         public string GetBuildNumber()

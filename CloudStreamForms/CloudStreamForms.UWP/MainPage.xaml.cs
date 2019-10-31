@@ -26,6 +26,8 @@ using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using static CloudStreamForms.Main;
+using System.Text.RegularExpressions;
 
 namespace CloudStreamForms.UWP
 {
@@ -52,10 +54,23 @@ namespace CloudStreamForms.UWP
     public class MainUWP : CloudStreamForms.App.IPlatformDep
     {
 
+        public static string GetPath(string filename)
+        {
+            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 
+            return storageFolder.Path + "\\" + CensorFilename(filename);
+        }
+
+        static string CensorFilename(string name)
+        {
+            name = Regex.Replace(name, @"[^A-Za-z0-9\.]+", String.Empty);
+            name.Replace(" ", "");
+            name = name.ToLower();
+            return name;
+        }
         public static async Task CreateFile(string filename, byte[] write, bool autoOpen = true)
         {
-
+            filename = CensorFilename(filename);
             Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
             await storageFolder.CreateFileAsync(filename, Windows.Storage.CreationCollisionOption.ReplaceExisting);
             var file = await storageFolder.GetFileAsync(filename);
@@ -159,10 +174,10 @@ namespace CloudStreamForms.UWP
             Message.ShowMessage(message, duration);
         }
 
-        public void DownloadFile(string file, string fileName, bool mainPath, string extraPath)
+        public string DownloadFile(string file, string fileName, bool mainPath, string extraPath)
         {
             DownloadFile(Encoding.UTF8.GetBytes(file), fileName, mainPath, extraPath);
-
+            return GetPath(fileName);
         }
         public void DownloadFile(byte[] file, string fileName, bool mainPath, string extraPath)
         {
@@ -170,17 +185,33 @@ namespace CloudStreamForms.UWP
         }
 
 
-        public async void DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
         {
             try {
+                TempThred tempThred = new TempThred();
+                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                tempThred.Thread = new System.Threading.Thread(() => {
+                    try {
+                        WebClient webClient = new WebClient();
+                        byte[] data = webClient.DownloadData(url);
+                        DownloadFile(data, fileName, mainPath, extraPath);
+                        //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
-                WebClient webClient = new WebClient();
-                byte[] data = webClient.DownloadData(url);
-                DownloadFile(data, fileName, mainPath, extraPath);
+                    }
+                    finally {
+                        JoinThred(tempThred);
+                    }
+                });
+                tempThred.Thread.Name = "Download Thread";
+                tempThred.Thread.Start();
+
+
+                return GetPath(fileName);
 
             }
             catch (Exception) {
                 CloudStreamForms.App.ShowToast("Download Failed");
+                return "";
             }
         }
 
@@ -188,6 +219,11 @@ namespace CloudStreamForms.UWP
         {
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             return v.Major + "." + v.Minor + "." + v.Build;
+        }
+
+        public void DeleteFile(string path)
+        {
+            System.IO.File.Delete(path);
         }
     }
 

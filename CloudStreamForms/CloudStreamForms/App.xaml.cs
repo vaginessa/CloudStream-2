@@ -22,8 +22,9 @@ namespace CloudStreamForms
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
 
             void ShowToast(string message, double duration);
-            void DownloadFile(string file, string fileName, bool mainPath, string extraPath);
-            void DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
+            string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
+            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
+            void DeleteFile(string path);
 
             //   string GetBuildNumber();
             // void OBrowser(string url);
@@ -35,6 +36,11 @@ namespace CloudStreamForms
             InitializeComponent();
 
             MainPage = new MainPage();
+        }
+
+        public static void DeleteFile(string path)
+        {
+            platformDep.DeleteFile(path);
         }
         public static void PlayVLCWithSingleUrl(string url, string name = "", string subtitleLoc = "")
         {
@@ -148,14 +154,14 @@ namespace CloudStreamForms
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
         }
 
-        public static void DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "")
+        public static string DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "")
         {
-            platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
+           return platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
 
         }
-        public static void DownloadFile(string file, string fileName, bool mainPath = true, string extraPath = "")
+        public static string DownloadFile(string file, string fileName, bool mainPath = true, string extraPath = "")
         {
-            platformDep.DownloadFile(file, fileName, mainPath, extraPath);
+            return platformDep.DownloadFile(file, fileName, mainPath, extraPath);
         }
 
         public static string ConvertPathAndNameToM3U8(List<string> path, List<string> name, bool isSubtitleEnabled = false, string beforePath = "")
