@@ -1658,7 +1658,7 @@ namespace CloudStreamForms
                                         if (ep.links == null) {
                                             activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                         }
-                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 9, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                         linkAdded?.Invoke(null, 1);
                                     }
                                 }
@@ -1673,6 +1673,7 @@ namespace CloudStreamForms
                                 fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
                             }
                             if (fembed != "") {
+                                int prio = 5;
                                 string _d = PostRequest("https://www.fembed.com/api/source/" + fembed, "https://www.fembed.com/v/" + fembed, "r=&d=www.fembed.com", tempThred);
                                 if (_d != "") {
                                     string lookFor = "\"file\":\"";
@@ -1680,19 +1681,19 @@ namespace CloudStreamForms
                                     while (_d.Contains(_labelFind)) {
                                         string link = FindHTML(_d, lookFor, "\",\"");
 
-
                                         //  d = RemoveOne(d, link);
                                         link = link.Replace("\\/", "/");
 
                                         string label = FindHTML(_d, _labelFind, "\"");
                                         print(label + "|" + link);
                                         if (CheckIfURLIsValid(link)) {
+                                            prio++;
 
                                             Episode ep = activeMovie.episodes[normalEpisode];
                                             if (ep.links == null) {
                                                 activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                             }
-                                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                             linkAdded?.Invoke(null, 1);
                                         }
 
@@ -1717,6 +1718,7 @@ namespace CloudStreamForms
                                 string lookFor = "href=\"";
                                 string rem = "<div class=<\"dowload\"><a";
                                 linkContext = RemoveOne(linkContext, rem);
+                                int prio = 0;
                                 while (linkContext.Contains(lookFor)) {
                                     string link = FindHTML(linkContext, lookFor, "\"");
                                     string _nameContext = FindHTML(linkContext, link, "</a></div>") + "</a></div>";
@@ -1724,15 +1726,15 @@ namespace CloudStreamForms
                                     link = link.Replace("&amp;", "&");
 
                                     print("LINK: " + link + "|" + name);
-                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Orginal Quality").Replace("-", "");
+                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "");
 
                                     if (CheckIfURLIsValid(link)) {
-
+                                        prio++;
                                         Episode ep = activeMovie.episodes[normalEpisode];
                                         if (ep.links == null) {
                                             activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                                         }
-                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 0, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                                         linkAdded?.Invoke(null, 1);
                                     }
 
@@ -1769,6 +1771,12 @@ namespace CloudStreamForms
                         bool canShow = GetSettings(MovieType.TVSeries);
 
                         // -------------------- HD MIRRORS --------------------
+
+                        if (activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) {
+                            AddFastMovieLink(normalEpisode);
+                            AddFastMovieLink2(normalEpisode);
+                        }
+
 
                         if (GOMOSTEAM_ENABLED) {
                             TempThred minorTempThred = new TempThred();
@@ -1853,6 +1861,112 @@ namespace CloudStreamForms
             tempThred.Thread.Name = "Get Links";
             tempThred.Thread.Start();
 
+
+        }
+
+
+        //https://www.freefullmovies.zone/movies/watch.Iron-Man-3-2013.movie.html
+
+        static void AddFastMovieLink(int episode)
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    string d = DownloadString("https://www.freefullmovies.zone/movies/watch." + ToDown(activeMovie.title.name, true, "-").Replace(" ", "-") + "-" + activeMovie.title.year.Substring(0, 4) + ".movie.html", tempThred);
+
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    string find = "<source src=\"";
+                    string link = FindHTML(d, find, "\"");
+                    if (link != "") {
+                        double dSize = GetFileSize(link);
+                        if (dSize > 100) { // TO REMOVE TRAILERS
+                            Episode ep = activeMovie.episodes[episode];
+                            if (ep.links == null) {
+                                activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                            }
+                            activeMovie.episodes[episode].links.Add(new Link() { url = link, priority = 5, name = "HD FullMovies" });
+                        }
+                    }
+
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "FullMovies";
+            tempThred.Thread.Start();
+
+        }
+        static void AddFastMovieLink2(int episode) // https://1movietv.com/1movietv-streaming-api/
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    string d = DownloadString("https://1movietv.com/playstream/" + activeMovie.title.id, tempThred);
+
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    if (d != "") {
+
+                        string find = FindHTML(d, "src=\"https://myvidis.top/v/", "\"");
+                        int prio = 0;
+                        if (find != "") {
+                            string _d = PostRequest("https://myvidis.top/api/source/" + find, "https://myvidis.top/v/" + find,"",tempThred);
+                            if (_d != "") {
+                                string lookFor = "\"file\":\"";
+                                string _labelFind = "\"label\":\"";
+                                while (_d.Contains(_labelFind)) {
+                                    string link = FindHTML(_d, lookFor, "\",\"");
+                                    //  d = RemoveOne(d, link);
+                                    link = link.Replace("\\/", "/");
+
+                                    string label = FindHTML(_d, _labelFind, "\"");
+                                    print(label + "|" + link);
+                                    if (CheckIfURLIsValid(link)) {
+                                        prio++;
+
+                                        Episode ep = activeMovie.episodes[episode];
+                                        if (ep.links == null) {
+                                            activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                                        }
+                                        activeMovie.episodes[episode].links.Add(new Link() { priority = prio, url = link, name = "MovieTv " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                        linkAdded?.Invoke(null, 1);
+                                    }
+
+                                    _d = RemoveOne(_d, _labelFind);
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "Movietv";
+            tempThred.Thread.Start();
+
+        }
+
+
+        private static double GetFileSize(string url)
+        {
+            try {
+                var webRequest = HttpWebRequest.Create(new System.Uri(url));
+                webRequest.Method = "HEAD";
+
+                using (var webResponse = webRequest.GetResponse()) {
+                    var fileSize = webResponse.Headers.Get("Content-Length");
+                    var fileSizeInMegaByte = Math.Round(Convert.ToDouble(fileSize) / 1024.0 / 1024.0, 2);
+                    return fileSizeInMegaByte;
+                }
+            }
+            catch (Exception) {
+                return -1;
+            }
 
         }
 
@@ -2628,7 +2742,7 @@ namespace CloudStreamForms
                 webRequest.Referer = referer;
                 webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
                 // webRequest.Headers.Add("Host", "trollvid.net");
-                webRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36";
+                webRequest.UserAgent = USERAGENT;
                 webRequest.Headers.Add("Accept-Language", "en-US,en;q=0.5");
                 bool done = false;
                 string _res = "";
