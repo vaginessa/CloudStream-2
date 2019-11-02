@@ -1776,7 +1776,9 @@ namespace CloudStreamForms
                             AddFastMovieLink(normalEpisode);
                             AddFastMovieLink2(normalEpisode);
                         }
-
+                        if(activeMovie.title.movieType == MovieType.TVSeries) {
+                            GetTMDB(episode, season, normalEpisode);
+                        }
 
                         if (GOMOSTEAM_ENABLED) {
                             TempThred minorTempThred = new TempThred();
@@ -1866,7 +1868,7 @@ namespace CloudStreamForms
 
 
         //https://www.freefullmovies.zone/movies/watch.Iron-Man-3-2013.movie.html
-
+        //(LOW QUILITY) see https://1watchfree.me/free-avengers-infinity-war-online-movie-001/ ; get  //upfiles.pro/embed-mde1uxevydps.html ip =FIND[[[ <img src="http:// ,,,, / ]]] id = FIND [[[ mp4| ,,, |sources ]]] for more providers ||| full url = https:// ip / id /v.mp4
         static void AddFastMovieLink(int episode)
         {
             TempThred tempThred = new TempThred();
@@ -1898,6 +1900,43 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
 
         }
+        static void GetMovieTv(int episode, string d, TempThred tempThred) // https://1movietv.com/1movietv-streaming-api/ 
+        {
+            if (d != "") {
+
+                string find = FindHTML(d, "src=\"https://myvidis.top/v/", "\"");
+                int prio = 0;
+                if (find != "") {
+                    string _d = PostRequest("https://myvidis.top/api/source/" + find, "https://myvidis.top/v/" + find, "", tempThred);
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    if (_d != "") {
+                        string lookFor = "\"file\":\"";
+                        string _labelFind = "\"label\":\"";
+                        while (_d.Contains(_labelFind)) {
+                            string link = FindHTML(_d, lookFor, "\",\"");
+                            //  d = RemoveOne(d, link);
+                            link = link.Replace("\\/", "/");
+
+                            string label = FindHTML(_d, _labelFind, "\"");
+                            print(label + "|" + link);
+                            if (CheckIfURLIsValid(link)) {
+                                prio++;
+
+                                Episode ep = activeMovie.episodes[episode];
+                                if (ep.links == null) {
+                                    activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                                }
+                                activeMovie.episodes[episode].links.Add(new Link() { priority = prio, url = link, name = "MovieTv " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                                linkAdded?.Invoke(null, 1);
+                            }
+
+                            _d = RemoveOne(_d, _labelFind);
+                        }
+
+                    }
+                }
+            }
+        }
         static void AddFastMovieLink2(int episode) // https://1movietv.com/1movietv-streaming-api/
         {
             TempThred tempThred = new TempThred();
@@ -1905,41 +1944,9 @@ namespace CloudStreamForms
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
                     string d = DownloadString("https://1movietv.com/playstream/" + activeMovie.title.id, tempThred);
+                    GetMovieTv(episode, d, tempThred);
+                    //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                    if (d != "") {
-
-                        string find = FindHTML(d, "src=\"https://myvidis.top/v/", "\"");
-                        int prio = 0;
-                        if (find != "") {
-                            string _d = PostRequest("https://myvidis.top/api/source/" + find, "https://myvidis.top/v/" + find,"",tempThred);
-                            if (_d != "") {
-                                string lookFor = "\"file\":\"";
-                                string _labelFind = "\"label\":\"";
-                                while (_d.Contains(_labelFind)) {
-                                    string link = FindHTML(_d, lookFor, "\",\"");
-                                    //  d = RemoveOne(d, link);
-                                    link = link.Replace("\\/", "/");
-
-                                    string label = FindHTML(_d, _labelFind, "\"");
-                                    print(label + "|" + link);
-                                    if (CheckIfURLIsValid(link)) {
-                                        prio++;
-
-                                        Episode ep = activeMovie.episodes[episode];
-                                        if (ep.links == null) {
-                                            activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                                        }
-                                        activeMovie.episodes[episode].links.Add(new Link() { priority = prio, url = link, name = "MovieTv " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                        linkAdded?.Invoke(null, 1);
-                                    }
-
-                                    _d = RemoveOne(_d, _labelFind);
-                                }
-
-                            }
-                        }
-                    }
 
                 }
                 finally {
@@ -1951,6 +1958,31 @@ namespace CloudStreamForms
 
         }
 
+        static void GetTMDB(int episode, int season, int normalEpisode)// https://1movietv.com/1movietv-streaming-api/
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    string d = DownloadString("https://www.themoviedb.org/search/tv?query=" + activeMovie.title.name + "&language=en-US");
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    if (d != "") {
+                        string tmdbId = FindHTML(d, "<a id=\"tv_", "\"");
+                        if (tmdbId != "") {
+                            string _d = DownloadString("https://1movietv.com/playstream/" + tmdbId + "-" + season + "-" + episode, tempThred);
+                            GetMovieTv(normalEpisode, _d, tempThred);
+                            //https://1movietv.com/playstream/71340-2-8
+                        }
+                    }
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "Movietv";
+            tempThred.Thread.Start();
+
+        }
 
         private static double GetFileSize(string url)
         {

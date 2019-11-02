@@ -40,17 +40,17 @@ public class CustomSwitchCellRenderer : SwitchCellRenderer
     {
 
         var cell = base.GetCellCore(item, convertView, parent, context);
-        print("-->>>" + cell);
+      //  print("-->>>" + cell);
         // var child1 = ((LinearLayout)cell).GetChildAt(1);
         try {
             Android.Widget.Switch child0 = (Android.Widget.Switch)((LinearLayout)cell).GetChildAt(2);
             child0.LayoutChange += (o, e) => {
-                print("AAAAAAAAAAAAAAAAAAAAA-->>");
+               // print("AAAAAAAAAAAAAAAAAAAAA-->>");
                 SetColorOfToggle(o);
 
             };
             child0.Click += (o, e) => {
-                CloudStreamForms.Main.print("__> DDAAAAAAAAAAAAA");
+               // CloudStreamForms.Main.print("__> DDAAAAAAAAAAAAA");
                 // CloudStreamForms.Main.print("----> " + .Checked);
                 SetColorOfToggle(o);
             };
