@@ -45,7 +45,7 @@ namespace CloudStreamForms
 
         void AddEpisode(EpisodeResult episodeResult)
         {
-           
+
 
             epView.MyEpisodeResultCollection.Add(episodeResult);
             SetHeight();
@@ -90,7 +90,7 @@ namespace CloudStreamForms
                         Title = episodeTitle,
                         Mirros = new List<string>() { "Download" },
                         mirrosUrls = new List<string>() { moviePath },
-                        extraInfo = "KeyPath=" + keysPaths[i] + "|||_mppath=" + movieUrl + "|||_dpath=" + moviePath + "|||_ppath=" + posterUrl + "|||=EndAll"
+                        extraInfo = "KeyPath=" + keysPaths[i] + "|||_mppath=" + movieUrl + "|||_dpath=" + moviePath + "|||_ppath=" + posterUrl + "|||_movieId=" + movieId + "|||_movieTitle=" + movieTitle + "|||=EndAll"
                     }); ;
                     /*
                     Grid stackLayout = new Grid();
@@ -164,21 +164,55 @@ namespace CloudStreamForms
 
         async void EpsodeShow(EpisodeResult episodeResult)
         {
-            string action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, "Play", "Delete File");
-            if(action == "Play") {
+            string action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, "Play", "Delete File", "Open Source");
+            if (action == "Play") {
                 PlayEpisode(episodeResult);
             }
-            if(action == "Delete File") {
+            if (action == "Delete File") {
                 string moviePath = FindHTML(episodeResult.extraInfo, "_dpath=", "|||");
-                string posterUrl = FindHTML(episodeResult.extraInfo, "_ppath=", "|||");
-                string movieUrl = FindHTML(episodeResult.extraInfo, "_mppath=", "|||");
                 string keyPath = FindHTML(episodeResult.extraInfo, "KeyPath=", "|||");
-                App.DeleteFile(movieUrl);
-                App.DeleteFile(posterUrl);
-                App.DeleteFile(moviePath);
-                App.RemoveKey(keyPath);
+                //string posterUrl = FindHTML(episodeResult.extraInfo, "_ppath=", "|||");
+                // string movieUrl = FindHTML(episodeResult.extraInfo, "_mppath=", "|||");
+                //App.DeleteFile(movieUrl);
+                //App.DeleteFile(posterUrl);
+                DeleteFile(moviePath, keyPath);
+            }
+            if (action == "Open Source") {
+                string title = FindHTML(episodeResult.extraInfo, "_movieTitle=", "|||");
+                string movieId = FindHTML(episodeResult.extraInfo, "_movieId=", "|||");
+                PushPageFromUrlAndName(movieId, title);
             }
             UpdateDownloads();
+        }
+
+        public static void DeleteFile(string keyPath)
+        {
+            string keyData = App.GetKey(keyPath, "");
+            string moviePath = FindHTML(keyData, "_dpath=", "|||");
+            DeleteFile(moviePath, keyPath);
+        }
+        public static void DeleteFileFromFolder(string keyData, string keyFolder, string keyId)
+        {
+            string moviePath = FindHTML(keyData, "_dpath=", "|||");
+            DeleteFile(moviePath, keyFolder,keyId);
+        }
+
+        public static void DeleteFile(string moviePath, string keyPath)
+        {
+            App.DeleteFile(moviePath);
+            App.RemoveKey(keyPath);
+        }
+        public static void DeleteFile(string moviePath, string keyFolder,string keyId)
+        {
+            App.DeleteFile(moviePath);
+            App.RemoveKey(keyFolder,keyId);
+        }
+
+
+        public static void PlayFile(string keyData, string title = "")
+        {
+            string moviePath = FindHTML(keyData, "_dpath=", "|||");
+            App.PlayVLCWithSingleUrl(moviePath, title);
         }
 
         List<FFImageLoading.Forms.CachedImage> play_btts = new List<FFImageLoading.Forms.CachedImage>();

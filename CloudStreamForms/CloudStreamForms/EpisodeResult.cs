@@ -25,7 +25,7 @@ namespace CloudStreamForms.Models
        // public LoadResult loadResult { set; get; }
         public bool LoadedLinks { set; get; }
         public string MainTextColor { set; get; } = "#ffffff";
-        public string MainDarkTextColor { get { return MainTextColor != "#ffffff" ? MainPage.primaryColor : "#808080"; } } 
+        public string MainDarkTextColor { get; set; } = "#808080"; 
         public string ogTitle { set; get; }
         public double TranslateYOffset
         {

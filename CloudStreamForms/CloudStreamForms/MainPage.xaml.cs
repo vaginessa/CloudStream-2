@@ -226,7 +226,7 @@ namespace CloudStreamForms
         public const int HD_MIRROR_COUNT = 4;
         public const int ANIME_MIRRORS_COUNT = 1;
 
-        public const string loadingImage = "https://i.giphy.com/media/u2Prjtt7QYD0A/200.webp";
+        public const string loadingImage = "https://i.giphy.com/media/u2Prjtt7QYD0A/200.webp"; // from https://media0.giphy.com/media/u2Prjtt7QYD0A/200.webp?cid=790b7611ff76f40aaeea5e73fddeb8408c4b018b6307d9e3&rid=200.webp
 
         public const bool REPLACE_IMDBNAME_WITH_POSTERNAME = true;
         public static double posterRezMulti = 1.0;
@@ -288,8 +288,35 @@ namespace CloudStreamForms
             // Clean up the streams.
         }
 
+        /// <summary>
+        /// Creates color with corrected brightness.
+        /// </summary>
+        /// <param name="color">Color to correct.</param>
+        /// <param name="correctionFactor">The brightness correction factor. Must be between -1 and 1. 
+        /// Negative values produce darker colors.</param>
+        /// <returns>
+        /// Corrected <see cref="Color"/> structure.
+        /// </returns>
+        public static Color ChangeColorBrightness(Color color, float correctionFactor)
+        {
+            float red = (float)color.R;
+            float green = (float)color.G;
+            float blue = (float)color.B;
 
+            if (correctionFactor < 0) {
+                correctionFactor = 1 + correctionFactor;
+                red *= correctionFactor;
+                green *= correctionFactor;
+                blue *= correctionFactor;
+            }
+            else {
+                red = (255 - red) * correctionFactor + red;
+                green = (255 - green) * correctionFactor + green;
+                blue = (255 - blue) * correctionFactor + blue;
+            }
 
+            return Color.FromRgba((int)red, (int)green, (int)blue, color.A);
+        }
 
 
         // -------------------- THREDS --------------------
@@ -1996,7 +2023,7 @@ namespace CloudStreamForms
 
         }
 
-        private static double GetFileSize(string url)
+        public static double GetFileSize(string url)
         {
             try {
                 var webRequest = HttpWebRequest.Create(new System.Uri(url));
