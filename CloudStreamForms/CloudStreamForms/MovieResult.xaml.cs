@@ -407,6 +407,14 @@ namespace CloudStreamForms
                     episodeResult.PosterUrl = posterUrl;
                 }
             }
+            //"_V1_UY126_UX224_AL_"
+            double mMulti = 2;
+            int pwidth = 224;
+            int pheight = 126;
+            pheight = (int)Math.Round(pheight * mMulti*posterRezMulti);
+            pwidth = (int)Math.Round(pwidth * mMulti*posterRezMulti);
+            episodeResult.PosterUrl = episodeResult.PosterUrl.Replace(",126,224_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY126", "UY" + pheight).Replace("UX224", "UX" + pwidth);
+            print(episodeResult.PosterUrl);
 
             epView.MyEpisodeResultCollection.Add(episodeResult);
             SetHeight();
@@ -621,6 +629,7 @@ namespace CloudStreamForms
         private void MovieResult_titleLoaded(object sender, Movie e)
         {
             if (loadedTitle) return;
+            if (e.title.name != mainPoster.name) return;
 
             loadedTitle = true;
             isMovie = (e.title.movieType == MovieType.Movie || e.title.movieType == MovieType.AnimeMovie);
@@ -691,6 +700,7 @@ namespace CloudStreamForms
                 }
                 Recommendations.Children.Clear();
 
+                double multi = 1.2;
                 int height = 100;
                 int width = 65;
                 if (Device.RuntimePlatform == Device.UWP) {
@@ -698,8 +708,11 @@ namespace CloudStreamForms
                     width = 85;
                 }
 
-                int pheight = height * 2;
-                int pwidth = width * 2;
+                height = (int)Math.Round(height * multi);
+                width = (int)Math.Round(width * multi);
+
+                int pheight = (int)Math.Round(height * 4 * posterRezMulti);
+                int pwidth = (int)Math.Round( width * 4* posterRezMulti);
                 Recommendations.HeightRequest = height;
                 for (int i = 0; i < RecomendedPosters.Count; i++) {
                     Poster p = e.title.recomended[i];
@@ -1058,19 +1071,26 @@ namespace CloudStreamForms
 
             if (episodeResult.LoadedLinks && !overrideLoaded) {
                 print("OPEN : " + episodeResult.Title);
+                /*
                 if (!CheckIfURLIsValid(episodeResult.loadResult.url)) {
                     try {
-                        LoadResult cl = episodeResult.loadResult;
+                        //LoadResult cl = episodeResult.loadResult;
 
-                        episodeResult.loadResult = new LoadResult() { url = episodeResult.mirrosUrls[0], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
+                      //  episodeResult.loadResult = new LoadResult() { url = episodeResult.mirrosUrls[0], loadSelection = cl.loadSelection, subtitleUrl = cl.subtitleUrl };
                     }
                     catch (Exception) {
                     }
 
+                }*/
+                if (episodeResult.mirrosUrls.Count > 0) {
+
+                    if (autoPlay) { PlayEpisode(episodeResult); }
                 }
-                if (autoPlay) {
-                    PlayEpisode(episodeResult);
+                else {
+                    App.ShowToast(errorEpisodeToast);
                 }
+                //PlayEpisode(episodeResult);
+
                 //  App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls.First(), episodeResult.Mirros.First());
 
                 /*
@@ -1111,13 +1131,29 @@ namespace CloudStreamForms
                     NormalStack.Opacity = 1f;
 
                     //NormalStack.IsVisible = true;
-                    if (episodeResult.mirrosUrls.Count > 0) {
+                    //   print("MAINOS");
+                    if (episodeResult == null) {
+                        App.ShowToast(errorEpisodeToast);
 
-                        if (autoPlay) { PlayEpisode(episodeResult); }
-                        episodeResult.LoadedLinks = true;
                     }
                     else {
-                        App.ShowToast(errorEpisodeToast);
+                        if (episodeResult.mirrosUrls == null) {
+                            App.ShowToast(errorEpisodeToast);
+
+                        }
+                        else {
+                            print("LINKCOUNT: " + episodeResult.mirrosUrls.Count);
+                            if (episodeResult.mirrosUrls.Count > 0) {
+
+                                if (autoPlay) { PlayEpisode(episodeResult); }
+                                episodeResult.LoadedLinks = true;
+                            }
+                            else {
+                                App.ShowToast(errorEpisodeToast);
+                            }
+                        }
+
+
                     }
 
                 });
@@ -1195,7 +1231,7 @@ namespace CloudStreamForms
                 for (int i = 0; i < _e.Count; i++) {
                     // print("Main::" + _e[i].MainTextColor);
                     EpisodeResult e = _e[i];
-                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = e.Title, Description = e.Description, MainTextColor = e.MainTextColor, Rating = e.Rating, epVis = e.epVis, Id = e.Id, LoadedLinks = e.LoadedLinks, loadResult = e.loadResult, Mirros = e.Mirros, mirrosUrls = e.mirrosUrls, ogTitle = e.ogTitle, PosterUrl = e.PosterUrl, Progress = e.Progress, subtitles = e.subtitles, subtitlesUrls = e.subtitlesUrls });
+                    epView.MyEpisodeResultCollection.Add(new EpisodeResult() { Title = e.Title, Description = e.Description, MainTextColor = e.MainTextColor, Rating = e.Rating, epVis = e.epVis, Id = e.Id, LoadedLinks = e.LoadedLinks, Mirros = e.Mirros, mirrosUrls = e.mirrosUrls, ogTitle = e.ogTitle, PosterUrl = e.PosterUrl, Progress = e.Progress, subtitles = e.subtitles, subtitlesUrls = e.subtitlesUrls }); // , loadResult = e.loadResult
                 }
 
             });
@@ -1258,11 +1294,14 @@ namespace CloudStreamForms
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {
                         string dpath = App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
-                        string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
-                        string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
+                        //  string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
+                        // string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
+                        string mppath = currentMovie.title.hdPosterUrl;
+                        string ppath = episodeResult.PosterUrl;
                         string key = "_dpath=" + dpath + "|||_ppath=" + ppath + "|||_mppath=" + mppath + "|||_descript=" + episodeResult.Description + "|||_maindescript=" + currentMovie.title.description + "|||_epCounter=" + episodeResult.Id + "|||_epId=" + GetId(episodeResult) + "|||_movieId=" + currentMovie.title.id + "|||_title=" + episodeResult.Title + "|||_movieTitle=" + currentMovie.title.name + "|||=EndAll";
                         print("DKEY: " + key);
-                        App.SetKey("Download", currentMovie.title.id, key);
+                        App.SetKey("Download", GetId(episodeResult), key);
+                        App.ShowToast("Download Started");
                     }
                 }
             }

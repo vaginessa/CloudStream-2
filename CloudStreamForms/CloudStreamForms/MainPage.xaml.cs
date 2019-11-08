@@ -226,7 +226,10 @@ namespace CloudStreamForms
         public const int HD_MIRROR_COUNT = 4;
         public const int ANIME_MIRRORS_COUNT = 1;
 
+        public const string loadingImage = "https://i.giphy.com/media/u2Prjtt7QYD0A/200.webp";
+
         public const bool REPLACE_IMDBNAME_WITH_POSTERNAME = true;
+        public static double posterRezMulti = 1.0;
 
         // -------------------- ALL METHODS --------------------
 
@@ -729,11 +732,16 @@ namespace CloudStreamForms
                     string currentSelectedYear = "";
                     while (_d.Contains(lookFor) && !done) { // TO FIX MY HERO ACADIMEA CHOOSING THE SECOND SEASON BECAUSE IT WAS FIRST SEARCHRESULT
                         string name = FindHTML(_d, lookFor, "\"");
+                        print("NAME FOUND: " + name);
                         string _url = FindHTML(_d, "url\":\"", "\"").Replace("\\/", "/");
                         string startYear = FindHTML(_d, "start_year\":", ",");
                         string aired = FindHTML(_d, "aired\":\"", "\"");
                         string _aired = FindHTML(aired, ", ", " ", readToEndOfFile: true);
-                        if (!name.Contains(" Season") && year == _aired) {
+                        string score = FindHTML(_d, "score\":\"", "\"");
+                        print("SCORE:" + score);
+                        if (!name.Contains(" Season") && year == _aired && score != "N\\/A") {
+                            print("URL FOUND: " + _url);
+                            print(_d);
                             url = _url;
                             done = true;
                             currentSelectedYear = _aired;
@@ -813,7 +821,7 @@ namespace CloudStreamForms
                         done = false,
                     };
                     if (activeMovie.title.MALData.japName != "error") {
-                        d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName, tempThred);
+                        d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" +  activeMovie.title.MALData.japName.Substring(0,Math.Min(5, activeMovie.title.MALData.japName.Length)), tempThred);
                         string look = "<p class=\"name\"><a href=\"/category/";
 
 
@@ -1066,7 +1074,7 @@ namespace CloudStreamForms
                             MovieType movieType = (!keyWords.Contains("anime") ? (type == "Movie" ? MovieType.Movie : MovieType.TVSeries) : (type == "Movie" ? MovieType.AnimeMovie : MovieType.Anime)); // looks ugly but works
 
                             if (movieType == MovieType.TVSeries) { // JUST IN CASE
-                                if (d.Contains(">Japan</a>") && d.Contains(">Japanese</a>") && d.Contains("Anime")) {
+                                if (d.Contains(">Japan</a>") && d.Contains(">Japanese</a>") && (d.Contains("Anime") || d.Contains(">Animation</a>,"))) {
                                     movieType = MovieType.Anime;
                                 }
                             }
@@ -1416,6 +1424,10 @@ namespace CloudStreamForms
                                 string descript = FindHTML(d, "<div class=\"item_description\" itemprop=\"description\">", "<").Replace("\n", "").Replace("  ", "");
                                 string date = FindHTML(d, "<div class=\"airdate\">", "<").Replace("\n", "").Replace("  ", "");
                                 string posterUrl = FindHTML(d, "src=\"", "\"");
+
+                                if(posterUrl == "https://m.media-amazon.com/images/G/01/IMDb/spinning-progress.gif" || posterUrl.Replace(" ","") == "") {
+                                    posterUrl = loadingImage; // DEAFULT LOADING
+                                }
 
                                 if (descript == "Know what this is about?") {
                                     descript = "";
@@ -2226,7 +2238,7 @@ namespace CloudStreamForms
 
                 }
                 finally {
-                    activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]); // ADDS ONE TO PROGRESS OF LINKS
+                   // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]); // ADDS ONE TO PROGRESS OF LINKS
                     JoinThred(minorTempThred);
                 }
             });
@@ -2576,7 +2588,7 @@ namespace CloudStreamForms
                                                     debug("HD Verystream Link error (Read api)");
                                                     debug("");
                                                 }
-                                                activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
+                                             //   activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
 
 
                                                 if (gogoStream != "") {
@@ -2609,7 +2621,7 @@ namespace CloudStreamForms
                                                     debug("HD Viduplayer Link error (Read api)");
                                                     debug("");
                                                 }
-                                                activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
+                                               // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
 
                                                 if (gunURL != "" && gunURL != "https://gounlimited.to/") {
                                                     try {
@@ -2643,7 +2655,7 @@ namespace CloudStreamForms
                                                     debug("HD Go Link error (Read api)");
                                                     debug("");
                                                 }
-                                                activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
+                                               // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
 
                                                 if (onlyURL != "" && onlyURL != "https://onlystream.tv") {
                                                     try {
@@ -2706,12 +2718,12 @@ namespace CloudStreamForms
                                                     debug("HD Only Link error (Read api)");
                                                     debug("");
                                                 }
-                                                activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
+                                                //activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
                                                 //print(activeMovie.episodes[episode].Progress);
                                                 done = true;
                                             }
                                             else {
-                                                activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + HD_MIRROR_COUNT, activeMovie.episodes[episode]);
+                                              //  activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + HD_MIRROR_COUNT, activeMovie.episodes[episode]);
                                                 done = true;
                                                 debug("DA FAILED");
                                             }
@@ -2729,7 +2741,7 @@ namespace CloudStreamForms
                             }), webRequest);
                         }
                         else {
-                            activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
+                           // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
 
                             debug("Dident get gogo");
                         }
@@ -2737,7 +2749,7 @@ namespace CloudStreamForms
                     }
                     catch (System.Exception) {
                         debug("Error");
-                        activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
+                        //activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
                     }
                 }
                 finally {

@@ -60,6 +60,9 @@ namespace CloudStreamForms
         {
             List<string> keys = App.GetKeys<string>("Download");
             List<string> keysPaths = App.GetKeysPath("Download");
+            foreach (var item in keysPaths) {
+                print("KEYPATH:" + item);
+            }
             List<string> data = new List<string>();
             downloadposter = new List<DownloadPoster>();
             // Downloads.Children.Clear();
@@ -80,7 +83,6 @@ namespace CloudStreamForms
                 const double height = 80;
                 const double width = 126;
                 if (moviePath != "") {
-                    epView.MyEpisodeResultCollection.Clear();
                     AddEpisode(new EpisodeResult() {
                         Description = episodeDescript,
                         PosterUrl = posterUrl,

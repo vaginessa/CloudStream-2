@@ -22,7 +22,7 @@ namespace CloudStreamForms.Models
         public List<string> subtitles { set; get; }
         public List<string> subtitlesUrls { set; get; }
         public bool epVis { set; get; }
-        public LoadResult loadResult { set; get; }
+       // public LoadResult loadResult { set; get; }
         public bool LoadedLinks { set; get; }
         public string MainTextColor { set; get; } = "#ffffff";
         public string MainDarkTextColor { get { return MainTextColor != "#ffffff" ? MainPage.primaryColor : "#808080"; } } 
@@ -39,7 +39,7 @@ namespace CloudStreamForms.Models
             }
         }
     }
-
+    /*
     public enum LoadSelection { Play,Download,CopyLink,CopySubtitleLink }
 
     public struct LoadResult
@@ -47,5 +47,5 @@ namespace CloudStreamForms.Models
         public string url;
         public string subtitleUrl;
         public LoadSelection loadSelection;
-    }
+    }*/
 }

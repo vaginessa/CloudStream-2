@@ -75,7 +75,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
                     <Grid Grid.Row="1"  Grid.Column="0">
-                        <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" TranslationX="10" TranslationY="-20" TextColor="White"></Label>
+                        <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" Margin="10" TranslationY="-20" TextColor="White"></Label>
                     </Grid>
 
                     <Grid Grid.Row="2"  Grid.Column="0">
