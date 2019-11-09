@@ -1066,7 +1066,7 @@ namespace CloudStreamForms
             //ProgressBar progressBar = (ProgressBar)((Grid)((Grid)((ImageButton)sender).Children.ElementAt(0)).Children.ElementAt(0)).Children.ElementAt(2)).Children.ElementAt(0);
 
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
-            string hasDownloadedFile = App.GetKey("Download", GetId(episodeResult),"");
+            string hasDownloadedFile = App.GetKey("Download", GetId(episodeResult), "");
             if (hasDownloadedFile != "") {
                 Download.PlayFile(hasDownloadedFile, episodeResult.Title);
             }
@@ -1406,8 +1406,17 @@ namespace CloudStreamForms
 
         public string GetId(EpisodeResult episodeResult)
         {
-            return (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
+          //  print(episodeResult.Id + "|" + currentMovie.episodes.Count);
+
+            try {
+                return (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
+
+            }
+            catch (Exception) {
+                return episodeResult.Id + "Extra=" + ToDown(episodeResult.Title) + "=EndAll";
+            }
         }
+
         string GetPathFromType()
         {
             string path = "Movies";
