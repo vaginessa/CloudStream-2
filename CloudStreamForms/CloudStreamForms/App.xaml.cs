@@ -25,6 +25,7 @@ namespace CloudStreamForms
             string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
             string DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
             void DeleteFile(string path);
+            void DownloadUpdate(string update);
 
             //   string GetBuildNumber();
             // void OBrowser(string url);
@@ -57,6 +58,11 @@ namespace CloudStreamForms
         {
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             return v.Major + "." + v.Minor + "." + v.Build;
+        }
+
+        public static void DownloadNewGithubUpdate(string update)
+        {
+
         }
 
         public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")

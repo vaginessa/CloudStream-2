@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Reflection;
-
-
+using System.Net;
+using static CloudStreamForms.Main;
 
 namespace CloudStreamForms
 {
@@ -154,6 +154,11 @@ namespace CloudStreamForms
             SearchToggle.OnChanged += (o, e) => {
                 SearchEveryCharEnabled = e.Value;
             };
+            UpdateBtt.Clicked += (o, e) => {
+                if (NewGithubUpdate) {
+                    App.DownloadNewGithubUpdate(Main.githubUpdateTag);
+                }
+            };
 
         }
 
@@ -183,7 +188,13 @@ namespace CloudStreamForms
             base.OnAppearing();
             Apper();
 
-            BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+   
+            if (Device.RuntimePlatform == Device.Android) {
+                UpdateBtt.IsEnabled = Main.NewGithubUpdate;
+                UpdateBtt.IsVisible = Main.NewGithubUpdate;
+                UpdateBtt.Text = "Update to v" + App.GetBuildNumber() + " -> " + githubUpdateTag + " " + githubUpdateText;
+                BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+            }
 
         }
 

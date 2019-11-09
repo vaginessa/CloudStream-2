@@ -52,7 +52,8 @@
             <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider"></Slider>
             <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
             <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5"></Label>
-            <Button Text="Star me on Github" x:Name="StarMe">
+            <Button Text="Update To..." x:Name="UpdateBtt" IsEnabled="False" IsVisible="False"></Button>
+            <Button Text="Star me on Github" x:Name="StarMe" > 
                 <!--★-->
             </Button>
         </StackLayout>

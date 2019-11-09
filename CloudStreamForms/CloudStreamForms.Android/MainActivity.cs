@@ -114,6 +114,68 @@ namespace CloudStreamForms.Droid
         }
 
 
+        static Java.Lang.Thread downloadThread;
+        public static void DownloadFromLink(string url, string title, string snackBar = "", string ending = "", bool openFile = false)
+        {
+            print("DOWNLOADING: " + url);
+
+            DownloadManager.Request request = new DownloadManager.Request(Android.Net.Uri.Parse(url));
+            request.SetDescription(title);
+            request.SetTitle(title);
+            string mainPath = Android.OS.Environment.DirectoryDownloads;
+            string subPath = title + ending;
+            string fullPath = mainPath + "/" + subPath;
+
+            print("PATH: " + fullPath);
+
+            request.SetDestinationInExternalPublicDir(mainPath, subPath);
+            request.SetVisibleInDownloadsUi(true);
+            request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted);
+
+            DownloadManager manager;
+            manager = (DownloadManager) MainActivity.activity.GetSystemService(Context.DownloadService);
+     
+            long downloadId = manager.Enqueue(request);
+
+            // AUTO OPENS FILE WHEN DONE DOWNLOADING
+            if (openFile) {
+                downloadThread = new Java.Lang.Thread(() => {
+                    try {
+                        bool exists = false;
+                        while (!exists) {
+                            try {
+                                string p = manager.GetUriForDownloadedFile(downloadId).Path;
+                                exists = true;
+                            }
+                            catch (System.Exception) {
+                                Java.Lang.Thread.Sleep(100);
+                            }
+
+                        }
+                        Java.Lang.Thread.Sleep(500);
+                        print("OPEN FILE");
+                        //            
+                        string truePath = ("file://" + Android.OS.Environment.ExternalStorageDirectory + "/" + fullPath);
+
+                       OpenFile(truePath);
+                    }
+                    finally {
+                        downloadThread.Join();
+                    }
+                });
+                downloadThread.Start();
+            }
+        }
+        public static void OpenFile(string link)
+        {
+            Android.Net.Uri uri = Android.Net.Uri.Parse(link);
+            print("FILE: " + uri);
+
+            Intent promptInstall = new Intent(Intent.ActionView).SetDataAndType(uri, "application/vnd.android.package-archive");
+            promptInstall.AddFlags(ActivityFlags.NewTask);
+            Android.App.Application.Context.StartActivity(promptInstall);
+        }
+
         public static Java.IO.File WriteFile(string name, string basePath, string write)
         {
             try {
@@ -287,6 +349,12 @@ namespace CloudStreamForms.Droid
             var VersionNumber = context.PackageManager.GetPackageInfo(context.PackageName, PackageInfoFlags.MetaData).VersionName;
             var BuildNumber = context.PackageManager.GetPackageInfo(context.PackageName, PackageInfoFlags.MetaData).VersionCode.ToString();
             return BuildNumber + " " + VersionNumber;
+        }
+
+        public void DownloadUpdate(string update)
+        {
+            string downloadLink = "https://github.com/LagradOst/CloudStream/releases/download/" + update + "/CloudStream.CloudStream.apk";
+            DownloadFromLink(downloadLink, "CloudStream-2 " + update, "Downloading APK", ".apk", true);
         }
     }
 }

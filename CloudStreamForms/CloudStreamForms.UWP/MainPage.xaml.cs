@@ -225,6 +225,11 @@ namespace CloudStreamForms.UWP
         {
             System.IO.File.Delete(path);
         }
+
+        public void DownloadUpdate(string update)
+        {
+           // throw new NotImplementedException();
+        }
     }
 
     public static class Message
