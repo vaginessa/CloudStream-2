@@ -821,7 +821,7 @@ namespace CloudStreamForms
                             _synos.Add(_current);
                             _syno = RemoveOne(_syno, ",");
                         }
-
+                        print("CURRENTNAME: " + currentName);
 
                         if (currentName.Contains("Part ") && !currentName.Contains("Part 1")) // WILL ONLY WORK UNTIL PART 10, BUT JUST HOPE THAT THAT DOSENT HAPPEND :)
                         {

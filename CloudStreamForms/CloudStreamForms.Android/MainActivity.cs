@@ -74,6 +74,8 @@ namespace CloudStreamForms.Droid
         }
 
         public static int REQUEST_WRITE_STORAGE = 112;
+        public static int REQUEST_INSTALL = 113;
+        public static int REQUEST_INSTALL2 = 113;
         private static void RequestPermission(Activity context)
         {
             bool hasPermission = (ContextCompat.CheckSelfPermission(context, Manifest.Permission.WriteExternalStorage) == Permission.Granted);
@@ -82,7 +84,18 @@ namespace CloudStreamForms.Droid
                    new string[] { Manifest.Permission.WriteExternalStorage },
                  REQUEST_WRITE_STORAGE);
             }
-
+            bool hasPermission2 = (ContextCompat.CheckSelfPermission(context, Manifest.Permission.RequestInstallPackages) == Permission.Granted);
+            if (!hasPermission2) {
+                ActivityCompat.RequestPermissions(context,
+                   new string[] { Manifest.Permission.RequestInstallPackages },
+                 REQUEST_INSTALL);
+            }
+            bool hasPermission3 = (ContextCompat.CheckSelfPermission(context, Manifest.Permission.InstallPackages) == Permission.Granted);
+            if (!hasPermission3) {
+                ActivityCompat.RequestPermissions(context,
+                   new string[] { Manifest.Permission.InstallPackages },
+                 REQUEST_INSTALL2);
+            }
         }
 
 
@@ -115,13 +128,13 @@ namespace CloudStreamForms.Droid
 
 
         static Java.Lang.Thread downloadThread;
-        public static void DownloadFromLink(string url, string title, string snackBar = "", string ending = "", bool openFile = false)
+        public static void DownloadFromLink(string url, string title, string snackBar = "", string ending = "", bool openFile = false, string descripts = "")
         {
             print("DOWNLOADING: " + url);
 
             DownloadManager.Request request = new DownloadManager.Request(Android.Net.Uri.Parse(url));
-            request.SetDescription(title);
             request.SetTitle(title);
+            request.SetDescription(descripts);
             string mainPath = Android.OS.Environment.DirectoryDownloads;
             string subPath = title + ending;
             string fullPath = mainPath + "/" + subPath;
@@ -152,10 +165,10 @@ namespace CloudStreamForms.Droid
                             }
 
                         }
-                        Java.Lang.Thread.Sleep(500);
+                        Java.Lang.Thread.Sleep(5000);
                         print("OPEN FILE");
                         //            
-                        string truePath = ("file://" + Android.OS.Environment.ExternalStorageDirectory + "/" + fullPath);
+                        string truePath = ("content://" + Android.OS.Environment.ExternalStorageDirectory + "/" + fullPath);
 
                        OpenFile(truePath);
                     }
@@ -168,11 +181,28 @@ namespace CloudStreamForms.Droid
         }
         public static void OpenFile(string link)
         {
-            Android.Net.Uri uri = Android.Net.Uri.Parse(link);
+            Android.Net.Uri uri = Android.Net.Uri.Parse(link);//link);
             print("FILE: " + uri);
 
-            Intent promptInstall = new Intent(Intent.ActionView).SetDataAndType(uri, "application/vnd.android.package-archive");
+            Intent promptInstall = new Intent(Intent.ActionView).SetDataAndType(uri, "application/vnd.android.package-archive"); //vnd.android.package-archive
             promptInstall.AddFlags(ActivityFlags.NewTask);
+            promptInstall.AddFlags(ActivityFlags.GrantReadUriPermission);
+            promptInstall.AddFlags(ActivityFlags.NoHistory);
+            promptInstall.AddFlags(ActivityFlags.ClearWhenTaskReset | ActivityFlags.NewTask);
+            Android.App.Application.Context.StartActivity(promptInstall);
+            /*
+            Intent promptInstall = new Intent(Intent.ActionView).SetData(uri);//.SetDataAndType(uri, "application/vnd.android.package-archive");
+            //   promptInstall.AddFlags(ActivityFlags.NewTask);
+            promptInstall.AddFlags(ActivityFlags.GrantReadUriPermission);
+            promptInstall.AddFlags(ActivityFlags.GrantWriteUriPermission);
+            promptInstall.AddFlags(ActivityFlags.GrantPrefixUriPermission);
+            promptInstall.AddFlags(ActivityFlags.GrantPersistableUriPermission);
+            
+            promptInstall.AddFlags(ActivityFlags.NewTask);*/
+
+
+            // Android.App.Application.Context.ApplicationContext.start
+            //Android.App.Application.Context.StartService(intent);
             Android.App.Application.Context.StartActivity(promptInstall);
         }
 
@@ -231,7 +261,7 @@ namespace CloudStreamForms.Droid
             Android.Net.Uri uri = Android.Net.Uri.Parse(path);
 
             Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/*");
-            intent.SetPackage("org.videolan.vlc");
+            //intent.SetPackage("org.videolan.vlc");
             Main.print("Da_ " + Android.Net.Uri.Parse(subfile));
 
             if (subfile != "") {
@@ -288,7 +318,7 @@ namespace CloudStreamForms.Droid
 
         }
 
-        public string GetPath(bool mainPath, string extraPath)
+        public static string GetPath(bool mainPath, string extraPath)
         {
             return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads + "/Extra")) + extraPath;
         }
@@ -311,7 +341,11 @@ namespace CloudStreamForms.Droid
                 //webClient.DownloadFile(url, basePath);
                 using (WebClient wc = new WebClient()) {
                     wc.DownloadProgressChanged += (o, e) => {
-                       // print(e.ProgressPercentage + "|" + basePath);
+                        if(e.ProgressPercentage == 100) {
+                            App.ShowToast("Download Successful");
+                            //OpenFile(basePath);
+                        }
+                        // print(e.ProgressPercentage + "|" + basePath);
                     };
                     wc.DownloadFileAsync(
                         // Param1 = Link of file
@@ -353,8 +387,41 @@ namespace CloudStreamForms.Droid
 
         public void DownloadUpdate(string update)
         {
-            string downloadLink = "https://github.com/LagradOst/CloudStream/releases/download/" + update + "/CloudStream.CloudStream.apk";
-            DownloadFromLink(downloadLink, "CloudStream-2 " + update, "Downloading APK", ".apk", true);
+            string downloadLink = "https://github.com/LagradOst/CloudStream-2/releases/download/" + update + "/com.CloudStreamForms.CloudStreamForms.apk";
+            DownloadUrl(downloadLink, "com.CloudStreamForms.CloudStreamForms.apk", true, "");
+            /*
+            print(Android.OS.Environment.DataDirectory);
+            string absolutePath = Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads;
+
+            string fullPath = "content:///storage/emulated/0/Download/CloudStream-2.apk";//com.CloudStreamForms.CloudStreamForms.apk";
+            Java.IO.File file = new Java.IO.File(fullPath);
+
+            //  Android.Net.Uri uri = Android.Support.V4.Content.FileProvider.GetUriForFile(MainActivity.activity, "com.CloudStreamForms.CloudStreamForms.Fileprovider", file);
+            //  Android.Net.Uri uri = Android.Net.Uri.Parse(fullPath);//link);
+            file.SetReadable(true);
+
+            Android.Net.Uri uri = Android.Support.V4.Content.FileProvider.GetUriForFile(Android.App.Application.Context, "com.cloudstreamforms.cloudstreamforms.provider", file);
+            print(uri.Path);
+
+          //  Android.Net.Uri contentUri = MainActivity.activity.Ge(getContext(), "com.mydomain.fileprovider", newFile);
+
+          //  MainActivity.activity.GrantUriPermission("com.CloudStreamForms.CloudStreamForms", uri, ActivityFlags.GrantReadUriPermission);
+            
+            Stream stream = MainActivity.activity.OpenFileOutput(fullPath, FileCreationMode.Private);
+            Java.IO.File file = MainActivity.activity.GetFileStreamPath(fullPath);
+            var uri = FileProvider.GetUriForFile(MainActivity.activity, "", file);
+            // ActivityFlags.GrantReadUriPermissios
+
+            //OpenFile(absolutePath +"/" + "CloudStream-2.apk");
+            Intent promptInstall = new Intent(Intent.ActionView).SetDataAndType(uri, "application/vnd.android.package-archive"); //vnd.android.package-archive
+            promptInstall.AddFlags(ActivityFlags.NewTask);
+            promptInstall.AddFlags(ActivityFlags.GrantReadUriPermission);
+            promptInstall.AddFlags(ActivityFlags.NoHistory);
+            promptInstall.AddFlags(ActivityFlags.ClearWhenTaskReset | ActivityFlags.NewTask);
+            Android.App.Application.Context.StartActivity(promptInstall);
+            //  App.ShowToast("Download Started");
+            // DownloadFromLink(downloadLink, "com.CloudStreamForms.CloudStreamForms.apk", "Downloading APK", ".apk", true);
+            */
         }
     }
 }

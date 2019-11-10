@@ -62,7 +62,7 @@ namespace CloudStreamForms
 
         public static void DownloadNewGithubUpdate(string update)
         {
-
+            platformDep.DownloadUpdate(update);
         }
 
         public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")
