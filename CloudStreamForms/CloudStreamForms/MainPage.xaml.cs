@@ -529,8 +529,14 @@ namespace CloudStreamForms
             public List<Poster> recomended;
 
             public Movies123MetaData movies123MetaData;
+            public YesmoviessMetaData yesmoviessMetaData;
 
             public string shortEpView;
+        }
+
+        public struct YesmoviessMetaData
+        {
+
         }
 
         public struct Movies123MetaData
@@ -1039,7 +1045,7 @@ namespace CloudStreamForms
 
         public static string ToLowerAndReplace(string inp)
         {
-            return inp.ToLower().Replace("-", " ").Replace("`","\'");
+            return inp.ToLower().Replace("-", " ").Replace("`", "\'");
         }
         public static void GetImdbTitle(Poster imdb, bool purgeCurrentTitleThread = true, bool autoSearchTrailer = true)
         {
@@ -1148,6 +1154,7 @@ namespace CloudStreamForms
                             }
                             else {
                                 FishMovies123Links();
+                                FishYesMoviesLinks();
                             }
 
                             if (autoSearchTrailer) { GetRealTrailerLinkFromImdb(trailerUrl); }
@@ -1219,6 +1226,11 @@ namespace CloudStreamForms
                     bool canShow = GetSettings(MovieType.TVSeries);
 
                     string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
+                    string yesmovies = "https://yesmoviess.to/search/?keyword=" + rinput.Replace("+", "-");
+
+        
+
+                    // SUB HD MOVIES 123
                     string movies123 = "https://movies123.pro/search/" + rinput.Replace("+", "%20") + ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? "/movies" : "/series");
 
                     string d = DownloadString(movies123, tempThred);
@@ -1389,6 +1401,59 @@ namespace CloudStreamForms
 
 
         }
+
+        public static void FishYesMoviesLinks() // TO MAKE LINK EXTRACTION EASIER
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    if (activeMovie.title.movieType == MovieType.Anime) { return; }
+
+                    bool canMovie = GetSettings(MovieType.Movie);
+                    bool canShow = GetSettings(MovieType.TVSeries);
+
+                    string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
+                    string yesmovies = "https://yesmoviess.to/search/?keyword=" + rinput.Replace("+", "-");
+
+
+                    string d = DownloadString(yesmovies, tempThred);
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                    int counter = 0;
+                    string lookfor = "data-url=\"";
+                    while ((d.Contains(lookfor)) && counter < 100) {
+                        counter++;
+                        string url = FindHTML(d, lookfor, "\"");
+                        string remove = "class=\"ml-mask jt\" title=\"";
+                        string title = FindHTML(d, remove, "\"");
+                        d = RemoveOne(d, remove);
+                        string movieUrl = "https://yesmoviess.to/movie/" + FindHTML(d, "<a href=\"https://yesmoviess.to/movie/", "\"");
+                        int seasonData = 0;
+                        for (int i = 0; i < 100; i++) {
+                            if(title.Contains(" - Season " + i)) {
+                                seasonData = i;
+                            }
+                        }
+                        string realtitle = title.Replace(" - Season " + seasonData, "");
+                        string _d = DownloadString(url, tempThred);
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                        string imdbData = FindHTML(_d, "IMDb: ", "<").Replace("\n","").Replace(" ","").Replace("	", "");
+                        string year = FindHTML(_d, "<div class=\"jt-info\">", "<").Replace("\n", "").Replace(" ", "").Replace("	", "").Replace("	","");
+
+                        print("DATA:" + imdbData + "|" + movieUrl + "|"+  year + "|"+ realtitle + "|" + title + "|" + seasonData + url );
+                    }
+                    // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "YesMoviesMetaData";
+            tempThred.Thread.Start();
+
+
+        }
+
         public static void GetRealTrailerLinkFromImdb(string url, bool purgeCurrentTrailerThread = true)
         {
             if (purgeCurrentTrailerThread) {
@@ -1508,7 +1573,7 @@ namespace CloudStreamForms
         /// <param name="imdbTitleId"></param>
         /// <param name="lang"></param>
         /// <returns></returns>
-        public static string DownloadSubtitle(string imdbTitleId, string lang = "eng")
+        public static string DownloadSubtitle(string imdbTitleId, string lang = "eng", bool showToast = true)
         {
             try {
                 string rUrl = "https://www.opensubtitles.org/en/search/sublanguageid-" + lang + "/imdbid-" + imdbTitleId + "/sort-7/asc-0"; // best match first
@@ -1531,6 +1596,9 @@ namespace CloudStreamForms
                         }
                     }
                     s = s.Replace("\n\n", "");
+                    if (showToast) {
+                        App.ShowToast("Subtitles Downloaded");
+                    }
                     return s;
                 }
                 else {
@@ -1728,34 +1796,7 @@ namespace CloudStreamForms
                                 fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
                             }
                             if (fembed != "") {
-                                int prio = 5;
-                                string _d = PostRequest("https://www.fembed.com/api/source/" + fembed, "https://www.fembed.com/v/" + fembed, "r=&d=www.fembed.com", tempThred);
-                                if (_d != "") {
-                                    string lookFor = "\"file\":\"";
-                                    string _labelFind = "\"label\":\"";
-                                    while (_d.Contains(_labelFind)) {
-                                        string link = FindHTML(_d, lookFor, "\",\"");
-
-                                        //  d = RemoveOne(d, link);
-                                        link = link.Replace("\\/", "/");
-
-                                        string label = FindHTML(_d, _labelFind, "\"");
-                                        print(label + "|" + link);
-                                        if (CheckIfURLIsValid(link)) {
-                                            prio++;
-
-                                            Episode ep = activeMovie.episodes[normalEpisode];
-                                            if (ep.links == null) {
-                                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                                            }
-                                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                            linkAdded?.Invoke(null, 1);
-                                        }
-
-                                        _d = RemoveOne(_d, _labelFind);
-                                    }
-
-                                }
+                                GetFembed(fembed, tempThred, normalEpisode);
                             }
 
 
@@ -1768,33 +1809,7 @@ namespace CloudStreamForms
                                 string _d = DownloadString(dLink, tempThred);
                                 if (!GetThredActive(tempThred)) { return; };
 
-                                string linkContext = FindHTML(_d, "<h6>Link download</h6>", " </div>");
-                                print(linkContext + " :LX");
-                                string lookFor = "href=\"";
-                                string rem = "<div class=<\"dowload\"><a";
-                                linkContext = RemoveOne(linkContext, rem);
-                                int prio = 0;
-                                while (linkContext.Contains(lookFor)) {
-                                    string link = FindHTML(linkContext, lookFor, "\"");
-                                    string _nameContext = FindHTML(linkContext, link, "</a></div>") + "</a></div>";
-                                    string name = "Vidstreaming (" + FindHTML(_nameContext, "            (", "</a></div>");
-                                    link = link.Replace("&amp;", "&");
-
-                                    print("LINK: " + link + "|" + name);
-                                    name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "");
-
-                                    if (CheckIfURLIsValid(link)) {
-                                        prio++;
-                                        Episode ep = activeMovie.episodes[normalEpisode];
-                                        if (ep.links == null) {
-                                            activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                                        }
-                                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                        linkAdded?.Invoke(null, 1);
-                                    }
-
-                                    linkContext = RemoveOne(linkContext, lookFor);
-                                }
+                                GetVidNode(_d, normalEpisode);
 
                                 /* // OLD CODE, ONLY 403 ERROR DOSEN'T WORK ANYMORE
                                 vid = "http://vidstreaming.io/streaming.php?" + vid;
@@ -1919,6 +1934,72 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
 
 
+        }
+
+        static void GetVidNode(string _d, int normalEpisode)
+        {
+            string linkContext = FindHTML(_d, "<h6>Link download</h6>", " </div>");
+            print(linkContext + " :LX");
+            string lookFor = "href=\"";
+            string rem = "<div class=<\"dowload\"><a";
+            linkContext = RemoveOne(linkContext, rem);
+            int prio = 0;
+            while (linkContext.Contains(lookFor)) {
+                string link = FindHTML(linkContext, lookFor, "\"");
+                string _nameContext = FindHTML(linkContext, link, "</a></div>") + "</a></div>";
+                string name = "Vidstreaming (" + FindHTML(_nameContext, "            (", "</a></div>");
+                link = link.Replace("&amp;", "&");
+
+                print("LINK: " + link + "|" + name);
+                name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "");
+
+                if (CheckIfURLIsValid(link)) {
+                    prio++;
+                    Episode ep = activeMovie.episodes[normalEpisode];
+                    if (ep.links == null) {
+                        activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                    }
+                    activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                    linkAdded?.Invoke(null, 1);
+                }
+
+                linkContext = RemoveOne(linkContext, lookFor);
+            }
+        }
+
+
+        public static void GetFembed(string fembed,TempThred tempThred, int normalEpisode)
+        {
+            if (fembed != "") {
+                int prio = 5;
+                string _d = PostRequest("https://www.fembed.com/api/source/" + fembed, "https://www.fembed.com/v/" + fembed, "r=&d=www.fembed.com", tempThred);
+                if (_d != "") {
+                    string lookFor = "\"file\":\"";
+                    string _labelFind = "\"label\":\"";
+                    while (_d.Contains(_labelFind)) {
+                        string link = FindHTML(_d, lookFor, "\",\"");
+
+                        //  d = RemoveOne(d, link);
+                        link = link.Replace("\\/", "/");
+
+                        string label = FindHTML(_d, _labelFind, "\"");
+                        print(label + "|" + link);
+                        if (CheckIfURLIsValid(link)) {
+                            prio++;
+
+                            Episode ep = activeMovie.episodes[normalEpisode];
+                            if (ep.links == null) {
+                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                            }
+                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                            linkAdded?.Invoke(null, 1);
+                        }
+
+                        _d = RemoveOne(_d, _labelFind);
+                    }
+
+                }
+            }
         }
 
         public static bool NewGithubUpdate

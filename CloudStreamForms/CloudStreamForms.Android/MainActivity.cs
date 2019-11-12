@@ -146,8 +146,8 @@ namespace CloudStreamForms.Droid
             request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted);
 
             DownloadManager manager;
-            manager = (DownloadManager) MainActivity.activity.GetSystemService(Context.DownloadService);
-     
+            manager = (DownloadManager)MainActivity.activity.GetSystemService(Context.DownloadService);
+
             long downloadId = manager.Enqueue(request);
 
             // AUTO OPENS FILE WHEN DONE DOWNLOADING
@@ -170,7 +170,7 @@ namespace CloudStreamForms.Droid
                         //            
                         string truePath = ("content://" + Android.OS.Environment.ExternalStorageDirectory + "/" + fullPath);
 
-                       OpenFile(truePath);
+                        OpenFile(truePath);
                     }
                     finally {
                         downloadThread.Join();
@@ -238,7 +238,7 @@ namespace CloudStreamForms.Droid
             Main.print("AVS: " + absolutePath);
 
             bool subtitlesEnabled = subtitleLoc != "";
-            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name);//,subtitlesEnabled, "file://" + absolutePath + "/");
+            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name,subtitlesEnabled, "content://" + absolutePath + "/");
             Java.IO.File subFile = null;
             WriteFile(CloudStreamForms.App.baseM3u8Name, absolutePath, writeData);
             if (subtitlesEnabled) {
@@ -265,8 +265,10 @@ namespace CloudStreamForms.Droid
             Main.print("Da_ " + Android.Net.Uri.Parse(subfile));
 
             if (subfile != "") {
-                intent.PutExtra("subtitles_location", Android.Net.Uri.Parse(subfile));//Android.Net.Uri.FromFile(subFile));
-                                                                                      // intent.PutExtra("subtitles_location", );//Android.Net.Uri.FromFile(subFile));
+                var sfile = Android.Net.Uri.FromFile(new Java.IO.File(subfile));  //"content://" + Android.Net.Uri.Parse(subfile);
+                print(sfile.Path);
+                intent.PutExtra("subtitles_location", sfile);//Android.Net.Uri.FromFile(subFile));
+                                                             // intent.PutExtra("subtitles_location", );//Android.Net.Uri.FromFile(subFile));
             }
 
             intent.AddFlags(ActivityFlags.GrantReadUriPermission);
@@ -341,7 +343,7 @@ namespace CloudStreamForms.Droid
                 //webClient.DownloadFile(url, basePath);
                 using (WebClient wc = new WebClient()) {
                     wc.DownloadProgressChanged += (o, e) => {
-                        if(e.ProgressPercentage == 100) {
+                        if (e.ProgressPercentage == 100) {
                             App.ShowToast("Download Successful");
                             //OpenFile(basePath);
                         }

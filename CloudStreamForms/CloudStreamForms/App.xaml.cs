@@ -13,8 +13,8 @@ namespace CloudStreamForms
 
     public partial class App : Application
     {
-        public const string baseM3u8Name = @"sample.m3u8";
-        public const string baseSubtitleName = @"sample.srt";
+        public const string baseM3u8Name = @"mirrorlist.m3u8";
+        public const string baseSubtitleName = @"subtitles.srt";
 
         public interface IPlatformDep
         {
