@@ -743,6 +743,11 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
         }
 
+
+        public static string RemoveHtmlChars(string inp)
+        {
+            return System.Net.WebUtility.HtmlDecode(inp);
+        }
         public static void GetMALData()
         {
             TempThred tempThred = new TempThred();
@@ -806,12 +811,12 @@ namespace CloudStreamForms
                     // ----- GETS ALL THE SEASONS OF A SHOW WITH MY ANIME LIST AND ORDERS THEM IN THE CORRECT SEASON (BOTH Shingeki no Kyojin Season 3 Part 2 and Shingeki no Kyojin Season 3 is season 3) -----
                     while (sqlLink != "") {
                         string _malLink = (sqlLink == "-1" ? url.Replace("https://myanimelist.net", "") : sqlLink);
-                        currentName = FindHTML(d, "<span itemprop=\"name\">", "<");
+                        currentName = FindHTML(d, "<span itemprop=\"name\">", "<", decodeToNonHtml: true);
                         string sequel = FindHTML(d, "Sequel:", "</a></td>") + "<";
                         sqlLink = FindHTML(sequel, "<a href=\"", "\"");
-                        string _jap = FindHTML(d, "Japanese:</span> ", "<").Replace("  ", "").Replace("\n", "");
-                        string _eng = FindHTML(d, "English:</span> ", "<").Replace("  ", "").Replace("\n", "");
-                        string _syno = FindHTML(d, "Synonyms:</span> ", "<").Replace("  ", "").Replace("\n", "") + ",";
+                        string _jap = FindHTML(d, "Japanese:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
+                        string _eng = FindHTML(d, "English:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
+                        string _syno = FindHTML(d, "Synonyms:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "") + ",";
                         List<string> _synos = new List<string>();
                         while (_syno.Contains(",")) {
                             string _current = _syno.Substring(0, _syno.IndexOf(",")).Replace("  ", "");
@@ -821,7 +826,7 @@ namespace CloudStreamForms
                             _synos.Add(_current);
                             _syno = RemoveOne(_syno, ",");
                         }
-                        print("CURRENTNAME: " + currentName);
+                        print("CURRENTNAME: " + currentName + "|" + _eng + "|" + _jap);
 
                         if (currentName.Contains("Part ") && !currentName.Contains("Part 1")) // WILL ONLY WORK UNTIL PART 10, BUT JUST HOPE THAT THAT DOSENT HAPPEND :)
                         {
@@ -840,6 +845,16 @@ namespace CloudStreamForms
                             catch (Exception) {
                                 d = "";
                             }
+                        }
+                    }
+                    for (int i = 0; i < data.Count; i++) {
+                        for (int q = 0; q < data[i].seasons.Count; q++) {
+                            var e = data[i].seasons[q];
+                            string _s = "";
+                            for (int z = 0; z < e.synonyms.Count; z++) {
+                                _s += e.synonyms[z] + "|";
+                            }
+                            print("SEASON: " + (i + 1) + "  -  " + e.name + "|" + e.engName + "|" + e.japName + "| SYNO: " + _s);
                         }
                     }
                     activeMovie.title.MALData = new MALData() {
@@ -1024,7 +1039,7 @@ namespace CloudStreamForms
 
         public static string ToLowerAndReplace(string inp)
         {
-            return inp.ToLower().Replace("-", " ");
+            return inp.ToLower().Replace("-", " ").Replace("`","\'");
         }
         public static void GetImdbTitle(Poster imdb, bool purgeCurrentTitleThread = true, bool autoSearchTrailer = true)
         {
@@ -3100,7 +3115,7 @@ namespace CloudStreamForms
         /// <param name="offset"></param>
         /// <param name="readToEndOfFile"></param>
         /// <returns></returns>
-        public static string FindHTML(string all, string first, string end, int offset = 0, bool readToEndOfFile = false)
+        public static string FindHTML(string all, string first, string end, int offset = 0, bool readToEndOfFile = false, bool decodeToNonHtml = false)
         {
             if (all.IndexOf(first) == -1) {
                 return "";
@@ -3118,7 +3133,15 @@ namespace CloudStreamForms
                 }
             }
             //  print(x + "|" + y);
-            return all.Substring(0, y);
+
+            string s = all.Substring(0, y);
+
+            if (decodeToNonHtml) {
+                return RemoveHtmlChars(s);
+            }
+            else {
+                return s;
+            }
         }
         public static void print(object o)
         {
