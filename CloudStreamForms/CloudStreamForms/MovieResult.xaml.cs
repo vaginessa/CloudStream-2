@@ -193,6 +193,7 @@ namespace CloudStreamForms
             linkAdded += MovieResult_linkAdded;
             linksProbablyDone += MovieResult_linksProbablyDone;
             movie123FishingDone += MovieResult_movie123FishingDone;
+            yesmovieFishingDone += MovieResult_yesmovieFishingDone;
 
             if (Device.RuntimePlatform == Device.UWP) {
                 //QuickMenu.WidthRequest = 500;
@@ -367,6 +368,12 @@ namespace CloudStreamForms
 
 
 
+        }
+
+        private void MovieResult_yesmovieFishingDone(object sender, Movie e)
+        {
+            if (!SameAsActiveMovie()) return;
+            currentMovie = e;
         }
 
         private void MainPage_SizeChanged(object sender, EventArgs e)
