@@ -37,6 +37,7 @@ namespace CloudStreamForms
         List<BookmarkPoster> bookmarkPosters = new List<BookmarkPoster>();
         void UpdateBookmarks()
         {
+            double multi = 1.2;
             int height = 100;
             int width = 65;
             if (Device.RuntimePlatform == Device.UWP) {
@@ -44,8 +45,9 @@ namespace CloudStreamForms
                 width = 85;
             }
 
-            int pheight = height * 2;
-            int pwidth = width * 2;
+            height = (int)Math.Round(height * multi);
+            width = (int)Math.Round(width * multi);
+
             Bookmarks.HeightRequest = height;
             List<string> keys = App.GetKeys<string>("BookmarkData");
             List<string> data = new List<string>();

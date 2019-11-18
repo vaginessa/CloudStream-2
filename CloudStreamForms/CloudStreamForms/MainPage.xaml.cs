@@ -723,6 +723,7 @@ namespace CloudStreamForms
                     while (result.Contains(lookFor) && counter < 100) {
                         counter++;
                         string name = ReadJson(result, "\"l");
+                        name = RemoveHtmlChars(name);
                         string posterUrl = ReadJson(result, "imageUrl");
                         string extra = ReadJson(result, "\"q");
                         string year = FindHTML(result, "\"y\":", "}"); string oyear = year;
@@ -1093,12 +1094,12 @@ namespace CloudStreamForms
                             string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
                             string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ", ""); // string descript = FindHTML(d, "\"description\": \"", "\"");
                             if (descript == "") {
-                                descript = FindHTML(d, "\"description\": \"", "\"");
+                                descript = FindHTML(d, "\"description\": \"", "\"",decodeToNonHtml:true);
                             }
                             // print("Dscript: " + descript);
                             string __d = RemoveOne(d, "<div class=\"poster\">");
                             string hdPosterUrl = FindHTML(__d, "src=\"", "\"");
-                            string ogName = FindHTML(d, "\"name\": \"", "\"");
+                            string ogName = FindHTML(d, "\"name\": \"", "\"", decodeToNonHtml: true);
                             string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
                             string posterUrl = FindHTML(d, "\"image\": \"", "\"");
                             string genres = FindHTML(d, "\"genre\": [", "]");
@@ -1146,7 +1147,6 @@ namespace CloudStreamForms
                                 year = year,
                                 ogName = ogName,
                                 hdPosterUrl = hdPosterUrl,
-
                             };
 
                             activeMovie.title.trailers.Add(new Trailer() { url = trailerUrl, posterUrl = trailerImg, name = trailerName });
@@ -1173,7 +1173,7 @@ namespace CloudStreamForms
                             try {
                                 string result = FindHTML(d, lookFor, "/> <br/>");
                                 string id = FindHTML(result, "data-tconst=\"", "\"");
-                                string name = FindHTML(result, "title=\"", "\"");
+                                string name = FindHTML(result, "title=\"", "\"",decodeToNonHtml:true);
                                 string posterUrl = FindHTML(result, "loadlate=\"", "\"");
 
                                 d = RemoveOne(d, result);
