@@ -14,6 +14,10 @@ namespace CloudStreamForms.Models
 
         public string extraInfo { set; get; }
 
+        public string ExtraText { set; get; }
+        public double ExtraProgress { set; get; }
+        public bool DownloadNotDone { set; get; }
+
         string _Description = "";
         public string Description { set { _Description = Settings.EpDecEnabled ? value : ""; } get { return _Description; } }
         public double Progress { set; get; } 

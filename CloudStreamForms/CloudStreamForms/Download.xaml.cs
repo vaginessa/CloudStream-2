@@ -45,8 +45,6 @@ namespace CloudStreamForms
 
         void AddEpisode(EpisodeResult episodeResult)
         {
-
-
             epView.MyEpisodeResultCollection.Add(episodeResult);
             SetHeight();
         }
@@ -83,15 +81,36 @@ namespace CloudStreamForms
                 const double height = 80;
                 const double width = 126;
                 if (moviePath != "") {
+                    double currentProgress = GetFileSizeOnSystem(moviePath);
+                    double maxProgress = App.GetKey("DownloadSize", id, -1.0);
+                    double dprogress = currentProgress / maxProgress;
+                    if (currentProgress == -1 || maxProgress == -1) {
+                        dprogress = 1;
+                    }
+                    string extra = "";
+                    bool downloadDone = false;
+                    if(dprogress != -1) {
+                        downloadDone = dprogress > 0.98;
+                        if(!downloadDone) {
+
+                        extra = " | " + currentProgress + " Mb - " + maxProgress + " Mb";
+                        }
+                        else {
+                            extra = " | " + maxProgress + " Mb";
+                        }
+                    }
+
                     AddEpisode(new EpisodeResult() {
                         Description = episodeDescript,
                         PosterUrl = posterUrl,
                         Id = i,
-                        Title = episodeTitle,
+                        Title = episodeTitle + extra,
+                        ExtraProgress = dprogress,
+                        DownloadNotDone = !downloadDone,
                         Mirros = new List<string>() { "Download" },
                         mirrosUrls = new List<string>() { moviePath },
                         extraInfo = "KeyPath=" + keysPaths[i] + "|||_mppath=" + movieUrl + "|||_dpath=" + moviePath + "|||_ppath=" + posterUrl + "|||_movieId=" + movieId + "|||_movieTitle=" + movieTitle + "|||=EndAll"
-                    }); ;
+                    });
                     /*
                     Grid stackLayout = new Grid();
                     Button imageButton = new Button() { HeightRequest = height, WidthRequest = width, BackgroundColor = Color.Transparent, VerticalOptions = LayoutOptions.Start };
@@ -203,10 +222,10 @@ namespace CloudStreamForms
                 App.RemoveKey(keyPath);
             }
         }
+
         public static void DeleteFile(string moviePath, string keyFolder, string keyId)
         {
             if (App.DeleteFile(moviePath)) {
-
                 App.RemoveKey(keyFolder, keyId);
             }
         }

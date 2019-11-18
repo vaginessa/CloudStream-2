@@ -1094,7 +1094,7 @@ namespace CloudStreamForms
                             string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
                             string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ", ""); // string descript = FindHTML(d, "\"description\": \"", "\"");
                             if (descript == "") {
-                                descript = FindHTML(d, "\"description\": \"", "\"",decodeToNonHtml:true);
+                                descript = FindHTML(d, "\"description\": \"", "\"", decodeToNonHtml: true);
                             }
                             // print("Dscript: " + descript);
                             string __d = RemoveOne(d, "<div class=\"poster\">");
@@ -1173,7 +1173,7 @@ namespace CloudStreamForms
                             try {
                                 string result = FindHTML(d, lookFor, "/> <br/>");
                                 string id = FindHTML(result, "data-tconst=\"", "\"");
-                                string name = FindHTML(result, "title=\"", "\"",decodeToNonHtml:true);
+                                string name = FindHTML(result, "title=\"", "\"", decodeToNonHtml: true);
                                 string posterUrl = FindHTML(result, "loadlate=\"", "\"");
 
                                 d = RemoveOne(d, result);
@@ -1701,6 +1701,10 @@ namespace CloudStreamForms
 
         public static void GetEpisodeLink(int episode = -1, int season = 1, bool purgeCurrentLinkThread = true, bool onlyEpsCount = false, bool isDub = true)
         {
+            if(activeMovie.episodes == null) {
+                return;
+            }
+
             if (purgeCurrentLinkThread) {
                 PurgeThreds(3);
             }
@@ -1877,10 +1881,10 @@ namespace CloudStreamForms
                             GetTMDB(episode, season, normalEpisode);
                         }
 
-                        if(activeMovie.title.yesmoviessSeasonDatas != null) {
+                        if (activeMovie.title.yesmoviessSeasonDatas != null) {
                             for (int i = 0; i < activeMovie.title.yesmoviessSeasonDatas.Count; i++) {
                                 print(activeMovie.title.yesmoviessSeasonDatas[i].id + "<-IDS:" + season);
-                                if(activeMovie.title.yesmoviessSeasonDatas[i].id == ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? 1 : season)) {
+                                if (activeMovie.title.yesmoviessSeasonDatas[i].id == ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? 1 : season)) {
                                     YesMovies(normalEpisode, activeMovie.title.yesmoviessSeasonDatas[i].url);
                                 }
                             }
@@ -1987,7 +1991,7 @@ namespace CloudStreamForms
                 link = link.Replace("&amp;", "&");
 
                 print("LINK: " + link + "|" + name);
-                name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "").Replace("0P","0p");
+                name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "").Replace("0P", "0p");
 
                 if (CheckIfURLIsValid(link)) {
                     prio++;
@@ -2214,6 +2218,16 @@ namespace CloudStreamForms
 
         }
 
+        public static double GetFileSizeOnSystem(string path)
+        {
+            try {
+                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / 1024.0 / 1024.0, 2);
+            }
+            catch (Exception) {
+                return -1;
+            }
+        }
+
         public static bool GetSettings(MovieType type = MovieType.Movie)
         {
             return true;
@@ -2280,8 +2294,8 @@ namespace CloudStreamForms
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
 
-                    int episode = normalEpisode+1;
-                    string d = DownloadString(url.Replace("watching.html","") + "watching.html");
+                    int episode = normalEpisode + 1;
+                    string d = DownloadString(url.Replace("watching.html", "") + "watching.html");
 
                     string movieId = FindHTML(d, "var movie_id = \'", "\'");
                     d = DownloadString("https://yesmoviess.to/ajax/v2_get_episodes/" + movieId);
@@ -2305,20 +2319,20 @@ namespace CloudStreamForms
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
                     string fembed = FindHTML(d, "https://gcloud.live/v/", "\"");
-                    
-                    if(fembed != "") {
+
+                    if (fembed != "") {
                         fembed = FindHTML(d, "https://www.fembed.com/v/", "\"");
                     }
                     string secondLink = FindHTML(d, "https://vidnode.net/download?id=", "\"");
-                    print("SECOND: " +fembed);
+                    print("SECOND: " + fembed);
                     print("FIRST: " + secondLink);
-                    if(secondLink != "") {
+                    if (secondLink != "") {
                         d = DownloadString("https://vidnode.net/download?id=" + secondLink);
                         if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                         GetVidNode(d, normalEpisode);
 
                     }
-                    if(fembed != "") {
+                    if (fembed != "") {
                         GetFembed(fembed, tempThred, normalEpisode);
                     }
 

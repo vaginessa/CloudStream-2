@@ -1344,6 +1344,7 @@ namespace CloudStreamForms
                             print("DKEY: " + key);
                             App.SetKey("Download", GetId(episodeResult), key);
                             App.ShowToast("Download Started - " + fileSize + "MB");
+                            App.SetKey("DownloadSize", GetId(episodeResult), fileSize);
                             SetColor(episodeResult);
                             ForceUpdate();
                         }
