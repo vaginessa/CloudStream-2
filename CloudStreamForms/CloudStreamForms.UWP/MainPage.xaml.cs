@@ -2,32 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using CloudStreamForms;
-using System.Diagnostics;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.Storage.AccessCache;
-using Windows.UI.Core;
-using Windows.Storage.Streams;
-using Windows.System;
 using System.Reflection;
-using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using static CloudStreamForms.Main;
 using System.Text.RegularExpressions;
+using _App = CloudStreamForms.App;
 
 namespace CloudStreamForms.UWP
 {
@@ -187,6 +172,42 @@ namespace CloudStreamForms.UWP
 
         public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
         {
+
+            Main.print(fileName);
+
+            string basePath = GetPath(fileName);
+
+            try {
+
+                //webClient.DownloadFile(url, basePath);
+                using (WebClient wc = new WebClient()) {
+                    wc.DownloadProgressChanged += (o, e) => {
+
+                        _App.OnDownloadProgressChanged(basePath, e);
+
+                        /*
+                        if (e.ProgressPercentage == 100) {
+                            App.ShowToast("Download Successful");
+                            //OpenFile(basePath);
+                        }*/
+                        // print(e.ProgressPercentage + "|" + basePath);
+                    };
+                    wc.DownloadFileAsync(
+                        // Param1 = Link of file
+                        new System.Uri(url),
+                      // Param2 = Path to save
+                      basePath
+                    );
+                }
+
+            }
+            catch (Exception) {
+                print("PROGRESS FAILED");
+                _App.ShowToast("Download Failed");
+                return "";
+            }
+            return basePath;
+
             try {
                 TempThred tempThred = new TempThred();
                 tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
@@ -221,14 +242,21 @@ namespace CloudStreamForms.UWP
             return v.Major + "." + v.Minor + "." + v.Build;
         }
 
-        public void DeleteFile(string path)
+        public bool DeleteFile(string path)
         {
-            System.IO.File.Delete(path);
+            try {
+                System.IO.File.Delete(path);
+                return true;
+            }
+            catch (Exception) {
+                _App.ShowToast("Error deleting file");
+                return false;
+            }
         }
 
         public void DownloadUpdate(string update)
         {
-           // throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
     }
 

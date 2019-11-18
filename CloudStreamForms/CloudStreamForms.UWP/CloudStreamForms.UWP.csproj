@@ -218,6 +218,7 @@
   <ItemGroup>
     <None Include="CloudStreamForms.UWP_TemporaryKey.pfx" />
     <None Include="CloudStreamFormsKey.pfx" />
+    <None Include="CloudStreamFormsUWPKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
@@ -226,7 +227,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CloudStreamFormsKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CloudStreamFormsUWPKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
 </Project>

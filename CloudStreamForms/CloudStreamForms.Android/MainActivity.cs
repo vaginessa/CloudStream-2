@@ -106,13 +106,21 @@ namespace CloudStreamForms.Droid
         {
             OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name }, subtitleLoc);
         }
-        public void DeleteFile(string path)
+        public bool DeleteFile(string path)
         {
             //Context context = Android.App.Application.Context;
-            Java.IO.File file = new Java.IO.File(path);
-            if (file.Exists()) {
+            try {
+                Java.IO.File file = new Java.IO.File(path);
+                if (file.Exists()) {
 
-                file.Delete();
+                    file.Delete();
+                }
+                return true;
+            }
+
+          
+            catch (Exception) {
+                return false;
             }
             /*
 
@@ -238,7 +246,7 @@ namespace CloudStreamForms.Droid
             Main.print("AVS: " + absolutePath);
 
             bool subtitlesEnabled = subtitleLoc != "";
-            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name,subtitlesEnabled, "content://" + absolutePath + "/");
+            string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name, subtitlesEnabled, "content://" + absolutePath + "/");
             Java.IO.File subFile = null;
             WriteFile(CloudStreamForms.App.baseM3u8Name, absolutePath, writeData);
             if (subtitlesEnabled) {
@@ -343,10 +351,14 @@ namespace CloudStreamForms.Droid
                 //webClient.DownloadFile(url, basePath);
                 using (WebClient wc = new WebClient()) {
                     wc.DownloadProgressChanged += (o, e) => {
+
+                        App.OnDownloadProgressChanged(basePath, e);
+
+                        /*
                         if (e.ProgressPercentage == 100) {
                             App.ShowToast("Download Successful");
                             //OpenFile(basePath);
-                        }
+                        }*/
                         // print(e.ProgressPercentage + "|" + basePath);
                     };
                     wc.DownloadFileAsync(
@@ -365,11 +377,7 @@ namespace CloudStreamForms.Droid
             return GetPath(mainPath, extraPath) + "/" + CensorFilename(fileName);
         }
 
-        private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            print("Progress:" + e.ProgressPercentage);
-            //  throw new NotImplementedException();
-        }
+
 
         static string CensorFilename(string name)
         {

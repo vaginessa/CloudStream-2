@@ -1341,8 +1341,9 @@ namespace CloudStreamForms
                             ForceUpdate();
                         }
                         else {
-                            App.ShowToast("Download Failed");
                             EpisodeSettings(episodeResult);
+                            App.ShowToast("Download Failed"); 
+                            ForceUpdate();
                         }
                     }
                 }

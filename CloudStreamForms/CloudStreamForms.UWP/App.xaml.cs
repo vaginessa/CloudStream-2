@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -149,6 +150,11 @@ namespace CloudStreamForms.UWP
                 }*/
             }
 
+        }
+
+        internal static void OnDownloadProgressChanged(object basePath, DownloadProgressChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

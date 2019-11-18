@@ -1951,7 +1951,7 @@ namespace CloudStreamForms
                 link = link.Replace("&amp;", "&");
 
                 print("LINK: " + link + "|" + name);
-                name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "");
+                name = name.Replace("(", "").Replace(")", "").Replace("mp4", "").Replace("orginalP", "Source").Replace("-", "").Replace("0P","0p");
 
                 if (CheckIfURLIsValid(link)) {
                     prio++;

@@ -194,18 +194,21 @@ namespace CloudStreamForms
         public static void DeleteFileFromFolder(string keyData, string keyFolder, string keyId)
         {
             string moviePath = FindHTML(keyData, "_dpath=", "|||");
-            DeleteFile(moviePath, keyFolder,keyId);
+            DeleteFile(moviePath, keyFolder, keyId);
         }
 
         public static void DeleteFile(string moviePath, string keyPath)
         {
-            App.DeleteFile(moviePath);
-            App.RemoveKey(keyPath);
+            if (App.DeleteFile(moviePath)) {
+                App.RemoveKey(keyPath);
+            }
         }
-        public static void DeleteFile(string moviePath, string keyFolder,string keyId)
+        public static void DeleteFile(string moviePath, string keyFolder, string keyId)
         {
-            App.DeleteFile(moviePath);
-            App.RemoveKey(keyFolder,keyId);
+            if (App.DeleteFile(moviePath)) {
+
+                App.RemoveKey(keyFolder, keyId);
+            }
         }
 
 

@@ -6,6 +6,7 @@ using Xamarin.Forms.Xaml;
 using System.Linq;
 using System.Reflection;
 using Xamarin.Essentials;
+using System.Net;
 
 namespace CloudStreamForms
 {
@@ -20,16 +21,19 @@ namespace CloudStreamForms
         {
             void PlayVlc(string url, string name, string subtitleLoc);
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
-
             void ShowToast(string message, double duration);
             string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
             string DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
-            void DeleteFile(string path);
+            bool DeleteFile(string path);
             void DownloadUpdate(string update);
-
-            //   string GetBuildNumber();
-            // void OBrowser(string url);
         }
+
+        public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
+        {
+            Main.print("PATH: " + path + " | Progress:" + progress.ProgressPercentage);
+        }
+
+
         public static IPlatformDep platformDep;
 
         public App()
@@ -39,9 +43,9 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
-        public static void DeleteFile(string path)
+        public static bool DeleteFile(string path)
         {
-            platformDep.DeleteFile(path);
+            return platformDep.DeleteFile(path);
         }
         public static void PlayVLCWithSingleUrl(string url, string name = "", string subtitleLoc = "")
         {
@@ -162,7 +166,7 @@ namespace CloudStreamForms
 
         public static string DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "")
         {
-           return platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
+            return platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
 
         }
         public static string DownloadFile(string file, string fileName, bool mainPath = true, string extraPath = "")
