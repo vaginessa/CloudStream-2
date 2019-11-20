@@ -71,6 +71,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GoogleCast" Version="1.6.7" />
     <PackageReference Include="Jint" Version="2.11.58" />
     <PackageReference Include="SkiaSharp" Version="1.68.1-rc.153" />
     <PackageReference Include="Xamarin.FFImageLoading" Version="2.4.11.982" />
@@ -113,6 +114,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="ChromeCastPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Download.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>

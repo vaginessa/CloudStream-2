@@ -20,6 +20,9 @@ using System.Threading.Tasks;
 using Xamarin.Forms.PlatformConfiguration.AndroidSpecific;
 using Button = Xamarin.Forms.Button;
 using Application = Xamarin.Forms.Application;
+using GoogleCast;
+using GoogleCast.Models.Media;
+using GoogleCast.Channels;
 
 namespace CloudStreamForms
 {
@@ -176,8 +179,604 @@ namespace CloudStreamForms
 
     }
 
+    public static class MainChrome
+    {
+        public static bool IsChromeDevicesOnNetwork
+        {
+            get {
+                if (allChromeDevices == null) { return false; }
+                foreach (IReceiver r in allChromeDevices) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        public static bool IsConnectedToChromeDevice { set; get; }
+        public static bool IsCastingVideo { set; get; }
+        public static bool IsPaused { set; get; }
+        public static bool IsPlaying { set; get; }
+        public static double CurrentCastingDuration { get; set; }
+        public static IEnumerable<IReceiver> allChromeDevices;
+        public static IMediaChannel CurrentChannel;
+        public static MediaStatus CurrentChromeMedia;
+        public static Sender chromeSender;
+        public static IReceiver chromeRecivever;
+        static DateTime castUpdatedNow;
+        static double castLastUpdate;
+        public static double CurrentTime
+        {
+            get {
+                try {
+                   // double test = CurrentChannel.Status.First().CurrentTime; // WILL CAUSE CRASH IF STOPPED BY EXTRARNAL
+                    TimeSpan t = DateTime.Now.Subtract(castUpdatedNow);
+                    double currentTime = castLastUpdate + t.TotalSeconds;
+                    return currentTime;
+                }
+                catch (System.Exception) {
+                    return CurrentCastingDuration; // CAST STOPPED FROM EXTERNAL
+                }
+            }
+        }
+        private static bool IsStopped
+        {
+            get {
+                return CurrentChannel.Status == null || !string.IsNullOrEmpty(CurrentChannel.Status.FirstOrDefault()?.IdleReason);
+            }
+        }
+        public static async void GetAllChromeDevices()
+        {
+            allChromeDevices = await new DeviceLocator().FindReceiversAsync();
+        }
+        public static List<string> GetChromeDevicesNames()
+        {
+            if (allChromeDevices == null) {
+                return new List<string>();
+            }
+            List<string> allNames = new List<string>();
+            foreach (IReceiver r in allChromeDevices) {
+                allNames.Add(r.FriendlyName);
+            }
+            return allNames;
+        }
+        private static void ChromeChannel_StatusChanged(object sender, EventArgs e)
+        {
+            MediaStatus mm = CurrentChannel.Status.FirstOrDefault();
+            IsPaused = (mm.PlayerState == "PAUSED");
+            IsPlaying = (mm.PlayerState == "PLAYING");
+
+            print(mm.PlayerState);
+
+            castUpdatedNow = DateTime.Now;
+            castLastUpdate = mm.CurrentTime;
+        }
+
+        // Subtitle Url https://static.movies123.pro/files/tracks/JhUzWRukqeuUdRrPCe0R3lUJ1SmknAVSv670Ep0cXipm1JfMgNWa379VKKAz8nvFMq2ksu7bN5tCY5tXXKS4Lrr1tLkkipdLJNArNzVSu2g.srt
+        public static async void CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
+        {
+            try {
+                if(setTime == -2) {
+                    setTime = CurrentTime;
+                }
+
+                GenericMediaMetadata mediaMetadata = new GenericMediaMetadata();
+
+                bool validSubtitle = false;
+                var mediaInfo = new MediaInformation() { ContentId = url, Metadata = mediaMetadata };
+
+                // SUBTITLES
+                if (subtitleUrl != "") {
+                    validSubtitle = true;
+                    mediaInfo.Tracks = new Track[]
+                                {
+                                 new Track() {  TrackId = 1, Language = "en-US" , Name = subtitleName, TrackContentId = subtitleUrl }
+                                };
+                    mediaInfo.TextTrackStyle = new TextTrackStyle() {
+                        BackgroundColor = System.Drawing.Color.Transparent,
+                        EdgeColor = System.Drawing.Color.Black,
+                        EdgeType = TextTrackEdgeType.DropShadow
+                    };
+                }
+                mediaMetadata.Title = title;
+
+                if (validSubtitle) {
+                    CurrentChromeMedia = await CurrentChannel.LoadAsync(mediaInfo, true, 1);
+                }
+                else {
+                    CurrentChromeMedia = await CurrentChannel.LoadAsync(mediaInfo);
+                }
+
+                print("START!!");
+
+                CurrentCastingDuration = (double)CurrentChromeMedia.Media.Duration;
+                if (setTime != -1) {
+                    SetChromeTime(setTime);
+                }
+                CurrentChannel.StatusChanged += ChromeChannel_StatusChanged;
+                print("!3");
+
+                castUpdatedNow = DateTime.Now;
+                castLastUpdate = 0;
+                IsCastingVideo = true;
+                print("!4");
+
+            }
+            catch (System.Exception) {
+                await Task.CompletedTask;
+            }
+        }
+        public static void SetChromeTime(double time)
+        {
+            print("Seek To: " + time);
+            CurrentChannel.SeekAsync(time);
+        }
+        public static void SeekMedia(double sec)
+        {
+            SetChromeTime(CurrentTime + sec);
+        }
+        public static void PauseAndPlay(bool paused)
+        {
+            if (paused) {
+                CurrentChannel.PauseAsync();
+            }
+            else {
+                CurrentChannel.PlayAsync();
+            }
+        }
+        public static async void StopCast()
+        {
+            try {
+                await CurrentChannel.StopAsync();
+            }
+            catch (System.Exception) {
+                await Task.CompletedTask;
+            }
+            try {
+                CurrentChannel.Sender.Disconnect();
+            }
+            catch (System.Exception) {
+
+            }
+            IsConnectedToChromeDevice = false;
+            IsCastingVideo = false;
+            Console.WriteLine("STOP CASTING!");
+        }
+        public static async void ConnectToChromeDevice(string name)
+        {
+            if (name == "Disconnect") {
+                StopCast();
+                return;
+            }
+
+            // if (chromeRecivers.Count() > 0) {
+            foreach (IReceiver r in allChromeDevices) {
+                if (r.FriendlyName == name) {
+                    chromeSender = new Sender();
+
+                    // Connect to the Chromecast
+                    try {
+                        await chromeSender.ConnectAsync(r);
+                        chromeRecivever = r;
+                        Console.WriteLine("CONNECTED");
+                        CurrentChannel = chromeSender.GetChannel<IMediaChannel>();
+                        await chromeSender.LaunchAsync(CurrentChannel);
+                        IsConnectedToChromeDevice = true;
+                    }
+                    catch (System.Exception) {
+                        await Task.CompletedTask; // JUST IN CASE
+                    }
+
+
+                    return;
+                }
+            }
+            //}
+        }
+    }
+
+    [Obsolete]
+    public static class OldMainChrome
+    {
+        // -------------------------------- CHROMECAST --------------------------------
+        static bool isConnectedToChromeCast = false;
+        public static IEnumerable<IReceiver> chromeRecivers;
+        public static IReceiver chromeRecivever;
+        public static MediaStatus chromeMedia;
+        public static IMediaChannel chromeChannel;
+        public static Sender chromeSender;
+
+        public static bool castingVideo;
+        public static string castingUrl;
+        public static string castingPosterId;
+        public static List<string> castingSubtitleUrls = new List<string>();
+        public static List<string> castingSubtitleNames = new List<string>();
+        public static int castWithSubtitle = -1;
+        public static double castingDuration;
+        public static bool castingPaused = false;
+        public static bool castingPlaying = false;
+        public static string castingTitle = "";
+        public static bool firstCast = false;
+
+        // ------ AUDIO ------ 
+        static int castCurrentVolume;
+        public static int castmaxVolume;
+        public static bool isDestory;
+        //  public Android.Media.AudioManager mAudioManager;
+        //private Task voluemChangeTask;
+
+        // ------ CASTINGTIMER ------
+        public static DateTime castUpdatedNow;
+        public static double castLastUpdate;
+
+        public static async void GetAllChromeDevices()
+        {
+            chromeRecivers = await new DeviceLocator().FindReceiversAsync();
+            print(" CAST : 1");
+        }
+
+        public static bool IsConnectedToChromecast()
+        {
+            return isConnectedToChromeCast;
+        }
+
+        public static List<string> GetChromeDevicesNames()
+        {
+            if (chromeRecivers == null) {
+                return new List<string>();
+            }
+            List<string> allNames = new List<string>();
+            foreach (IReceiver r in chromeRecivers) {
+                allNames.Add(r.FriendlyName);
+            }
+            return allNames;
+        }
+
+        public static bool HaveChromeDevices()
+        {
+            if (chromeRecivers == null) { return false; }
+            foreach (IReceiver r in chromeRecivers) {
+                return true;
+            }
+            return false;
+            //IReceiver[] allReceivers = (IReceiver[])chromeRecivers;
+            //return allReceivers.Length > 0;
+        }
+
+
+        private static async Task SetVolumeAsync()
+        {
+            if (castingVideo) {
+                await SendChannelCommandAsync<IReceiverChannel>(IsStopped, null, async c => await c.SetVolumeAsync(castCurrentVolume / (float)castmaxVolume));
+            }
+            else {
+                await Task.CompletedTask;
+            }
+        }
+        private static async Task SendChannelCommandAsync<TChannel>(bool condition, Func<TChannel, Task> action, Func<TChannel, Task> otherwise) where TChannel : IChannel
+        {
+            await InvokeAsync(condition ? action : otherwise);
+        }
+
+        private static async Task InvokeAsync<TChannel>(Func<TChannel, Task> action) where TChannel : IChannel
+        {
+            if (action != null) {
+                await action.Invoke(chromeSender.GetChannel<TChannel>());
+            }
+        }
+
+        private static bool IsStopped
+        {
+            get {
+                var mediaChannel = chromeSender.GetChannel<IMediaChannel>();
+                return mediaChannel.Status == null || !string.IsNullOrEmpty(mediaChannel.Status.FirstOrDefault()?.IdleReason);
+            }
+        }
+        public static async void CastVideo(string url)
+        {
+
+            try {
+                firstCast = true;
+                //chromeStart.Visibility = ViewStates.Visible;
+                castingVideo = true;
+                castingPaused = false;
+                castingUrl = url;
+                // castingPosterId = moviesActive[movieSelectedID].posterID;
+                castingSubtitleNames = new List<string>();
+                castingSubtitleUrls = new List<string>();
+                //castingTitle = movieTitles[movieSelectedID].Replace("B___", "").Replace(" (Bookmark)", "");
+                //  for (int i = 0; i < allProviderNames.Length; i++) {
+                //      castingTitle = castingTitle.Replace(" (" + allProviderNames[i] + ")", "");
+                //  }
+
+                //  for (int i = 0; i < activeSubtitles.Count; i++) {
+                //      castingSubtitleUrls.Add(activeSubtitles[i]);
+                //      castingSubtitleNames.Add(activeSubtitlesNames[i]);
+                //  }
+
+                GenericMediaMetadata mediaMetadata = new GenericMediaMetadata();
+
+                bool validSubtitle = false;
+                var mediaInfo = new MediaInformation() { ContentId = url, Metadata = mediaMetadata };
+                /*
+                 if (castWithSubtitle != -1) {
+                     if (CheckIfURLIsValid(activeSubtitles[castWithSubtitle])) {
+                         print("CHROMESUBTITLE: " + activeSubtitlesNames[castWithSubtitle]);
+                         validSubtitle = true;
+                         //  https://static.movies123.pro/files/tracks/JhUzWRukqeuUdRrPCe0R3lUJ1SmknAVSv670Ep0cXipm1JfMgNWa379VKKAz8nvFMq2ksu7bN5tCY5tXXKS4Lrr1tLkkipdLJNArNzVSu2g.srt
+                         mediaInfo.Tracks = new Track[]
+                                     {
+                                 new Track() {  TrackId = 1, Language = "en-US" , Name = activeSubtitlesNames[castWithSubtitle], TrackContentId = activeSubtitles[castWithSubtitle] }
+                                     };
+                         mediaInfo.TextTrackStyle = new TextTrackStyle() {
+                             BackgroundColor = System.Drawing.Color.Transparent,
+                             EdgeColor = System.Drawing.Color.Black,
+                             EdgeType = TextTrackEdgeType.DropShadow
+                         };
+                     }
+                 }
+                 */
+
+                mediaMetadata.Title = castingTitle;
+                if (validSubtitle) {
+                    chromeMedia = await chromeChannel.LoadAsync(mediaInfo, true, 1);
+                }
+                else {
+                    chromeMedia = await chromeChannel.LoadAsync(mediaInfo);
+                }
+
+                print("START!!");
+                castingDuration = (double)chromeMedia.Media.Duration;
+                print("!1");
+                // Task.Run(SetVolumeAsync);
+                print("!2");
+                chromeChannel.StatusChanged += ChromeChannel_StatusChanged; ;
+                print("!3");
+
+                castUpdatedNow = DateTime.Now;
+                castLastUpdate = 0;
+
+                // ChromeCastActivity.chromeCastActivity.CastVideoStart();
+                print("!4");
+            }
+            catch (System.Exception) {
+                await Task.CompletedTask;
+            }
+        }
+        private static void ChromeChannel_StatusChanged(object sender, EventArgs e)
+        {
+            MediaStatus mm = chromeChannel.Status.FirstOrDefault();
+            castingPaused = (mm.PlayerState == "PAUSED");
+            castingPlaying = (mm.PlayerState == "PLAYING");
+
+            print(mm.PlayerState);
+
+            castUpdatedNow = DateTime.Now;
+            castLastUpdate = mm.CurrentTime;
+
+            //print(mm.CurrentTime);
+            //ChromeCastActivity.ChangePauseBtt();
+        }
+
+        public static void ChromeSetPauseState(bool paused)
+        {
+            if (paused) {
+                chromeChannel.PauseAsync();
+            }
+            else {
+                chromeChannel.PlayAsync();
+            }
+        }
+
+        public static double GetChromeTime()
+        {
+            try {
+                double test = chromeChannel.Status.First().CurrentTime; // WILL CAUSE CRASH IF STOPPED BY EXTRARNAL
+                TimeSpan t = DateTime.Now.Subtract(castUpdatedNow);
+                double currentTime = castLastUpdate + t.TotalSeconds;
+                return currentTime;
+            }
+            catch (System.Exception) {
+                return castingDuration; // CAST STOPPED FROM EXTERNAL
+            }
+
+        }
+
+        public static void SetChromeTime(double time)
+        {
+            chromeChannel.SeekAsync(time);
+        }
+
+        public static void SeekMedia(double sec)
+        {
+            print(GetChromeTime() + sec);
+            SetChromeTime(GetChromeTime() + sec);
+        }
+
+        //static int castAnimation = 0;
+
+        static void ChromeOnDisconnect()
+        {
+            for (int i = 0; i <= 30; i++) {
+                //  Thread.Sleep(30);
+                //      castAnimation = (30 - i);
+                //  Runnable m = new Runnable(SetCastAinmation);
+                // RunOnUiThread(m);
+            }
+        }
+        static void ChromeOnConnect()
+        {
+            for (int i = 0; i <= 30; i++) {
+                // Java.Lang.Thread.Sleep(30);
+                // castAnimation = i;
+                // Runnable m = new Runnable(SetCastAinmation);
+                // RunOnUiThread(m);
+            }
+        }
+
+        public static async void StopCast()
+        {
+            try {
+                await chromeChannel.StopAsync();
+            }
+            catch (System.Exception) {
+                await Task.CompletedTask;
+            }
+            try {
+                chromeSender.Disconnect();
+            }
+            catch (System.Exception) {
+
+            }
+            Console.WriteLine("STOP CASTING!");
+            isConnectedToChromeCast = false;
+            castingVideo = false;
+            //chromeStart.Visibility = ViewStates.Gone;
+
+
+
+
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 0; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+
+                    ChromeOnDisconnect();
+
+                    //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "ChromeCast";
+
+
+            tempThred.Thread.Start();
+
+
+        }
+
+        // Java.Lang.Thread chromeThread;
+
+        public static async void ConnectToChromeDevice(string name)
+        {
+            if (name == "Disconnect") {
+                StopCast();
+                return;
+            }
+
+            // if (chromeRecivers.Count() > 0) {
+            foreach (IReceiver r in chromeRecivers) {
+                if (r.FriendlyName == name) {
+                    chromeSender = new Sender();
+
+                    // Connect to the Chromecast
+                    try {
+                        await chromeSender.ConnectAsync(r);
+                        chromeRecivever = r;
+                        Console.WriteLine("CONNECTED");
+                        chromeChannel = chromeSender.GetChannel<IMediaChannel>();
+                        await chromeSender.LaunchAsync(chromeChannel);
+                        isConnectedToChromeCast = true;
+
+
+                        TempThred tempThred = new TempThred();
+                        tempThred.typeId = 0; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                        tempThred.Thread = new System.Threading.Thread(() => {
+                            try {
+
+                                ChromeOnConnect();
+
+                                //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                            }
+                            finally {
+                                JoinThred(tempThred);
+                            }
+                        });
+                        tempThred.Thread.Name = "ChromeCast";
+                        tempThred.Thread.Start();
+                        /*
+                        var t = new Thread(() => {
+                            try {
+                            }
+                            finally {
+                                chromeThread.Join();
+                            }
+
+                        });
+                        chromeThread.Start();*/
+                    }
+                    catch (System.Exception) {
+                        await Task.CompletedTask; // JUST IN CASE
+                    }
+
+
+                    return;
+                }
+            }
+            //}
+        }
+
+        private static void ChromeSender_Disconnected(object sender, EventArgs e)
+        {
+            isConnectedToChromeCast = false;
+            // chromeStart.Visibility = ViewStates.Gone;
+            print("DAAAAAAAAAAAAA DISCONNECTED");
+        }
+
+
+        /*
+        public void onVolumeChangeListener()
+        {
+            castCurrentVolume = mAudioManager.GetStreamVolume(Android.Media.Stream.Music);
+            voluemChangeTask = new Task(ChangeVolume);
+            voluemChangeTask.Start();
+        }*/
+
+        /*
+        public void ChangeVolume()
+        {
+            while (!isDestory) {
+                //int count = 0;
+                try {
+                    Thread.Sleep(20);
+                }
+                catch (System.Exception) {
+
+                }
+                if (castCurrentVolume < mAudioManager.GetStreamVolume(Android.Media.Stream.Music)) {
+                    print("volunm+");
+                    //  count++;
+                    castCurrentVolume = mAudioManager.GetStreamVolume(Android.Media.Stream.Music);
+                    Task.Run(SetVolumeAsync);
+                    //  mAudioManager.SetStreamVolume(Android.Media.Stream.Music, castCurrentVolume, Android.Media.VolumeNotificationFlags.RemoveSoundAndVibrate);
+                }
+                if (castCurrentVolume > mAudioManager.GetStreamVolume(Android.Media.Stream.Music)) {
+                    print("volunm-");
+                    //count++;
+                    castCurrentVolume = mAudioManager.GetStreamVolume(Android.Media.Stream.Music);
+                    Task.Run(SetVolumeAsync);
+
+                    // mAudioManager.SetStreamVolume(Android.Media.Stream.Music, castCurrentVolume, Android.Media.VolumeNotificationFlags.RemoveSoundAndVibrate);
+                }
+            }
+        }*/
+
+
+    }
+
     public static class Main
     {
+
+
+
+
+        // -------------------------------- END CHROMECAST --------------------------------
+
+
+
+
 
         public static void PushPageFromUrlAndName(string url, string name)
         {
@@ -1701,7 +2300,7 @@ namespace CloudStreamForms
 
         public static void GetEpisodeLink(int episode = -1, int season = 1, bool purgeCurrentLinkThread = true, bool onlyEpsCount = false, bool isDub = true)
         {
-            if(activeMovie.episodes == null) {
+            if (activeMovie.episodes == null) {
                 return;
             }
 
@@ -3506,3 +4105,29 @@ namespace CloudStreamForms
         }
     }
 }
+/*
+  
+   static Random random = new Random();
+        static int Random(int min,int max)
+        {
+           return random.Next(min, max);
+        }
+         string url = "https://fmovies.to/film/iron-man-2.ljz";
+         string d = HTMLGet(url, "https://fmovies.to");
+         string dataTs = FindHTML(d, "data-ts=\"", "\"");
+         string dataId = FindHTML(d, "data-id=\"", "\"");
+         string dataEpId = FindHTML(d, "data-epid=\"", "\"");
+         string _url = "https://fmovies.to/ajax/film/servers/" + dataId + "?episode=" + dataEpId + "&ts=" + dataTs + "&_=" + Random(100, 999); //
+         print(_url);
+
+             d = HTMLGet(_url, "https://fmovies.to");
+
+         print(d);
+         string cloudGet = FindHTML(d, "<a  data-id=\\\"", "\\\"");
+         // https://fmovies.to/ajax/episode/info?ts=1574168400&_=694&id=d49ac231d1ddf83114eadf1234a1f5d8136dc4a5b6db299d037c06804b37b1ab&server=28
+         // https://fmovies.to/ajax/episode/info?ts=1574168400&_=199&id=1c7493cc7bf3cc16831ff9bf1599ceb6f4be2a65a57143c5a24c2dbea99104de&server=97
+
+         string rD = "https://fmovies.to/ajax/episode/info?ts=" + dataTs + "&_=" + Random(100,999) + "&id=" + cloudGet + "&server=" + Random(1, 99);
+         print(rD);
+         d = HTMLGet(rD, "https://fmovies.to");
+         print(d);*/
