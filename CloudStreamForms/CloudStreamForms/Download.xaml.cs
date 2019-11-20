@@ -210,6 +210,7 @@ namespace CloudStreamForms
             string moviePath = FindHTML(keyData, "_dpath=", "|||");
             DeleteFile(moviePath, keyPath);
         }
+
         public static void DeleteFileFromFolder(string keyData, string keyFolder, string keyId)
         {
             string moviePath = FindHTML(keyData, "_dpath=", "|||");
@@ -220,6 +221,7 @@ namespace CloudStreamForms
         {
             if (App.DeleteFile(moviePath)) {
                 App.RemoveKey(keyPath);
+                App.ShowToast("Deleted File");
             }
         }
 
@@ -227,9 +229,9 @@ namespace CloudStreamForms
         {
             if (App.DeleteFile(moviePath)) {
                 App.RemoveKey(keyFolder, keyId);
+                App.ShowToast("Deleted File");
             }
         }
-
 
         public static void PlayFile(string keyData, string title = "")
         {

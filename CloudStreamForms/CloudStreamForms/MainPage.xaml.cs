@@ -54,6 +54,7 @@ namespace CloudStreamForms
         {
             InitializeComponent(); mainPage = this;
             CheckGitHubUpdate();
+            MainChrome.StartImageChanger();
 
             List<string> names = new List<string>() { "Home", "Search", "Downloads", "Settings" };
             List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "settingsIcon.png" };
@@ -230,14 +231,25 @@ namespace CloudStreamForms
             }
         }
         static int CurrentImage = 0;
+        public static string MultiplyString(string s, int times)
+        {
+            return String.Concat(Enumerable.Repeat(s, times));
+        }
+        public static string ConvertScoreToArcadeScore(object inp, int maxLetters = 8, string multiString = "0")
+        {
+            string inpS = inp.ToString();
+            inpS = MultiplyString(multiString, maxLetters - inpS.Length) + inpS;
+            return inpS;
+        }
+        public static string CurrentImageSource { get { return "ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(CurrentImage,2) + "_mtrl.png"; } }
         public static async Task StartImageChanger()
         {
             while (true) {
                 int lastImage = int.Parse(CurrentImage.ToString());
                 if (IsPendingConnection) {
                     CurrentImage++;
-                    if (CurrentImage > 11) {
-                        CurrentImage = 0;
+                    if (CurrentImage > 8) {
+                        CurrentImage = 3;
                     }
                 }
                 else {
@@ -249,7 +261,7 @@ namespace CloudStreamForms
                     CurrentImage = 0;
                 }
                 if (lastImage != CurrentImage) {
-                    OnChromeImageChanged.Invoke(null, "ic_media_route_connected_dark_" + CurrentImage + "_mtrl.png");
+                    OnChromeImageChanged.Invoke(null, CurrentImageSource);
                 }
                 await Task.Delay(30);
             }
@@ -283,7 +295,6 @@ namespace CloudStreamForms
             castUpdatedNow = DateTime.Now;
             castLastUpdate = mm.CurrentTime;
         }
-
         // Subtitle Url https://static.movies123.pro/files/tracks/JhUzWRukqeuUdRrPCe0R3lUJ1SmknAVSv670Ep0cXipm1JfMgNWa379VKKAz8nvFMq2ksu7bN5tCY5tXXKS4Lrr1tLkkipdLJNArNzVSu2g.srt
         public static async void CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
         {

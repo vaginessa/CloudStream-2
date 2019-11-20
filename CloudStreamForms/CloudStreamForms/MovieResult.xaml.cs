@@ -162,9 +162,50 @@ namespace CloudStreamForms
             });
         }
 
-        public MovieResult()
+        public void SetChromeCast(bool enabled)
+        {
+            ChromeCastBtt.IsVisible = enabled;
+            ChromeCastBtt.IsEnabled = enabled;
+            ImgChromeCastBtt.IsVisible = enabled;
+            ImgChromeCastBtt.IsEnabled = enabled;
+            if (enabled) {
+                ImgChromeCastBtt.Source = GetImageSource(MainChrome.CurrentImageSource);
+            }
+            NameLabel.Margin = new Thickness((enabled ? 50 : 10), 10, 10, 10);
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
+        }
+
+        private void ChromeCastBtt_Clicked(object sender, EventArgs e)
+        {
+            WaitChangeChromeCast();
+        }
+
+        async void WaitChangeChromeCast()
         {
 
+            string action = "";
+            List<string> names = MainChrome.GetChromeDevicesNames();
+            int add = (MainChrome.IsConnectedToChromeDevice ? 1 : 0);
+            string[] inputs = new string[names.Count + add];
+
+            if (MainChrome.IsConnectedToChromeDevice) {
+                inputs[0] = "Disconnect";
+            }
+            for (int i = 0; i < names.Count; i++) {
+                inputs[i + add] = names[i];
+            }
+
+            action = await DisplayActionSheet("Chromecast", "Cancel", null, inputs);
+            MainChrome.ConnectToChromeDevice(action);
+        }
+
+        public MovieResult()
+        {
             InitializeComponent();
 
             mainPoster = Search.mainPoster;
@@ -175,6 +216,18 @@ namespace CloudStreamForms
             ShareBtt.Source = GetImageSource("shareIcon.png");
             StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
             SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
+
+            MainChrome.OnChromeImageChanged += (o, e) => {
+                ImgChromeCastBtt.Source = GetImageSource(e);
+            };
+            MainChrome.OnChromeDevicesFound += (o, e) => {
+                SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
+            };
+            if (!MainChrome.IsConnectedToChromeDevice) {
+                MainChrome.GetAllChromeDevices();
+            }
+
+
             //ViewToggle.Source = GetImageSource("viewOnState.png");
             ChangeViewToggle();
             ChangeSubtitle();
@@ -1078,7 +1131,6 @@ namespace CloudStreamForms
                 Download.PlayFile(hasDownloadedFile, episodeResult.Title);
             }
             else {
-
                 LoadLinksForEpisode(episodeResult);
             }
             episodeView.SelectedItem = null;
@@ -1308,13 +1360,28 @@ namespace CloudStreamForms
 
             bool hasDownloadedFile = App.KeyExists("Download", GetId(episodeResult));
             string downloadKeyData = "";
+
+            List<string> actions = new List<string>() { "Play", "Download", "Download Subtitles", "Copy Link", "Reload" };
+  
             if (hasDownloadedFile) {
                 downloadKeyData = App.GetKey("Download", GetId(episodeResult), "");
-                action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, "Play", "Download", "Download Subtitles", "Copy Link", "Reload", "Play Downloaded File", "Delete Downloaded File");
+                actions.Add("Play Downloaded File"); actions.Add("Delete Downloaded File");
             }
-            else {
-                action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, "Play", "Download", "Download Subtitles", "Copy Link", "Reload");
+            if(MainChrome.IsConnectedToChromeDevice) {
+                actions.Insert(0, "Chromecast");
             }
+
+            action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, actions.ToArray());
+
+            if(action == "Chromecast") {
+                string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
+                for (int i = 0; i < episodeResult.Mirros.Count; i++) {
+                    if (episodeResult.Mirros[i] == download) {
+                        MainChrome.CastVideo(episodeResult.mirrosUrls[i], episodeResult.Mirros[i]);
+                    }
+                }
+            }
+
             if (action == "Play") {
                 PlayEpisode(episodeResult);
             }
@@ -1350,7 +1417,7 @@ namespace CloudStreamForms
                         }
                         else {
                             EpisodeSettings(episodeResult);
-                            App.ShowToast("Download Failed"); 
+                            App.ShowToast("Download Failed");
                             ForceUpdate();
                         }
                     }
@@ -1415,7 +1482,7 @@ namespace CloudStreamForms
 
         public string GetId(EpisodeResult episodeResult)
         {
-          //  print(episodeResult.Id + "|" + currentMovie.episodes.Count);
+            //  print(episodeResult.Id + "|" + currentMovie.episodes.Count);
 
             try {
                 return (currentMovie.title.movieType == MovieType.TVSeries || currentMovie.title.movieType == MovieType.Anime) ? currentMovie.episodes[episodeResult.Id].id : currentMovie.title.id;
@@ -1463,6 +1530,7 @@ namespace CloudStreamForms
             ViewToggle.Source = GetImageSource((toggleViewState ? "viewOffIcon.png" : "viewOnIcon.png"));
             ViewToggle.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(toggleViewState ? primaryColor : defColor)) };
         }
+
     }
 
 }

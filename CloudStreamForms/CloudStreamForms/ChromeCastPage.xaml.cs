@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudStreamForms.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace CloudStreamForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ChromeCastPage : ContentPage
     {
+        public EpisodeResult episodeResult; 
         public ChromeCastPage()
         {
             InitializeComponent();
