@@ -181,6 +181,9 @@ namespace CloudStreamForms
 
     public static class MainChrome
     {
+        public static event EventHandler OnDisconnected;
+        public static event EventHandler OnConnected;
+
         public static bool IsChromeDevicesOnNetwork
         {
             get {
@@ -336,6 +339,7 @@ namespace CloudStreamForms
             catch (System.Exception) {
 
             }
+            OnDisconnected?.Invoke(null, null);
             IsConnectedToChromeDevice = false;
             IsCastingVideo = false;
             Console.WriteLine("STOP CASTING!");
@@ -360,6 +364,7 @@ namespace CloudStreamForms
                         CurrentChannel = chromeSender.GetChannel<IMediaChannel>();
                         await chromeSender.LaunchAsync(CurrentChannel);
                         IsConnectedToChromeDevice = true;
+                        OnConnected?.Invoke(null, null);
                     }
                     catch (System.Exception) {
                         await Task.CompletedTask; // JUST IN CASE
