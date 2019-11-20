@@ -183,6 +183,8 @@ namespace CloudStreamForms
     {
         public static event EventHandler OnDisconnected;
         public static event EventHandler OnConnected;
+        public static event EventHandler OnChromeDevicesFound;
+        public static event EventHandler<string> OnChromeImageChanged;
 
         public static bool IsChromeDevicesOnNetwork
         {
@@ -195,6 +197,7 @@ namespace CloudStreamForms
             }
         }
         public static bool IsConnectedToChromeDevice { set; get; }
+        public static bool IsPendingConnection { set; get; }
         public static bool IsCastingVideo { set; get; }
         public static bool IsPaused { set; get; }
         public static bool IsPlaying { set; get; }
@@ -210,7 +213,7 @@ namespace CloudStreamForms
         {
             get {
                 try {
-                   // double test = CurrentChannel.Status.First().CurrentTime; // WILL CAUSE CRASH IF STOPPED BY EXTRARNAL
+                    // double test = CurrentChannel.Status.First().CurrentTime; // WILL CAUSE CRASH IF STOPPED BY EXTRARNAL
                     TimeSpan t = DateTime.Now.Subtract(castUpdatedNow);
                     double currentTime = castLastUpdate + t.TotalSeconds;
                     return currentTime;
@@ -226,9 +229,37 @@ namespace CloudStreamForms
                 return CurrentChannel.Status == null || !string.IsNullOrEmpty(CurrentChannel.Status.FirstOrDefault()?.IdleReason);
             }
         }
+        static int CurrentImage = 0;
+        public static async Task StartImageChanger()
+        {
+            while (true) {
+                int lastImage = int.Parse(CurrentImage.ToString());
+                if (IsPendingConnection) {
+                    CurrentImage++;
+                    if (CurrentImage > 11) {
+                        CurrentImage = 0;
+                    }
+                }
+                else {
+                    CurrentImage += IsConnectedToChromeDevice ? 1 : -1;
+                }
+                if (CurrentImage < 0) CurrentImage = 0;
+                if (CurrentImage > 30) CurrentImage = 30;
+                if (!IsChromeDevicesOnNetwork) {
+                    CurrentImage = 0;
+                }
+                if (lastImage != CurrentImage) {
+                    OnChromeImageChanged.Invoke(null, "ic_media_route_connected_dark_" + CurrentImage + "_mtrl.png");
+                }
+                await Task.Delay(30);
+            }
+        }
         public static async void GetAllChromeDevices()
         {
             allChromeDevices = await new DeviceLocator().FindReceiversAsync();
+            if (IsChromeDevicesOnNetwork) {
+                OnChromeDevicesFound?.Invoke(null, null);
+            }
         }
         public static List<string> GetChromeDevicesNames()
         {
@@ -257,7 +288,7 @@ namespace CloudStreamForms
         public static async void CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
         {
             try {
-                if(setTime == -2) {
+                if (setTime == -2) {
                     setTime = CurrentTime;
                 }
 
@@ -358,6 +389,7 @@ namespace CloudStreamForms
 
                     // Connect to the Chromecast
                     try {
+                        IsPendingConnection = true;
                         await chromeSender.ConnectAsync(r);
                         chromeRecivever = r;
                         Console.WriteLine("CONNECTED");
@@ -369,12 +401,27 @@ namespace CloudStreamForms
                     catch (System.Exception) {
                         await Task.CompletedTask; // JUST IN CASE
                     }
-
-
+                    IsPendingConnection = false;
                     return;
                 }
             }
             //}
+        }
+        private static async Task SetVolumeAsync(float level) // 0 = 0%, 1 = 100%
+        {
+            if (IsCastingVideo) {
+                await SendChannelCommandAsync<IReceiverChannel>(IsStopped, null, async c => await c.SetVolumeAsync(level));
+            }
+            else {
+                await Task.CompletedTask;
+            }
+        }
+        private static async Task SendChannelCommandAsync<TChannel>(bool condition, Func<TChannel, Task> action, Func<TChannel, Task> otherwise) where TChannel : IChannel => await InvokeAsync(condition ? action : otherwise);
+        private static async Task InvokeAsync<TChannel>(Func<TChannel, Task> action) where TChannel : IChannel
+        {
+            if (action != null) {
+                await action.Invoke(chromeSender.GetChannel<TChannel>());
+            }
         }
     }
 
@@ -447,10 +494,10 @@ namespace CloudStreamForms
         }
 
 
-        private static async Task SetVolumeAsync()
+        private static async Task SetVolumeAsync(float level)
         {
             if (castingVideo) {
-                await SendChannelCommandAsync<IReceiverChannel>(IsStopped, null, async c => await c.SetVolumeAsync(castCurrentVolume / (float)castmaxVolume));
+                await SendChannelCommandAsync<IReceiverChannel>(IsStopped, null, async c => await c.SetVolumeAsync(level));
             }
             else {
                 await Task.CompletedTask;
