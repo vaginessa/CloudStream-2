@@ -329,7 +329,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                             </Grid>
                         </StackLayout>
                     </ScrollView>
-                    <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" Color="White"></ActivityIndicator>
+                    <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" ></ActivityIndicator>
                 </StackLayout>
 
             </StackLayout>

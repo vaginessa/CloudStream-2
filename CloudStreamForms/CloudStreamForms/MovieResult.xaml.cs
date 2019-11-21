@@ -199,14 +199,15 @@ namespace CloudStreamForms
 
             if (MainChrome.IsConnectedToChromeDevice) {
                 //  inputs[0] = crossChar + "Disconnect";
-                 _c.Add(new ActionSheetOption("Disconnect") { Action = () => { MainChrome.ConnectToChromeDevice("Disconnect"); },ItemIcon= "round_close_white_24.png" });
+                _c.Add(new ActionSheetOption("Disconnect") { Action = () => { MainChrome.ConnectToChromeDevice("Disconnect"); }, ItemIcon = "round_close_white_18.png" });
             }
             for (int i = 0; i < names.Count; i++) {
                 //inputs[i + add] = tvChar + names[i];
                 string _name = names[i].ToString();
 
                 _c.Add(new ActionSheetOption(names[i]) {
-                    Action = () => { MainChrome.ConnectToChromeDevice(_name); },ItemIcon= "round_tv_white_24.png"
+                    Action = () => { MainChrome.ConnectToChromeDevice(_name); },
+                    ItemIcon = "round_tv_white_18.png"
                 });
 
             }
@@ -220,7 +221,7 @@ namespace CloudStreamForms
                    //Cancel = new ActionSheetOption("da") { Text = "Cancel" }, 
                    // ItemIcon = "da",
                    Options = _c,
-                   //Cancel = new ActionSheetOption("Cancel"),
+                   Destructive = new ActionSheetOption("Cancel"),
                    //Destructive = MainChrome.IsConnectedToChromeDevice ? new ActionSheetOption("Disconnect", () => { MainChrome.ConnectToChromeDevice("Disconnect"); }) : null,
                });
 
@@ -1222,9 +1223,15 @@ namespace CloudStreamForms
                     NormalStack.IsEnabled = false;
                     // LoadingStack.IsVisible = true;
                     // NormalStack.IsVisible = false;
-                    NormalStack.Opacity = 0.3f;
+                    //  NormalStack.Opacity = 0.3f;
                     loadingLinks = true;
+
+                    UserDialogs.Instance.ShowLoading("Loading links...", MaskType.Gradient);
+
+                    //UserDialogs.Instance.load
                     await Task.Delay(LoadingMiliSec);
+                    UserDialogs.Instance.HideLoading();
+
                     loadingLinks = false;
 
                     if (SameAsActiveMovie()) {
