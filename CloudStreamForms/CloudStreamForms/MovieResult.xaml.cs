@@ -16,6 +16,7 @@ using static CloudStreamForms.App;
 using static CloudStreamForms.MainPage;
 using static CloudStreamForms.Settings;
 using System.Threading;
+using Acr.UserDialogs;
 
 namespace CloudStreamForms
 {
@@ -182,26 +183,50 @@ namespace CloudStreamForms
 
         private void ChromeCastBtt_Clicked(object sender, EventArgs e)
         {
+
             WaitChangeChromeCast();
         }
 
         async void WaitChangeChromeCast()
         {
-
             string action = "";
             List<string> names = MainChrome.GetChromeDevicesNames();
             int add = (MainChrome.IsConnectedToChromeDevice ? 1 : 0);
             string[] inputs = new string[names.Count + add];
+            var _c = new List<ActionSheetOption>();
+
+
 
             if (MainChrome.IsConnectedToChromeDevice) {
-                inputs[0] = "Disconnect";
+                //  inputs[0] = crossChar + "Disconnect";
+                 _c.Add(new ActionSheetOption("Disconnect") { Action = () => { MainChrome.ConnectToChromeDevice("Disconnect"); },ItemIcon= "round_close_white_24.png" });
             }
             for (int i = 0; i < names.Count; i++) {
-                inputs[i + add] = names[i];
+                //inputs[i + add] = tvChar + names[i];
+                string _name = names[i].ToString();
+
+                _c.Add(new ActionSheetOption(names[i]) {
+                    Action = () => { MainChrome.ConnectToChromeDevice(_name); },ItemIcon= "round_tv_white_24.png"
+                });
+
             }
 
-            action = await DisplayActionSheet("Chromecast", "Cancel", null, inputs);
-            MainChrome.ConnectToChromeDevice(action);
+            // action = "";//(await DisplayActionSheet("Cast To", "Cancel", null, inputs)).Replace(crossChar, "").Replace(tvChar, "");
+
+            UserDialogs.Instance.ActionSheet(//"Cast to","Cancel","",null,inputs
+
+               new ActionSheetConfig() {
+                   Title = "Cast To",
+                   //Cancel = new ActionSheetOption("da") { Text = "Cancel" }, 
+                   // ItemIcon = "da",
+                   Options = _c,
+                   //Cancel = new ActionSheetOption("Cancel"),
+                   //Destructive = MainChrome.IsConnectedToChromeDevice ? new ActionSheetOption("Disconnect", () => { MainChrome.ConnectToChromeDevice("Disconnect"); }) : null,
+               });
+
+
+
+            // MainChrome.ConnectToChromeDevice(action);
         }
 
         public MovieResult()
@@ -221,6 +246,7 @@ namespace CloudStreamForms
                 ImgChromeCastBtt.Source = GetImageSource(e);
             };
             MainChrome.OnChromeDevicesFound += (o, e) => {
+                print("CHROME FOUND: ");
                 SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
             };
             if (!MainChrome.IsConnectedToChromeDevice) {
@@ -1362,18 +1388,18 @@ namespace CloudStreamForms
             string downloadKeyData = "";
 
             List<string> actions = new List<string>() { "Play", "Download", "Download Subtitles", "Copy Link", "Reload" };
-  
+
             if (hasDownloadedFile) {
                 downloadKeyData = App.GetKey("Download", GetId(episodeResult), "");
                 actions.Add("Play Downloaded File"); actions.Add("Delete Downloaded File");
             }
-            if(MainChrome.IsConnectedToChromeDevice) {
+            if (MainChrome.IsConnectedToChromeDevice) {
                 actions.Insert(0, "Chromecast");
             }
 
             action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, actions.ToArray());
 
-            if(action == "Chromecast") {
+            if (action == "Chromecast") {
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {

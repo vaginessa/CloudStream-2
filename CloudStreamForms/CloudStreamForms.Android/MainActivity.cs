@@ -18,6 +18,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using static CloudStreamForms.Main;
 using Android.Provider;
+using Acr.UserDialogs;
 
 namespace CloudStreamForms.Droid
 {
@@ -50,6 +51,7 @@ namespace CloudStreamForms.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init(enableFastRenderer: true);
+            UserDialogs.Init(this);
 
             LoadApplication(new App());
             activity = this;

@@ -23,6 +23,8 @@ using Application = Xamarin.Forms.Application;
 using GoogleCast;
 using GoogleCast.Models.Media;
 using GoogleCast.Channels;
+using Acr.UserDialogs;
+
 
 namespace CloudStreamForms
 {
@@ -55,6 +57,7 @@ namespace CloudStreamForms
             InitializeComponent(); mainPage = this;
             CheckGitHubUpdate();
             MainChrome.StartImageChanger();
+            MainChrome.GetAllChromeDevices();
 
             List<string> names = new List<string>() { "Home", "Search", "Downloads", "Settings" };
             List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "settingsIcon.png" };
@@ -67,9 +70,8 @@ namespace CloudStreamForms
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
+
             //PushPageFromUrlAndName("tt4869896", "Overlord");
-
-
         }
 
 
@@ -241,7 +243,7 @@ namespace CloudStreamForms
             inpS = MultiplyString(multiString, maxLetters - inpS.Length) + inpS;
             return inpS;
         }
-        public static string CurrentImageSource { get { return "ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(CurrentImage,2) + "_mtrl.png"; } }
+        public static string CurrentImageSource { get { return "ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(CurrentImage, 2) + "_mtrl.png"; } }
         public static async Task StartImageChanger()
         {
             while (true) {
@@ -268,7 +270,10 @@ namespace CloudStreamForms
         }
         public static async void GetAllChromeDevices()
         {
+            print("SCANNING");
             allChromeDevices = await new DeviceLocator().FindReceiversAsync();
+            print("SCANNED");
+            print("FOUND " + allChromeDevices.ToList().Count + " CHROME DEVICES");
             if (IsChromeDevicesOnNetwork) {
                 OnChromeDevicesFound?.Invoke(null, null);
             }

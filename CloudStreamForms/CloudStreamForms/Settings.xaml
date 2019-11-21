@@ -15,10 +15,10 @@
             <TableView>
                 <TableRoot>
                     <TableSection>
-                        <SwitchCell Text="Force black background (Restart Recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}" ></SwitchCell>
+                        <SwitchCell Text="Force black background (Restart recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}" ></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Instant Search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Instant search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
                         <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
@@ -28,7 +28,7 @@
                         <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
-                        <SwitchCell Text="Default Anime Dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                        <SwitchCell Text="Default anime dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
                     </TableSection>
                     <TableSection>
                         <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}"></SwitchCell>

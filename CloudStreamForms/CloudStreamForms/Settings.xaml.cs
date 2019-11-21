@@ -215,15 +215,16 @@ namespace CloudStreamForms
         }
         async void ClearBookmarks()
         {
-            string action = await DisplayActionSheet("Clear bookmarks", "Cancel", null, "Clear bookmarks");
-            if (action == "Clear bookmarks") {
+            bool action = await DisplayAlert("Clear bookmarks", "Are you sure that you want to remove all bookmarks","Yes", "Cancel");
+            if (action) {
                 App.RemoveFolder("BookmarkData");
             }
         }
         async void ClearHistory()
         {
-            string action = await DisplayActionSheet("Clear watch history", "Cancel", null, "Clear history");
-            if (action == "Clear history") {
+            
+            bool action = await DisplayAlert("Clear watch history", "Are you sure that you want to clear all watch history", "Yes", "Cancel");
+            if (action) {
                 App.RemoveFolder("ViewHistory");
             }
         }
