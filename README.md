@@ -15,10 +15,9 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 + Movie and Episode description
 + Subtitles directly from www.opensubtitles.org 
 + Title sharing, share any movie via a link.
-
++ Chromecast
 
 **COMMING SOON:**
-+ Chromecast
 + Top 100 movies 
 
 **REQUIREMENTS:**
