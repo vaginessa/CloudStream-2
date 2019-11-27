@@ -187,12 +187,26 @@ namespace CloudStreamForms
             WaitChangeChromeCast();
         }
 
+        private void OpenChromecastView(object sender, EventArgs e)
+        {
+            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            Navigation.PushModalAsync(p, false);
+        }
+
         async void WaitChangeChromeCast()
         {
-            string action = "";
             List<string> names = MainChrome.GetChromeDevicesNames();
-            int add = (MainChrome.IsConnectedToChromeDevice ? 1 : 0);
-            string[] inputs = new string[names.Count + add];
+            //UserDialogs.Instance.Alert("Hello", "Hello World", "OkText");
+
+            string a = await DisplayActionSheet("Cast to", "Cancel", MainChrome.IsConnectedToChromeDevice ? "Disconnect" : null, names.ToArray());
+            if (a != "Cancel") {
+                MainChrome.ConnectToChromeDevice(a);
+            }
+            //string[] inputs = new string[names.Count + add];
+
+            /*                 string action = "";
+       int add = (MainChrome.IsConnectedToChromeDevice ? 1 : 0);
+
             var _c = new List<ActionSheetOption>();
 
 
@@ -209,11 +223,10 @@ namespace CloudStreamForms
                     Action = () => { MainChrome.ConnectToChromeDevice(_name); },
                     ItemIcon = "round_tv_white_18.png"
                 });
-
-            }
-
+            }*/
             // action = "";//(await DisplayActionSheet("Cast To", "Cancel", null, inputs)).Replace(crossChar, "").Replace(tvChar, "");
 
+            /*
             UserDialogs.Instance.ActionSheet(//"Cast to","Cancel","",null,inputs
 
                new ActionSheetConfig() {
@@ -224,10 +237,17 @@ namespace CloudStreamForms
                    Destructive = new ActionSheetOption("Cancel"),
                    //Destructive = MainChrome.IsConnectedToChromeDevice ? new ActionSheetOption("Disconnect", () => { MainChrome.ConnectToChromeDevice("Disconnect"); }) : null,
                });
-
+               */
 
 
             // MainChrome.ConnectToChromeDevice(action);
+        }
+
+        void SetIsCasting(bool e)
+        {
+            ChromeRow.IsVisible = e;
+            ChromeRow.IsEnabled = e;
+            Grid.SetRow(SecChromeRow, e ? 5 : 4);
         }
 
         public MovieResult()
@@ -243,13 +263,25 @@ namespace CloudStreamForms
             StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
             SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
 
+            // -------------- CHROMECASTING THINGS --------------
+
+            ChromeCastQQ.Source = GetImageSource(MainChrome.GetSourceFromInt());
+            SetIsCasting(MainChrome.IsCastingVideo);
+
             MainChrome.OnChromeImageChanged += (o, e) => {
                 ImgChromeCastBtt.Source = GetImageSource(e);
             };
             MainChrome.OnChromeDevicesFound += (o, e) => {
-                print("CHROME FOUND: ");
                 SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
             };
+
+            MainChrome.OnVideoCastingChanged += (o, e) => {
+                SetIsCasting(e);
+                if (e) {
+                    OpenChromecastView(null, null);
+                }
+            };
+
             if (!MainChrome.IsConnectedToChromeDevice) {
                 MainChrome.GetAllChromeDevices();
             }

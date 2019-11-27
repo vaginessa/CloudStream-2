@@ -75,7 +75,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
                     <Grid Grid.Row="1"  Grid.Column="0">
-                        <ff:CachedImage x:Name="ImgChromeCastBtt" BackgroundColor="Transparent"  WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start" Scale="0.7" TranslationX="10"> </ff:CachedImage>
+                        <ff:CachedImage x:Name="ImgChromeCastBtt" BackgroundColor="Transparent"  WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start" Scale="0.7" TranslationX="10"></ff:CachedImage>
                         <ImageButton x:Name="ChromeCastBtt" BackgroundColor="Transparent" Clicked="ChromeCastBtt_Clicked"  WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start"></ImageButton>
                         <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" Margin="10,10,10,10" TranslationY="-20" TextColor="White" ></Label>
                     </Grid>
@@ -88,8 +88,15 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     <Grid Grid.Row="3"  Grid.Column="0">
                         <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Fill" VerticalOptions="Start" Margin="10" MinimumHeightRequest="0" TranslationY="-20" TextColor="Gray"></Label>
                     </Grid>
+                    <Grid Grid.Row="4"  Grid.Column="0" x:Name="ChromeRow" >
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Start" >
+                            <Image HeightRequest="30" x:Name="ChromeCastQQ" BackgroundColor="Transparent" InputTransparent="True"></Image>
+                            <Button Text="Open Chromecast" BackgroundColor="Transparent" Clicked="OpenChromecastView" ></Button>
+                        </StackLayout>
+                    </Grid>
 
-                    <Grid Grid.Row="4"  Grid.Column="0">
+
+                    <Grid Grid.Row="5"  Grid.Column="0" x:Name="SecChromeRow">
                         <Grid HorizontalOptions="Start" HeightRequest="60" TranslationX="0"  x:Name="QuickMenu" Margin="5">
                             <Grid>
                                 <Grid Grid.Row="0"  Grid.Column="0">
@@ -331,7 +338,6 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     </ScrollView>
                     <ActivityIndicator x:Name="RecomendationLoaded" IsRunning="True" IsVisible="True" IsEnabled="True" ></ActivityIndicator>
                 </StackLayout>
-
             </StackLayout>
 
 
