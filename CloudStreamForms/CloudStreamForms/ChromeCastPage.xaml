@@ -3,13 +3,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
              mc:Ignorable="d"
              x:Class="CloudStreamForms.ChromeCastPage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+        <StackLayout HorizontalOptions="CenterAndExpand">
+
+            <Label x:Name="NameLabel" FontSize="Title" Text="{Binding TitleName}" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0" TextColor="White" ></Label>
+            <Label x:Name="EpsodeName" Text="{Binding DescriptName}"  HorizontalOptions="Center" TextColor="Gray" Margin="0"></Label>
+
+            <ff:CachedImage HeightRequest="188" WidthRequest="125" Source="{Binding PosterUrl}" InputTransparent="True" Margin="40">
+
+                <ff:CachedImage.Transformations>
+                    <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="0.67" >
+
+                    </ffTransformations:RoundedTransformation>
+                </ff:CachedImage.Transformations>
+            </ff:CachedImage>
+            <Grid HorizontalOptions="Center" ColumnSpacing="4">
+                <Grid.ColumnDefinitions >
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ImageButton Margin="10,0,0,0" x:Name="StopAll" Grid.Column="0" BackgroundColor="Transparent" HorizontalOptions="Start" HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
+                <ImageButton x:Name="LowVol" Grid.Column="1" BackgroundColor="Transparent" HorizontalOptions="Start"  HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
+                <Slider x:Name="VolSolider" Grid.Column="2" MinimumTrackColor="#303F9F" ThumbColor="#303F9F" HorizontalOptions="Fill"></Slider>
+                <ImageButton x:Name="MaxVol" Grid.Column="3" BackgroundColor="Transparent" HorizontalOptions="End" HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
+                <ImageButton  Margin="0,10,0,0" x:Name="PlayList" Grid.Column="4" BackgroundColor="Transparent" HorizontalOptions="End" HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
+            </Grid>
+            
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

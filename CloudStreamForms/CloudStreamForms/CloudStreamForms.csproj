@@ -72,6 +72,7 @@
     <None Remove="Resource\round_more_vert_white_48dp.png" />
     <None Remove="Resource\round_movie_white_48dp.png" />
     <None Remove="Resource\round_pause_white_48dp.png" />
+    <None Remove="Resource\round_playlist_play_white_48dp.png" />
     <None Remove="Resource\round_play_arrow_white_48dp.png" />
     <None Remove="Resource\round_replay_white_48dp.png" />
     <None Remove="Resource\round_replay_white_48dp_mirror.png" />
@@ -137,6 +138,7 @@
     <EmbeddedResource Include="Resource\round_more_vert_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_movie_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_pause_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_playlist_play_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_play_arrow_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_replay_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_replay_white_48dp_mirror.png" />

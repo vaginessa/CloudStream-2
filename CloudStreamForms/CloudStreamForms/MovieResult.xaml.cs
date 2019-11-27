@@ -261,7 +261,7 @@ namespace CloudStreamForms
             MALBtt.Source = GetImageSource("MALIcon.png");
             ShareBtt.Source = GetImageSource("shareIcon.png");
             StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
-            SubtitleBtt.Source = GetImageSource("subtitleIcon.png");
+            SubtitleBtt.Source = GetImageSource("round_subtitles_white_48dp.png");
 
             // -------------- CHROMECASTING THINGS --------------
 
