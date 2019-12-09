@@ -189,8 +189,8 @@ namespace CloudStreamForms
 
         private void OpenChromecastView(object sender, EventArgs e)
         {
-            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-            Navigation.PushModalAsync(p, false);
+           // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            //Navigation.PushModalAsync(p, false);
         }
 
         async void WaitChangeChromeCast()
@@ -245,6 +245,7 @@ namespace CloudStreamForms
 
         void SetIsCasting(bool e)
         {
+            e = false;
             ChromeRow.IsVisible = e;
             ChromeRow.IsEnabled = e;
             Grid.SetRow(SecChromeRow, e ? 5 : 4);
@@ -668,7 +669,7 @@ namespace CloudStreamForms
         }
 
 
-        private void MovieResult_linkAdded(object sender, int e)
+        private void MovieResult_linkAdded(object sender, Link e)
         {
             if (!SameAsActiveMovie()) return;
 
@@ -692,7 +693,6 @@ namespace CloudStreamForms
                                 List<Link> links = currentEpisodes[i].links;
                                 try {
                                     links = links.OrderBy(l => -l.priority).ToList();
-
                                 }
                                 catch (Exception) {
 
@@ -1277,16 +1277,22 @@ namespace CloudStreamForms
 
                     //NormalStack.IsVisible = true;
                     //   print("MAINOS");
+
                     if (episodeResult == null) {
+                        print("NULLEP");
                         App.ShowToast(errorEpisodeToast);
 
                     }
                     else {
                         if (episodeResult.mirrosUrls == null) {
+                            print("NULLE2");
+
                             App.ShowToast(errorEpisodeToast);
 
                         }
                         else {
+                            print("NULLEP3");
+
                             print("LINKCOUNT: " + episodeResult.mirrosUrls.Count);
                             if (episodeResult.mirrosUrls.Count > 0) {
 
@@ -1294,6 +1300,8 @@ namespace CloudStreamForms
                                 episodeResult.LoadedLinks = true;
                             }
                             else {
+                                print("NULL3P3");
+
                                 App.ShowToast(errorEpisodeToast);
                             }
                         }
