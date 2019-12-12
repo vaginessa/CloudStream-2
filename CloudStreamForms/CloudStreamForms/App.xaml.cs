@@ -23,9 +23,10 @@ namespace CloudStreamForms
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
             void ShowToast(string message, double duration);
             string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
-            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath);
+            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath,string toast = "");
             bool DeleteFile(string path);
             void DownloadUpdate(string update);
+            string GetDownloadPath(string path, string extraFolder);
         }
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
@@ -67,6 +68,11 @@ namespace CloudStreamForms
         public static void DownloadNewGithubUpdate(string update)
         {
             platformDep.DownloadUpdate(update);
+        }
+
+        public static string GetDownloadPath(string path, string extraFolder)
+        {
+            return platformDep.GetDownloadPath(path, extraFolder);
         }
 
         public static void PlayVLCWithSingleUrl(List<string> url, List<string> name, string subtitleLoc = "")

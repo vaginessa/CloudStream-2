@@ -120,7 +120,7 @@ namespace CloudStreamForms.Droid
                 return true;
             }
 
-          
+
             catch (Exception) {
                 return false;
             }
@@ -272,11 +272,11 @@ namespace CloudStreamForms.Droid
 
             Intent intent = new Intent(Intent.ActionView).SetDataAndType(uri, "video/*");
             //intent.SetPackage("org.videolan.vlc");
-            Main.print("Da_ " + Android.Net.Uri.Parse(subfile));
+            // Main.print("Da_ " + Android.Net.Uri.Parse(subfile));
 
             if (subfile != "") {
                 var sfile = Android.Net.Uri.FromFile(new Java.IO.File(subfile));  //"content://" + Android.Net.Uri.Parse(subfile);
-                print(sfile.Path);
+                                                                                  //  print(sfile.Path);
                 intent.PutExtra("subtitles_location", sfile);//Android.Net.Uri.FromFile(subFile));
                                                              // intent.PutExtra("subtitles_location", );//Android.Net.Uri.FromFile(subFile));
             }
@@ -334,12 +334,13 @@ namespace CloudStreamForms.Droid
         {
             return (mainPath ? (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads) : (Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads + "/Extra")) + extraPath;
         }
+
         public string DownloadFile(string file, string fileName, bool mainPath, string extraPath)
         {
             return WriteFile(CensorFilename(fileName), GetPath(mainPath, extraPath), file).Path;
         }
 
-        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "")
         {
             try {
 
@@ -363,6 +364,11 @@ namespace CloudStreamForms.Droid
                         }*/
                         // print(e.ProgressPercentage + "|" + basePath);
                     };
+                    wc.DownloadFileCompleted += (o, e) => {
+                        if (toast != "") {
+                            App.ShowToast(toast);
+                        }
+                    };
                     wc.DownloadFileAsync(
                         // Param1 = Link of file
                         new System.Uri(url),
@@ -376,16 +382,19 @@ namespace CloudStreamForms.Droid
                 App.ShowToast("Download Failed");
                 return "";
             }
+
             return GetPath(mainPath, extraPath) + "/" + CensorFilename(fileName);
         }
 
 
 
-        static string CensorFilename(string name)
+        static string CensorFilename(string name, bool toLower = true)
         {
             name = Regex.Replace(name, @"[^A-Za-z0-9\.]+", String.Empty);
             name.Replace(" ", "");
-            name = name.ToLower();
+            if (toLower) {
+                name = name.ToLower();
+            }
             return name;
         }
 
@@ -400,7 +409,8 @@ namespace CloudStreamForms.Droid
         public void DownloadUpdate(string update)
         {
             string downloadLink = "https://github.com/LagradOst/CloudStream-2/releases/download/" + update + "/com.CloudStreamForms.CloudStreamForms.apk";
-            DownloadUrl(downloadLink, "com.CloudStreamForms.CloudStreamForms.apk", true, "");
+            App.ShowToast("Download started!");
+            DownloadUrl(downloadLink, "com.CloudStreamForms.CloudStreamForms.apk", true, "", "Download complete!");
             /*
             print(Android.OS.Environment.DataDirectory);
             string absolutePath = Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads;
@@ -434,6 +444,11 @@ namespace CloudStreamForms.Droid
             //  App.ShowToast("Download Started");
             // DownloadFromLink(downloadLink, "com.CloudStreamForms.CloudStreamForms.apk", "Downloading APK", ".apk", true);
             */
+        }
+
+        public string GetDownloadPath(string path, string extraFolder)
+        {
+            return GetPath(true, extraFolder + "/" + CensorFilename(path,false));
         }
     }
 }

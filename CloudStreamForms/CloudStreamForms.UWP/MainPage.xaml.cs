@@ -170,7 +170,7 @@ namespace CloudStreamForms.UWP
         }
 
 
-        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath)
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath,string toast = "")
         {
 
             Main.print(fileName);
@@ -191,6 +191,11 @@ namespace CloudStreamForms.UWP
                             //OpenFile(basePath);
                         }*/
                         // print(e.ProgressPercentage + "|" + basePath);
+                    };
+                    wc.DownloadFileCompleted += (o, e) => {
+                        if (toast != "") {
+                            ShowToast(toast, 2.5);
+                        }
                     };
                     wc.DownloadFileAsync(
                         // Param1 = Link of file
@@ -257,6 +262,11 @@ namespace CloudStreamForms.UWP
         public void DownloadUpdate(string update)
         {
             // throw new NotImplementedException();
+        }
+
+        public string GetDownloadPath(string path, string extraFolder)
+        {
+            return GetPath(CensorFilename(path));
         }
     }
 

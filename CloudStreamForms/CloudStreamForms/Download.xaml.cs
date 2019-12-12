@@ -11,6 +11,11 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using static CloudStreamForms.Main;
 using static CloudStreamForms.MainPage;
+using YoutubeExplode;
+using YoutubeExplode.Converter;
+using YoutubeExplode.Models;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Models.MediaStreams;
 
 namespace CloudStreamForms
 {
@@ -22,6 +27,12 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
+            ytBtt.Source = App.GetImageSource("ytIcon.png");
+
+            ytBtt.Clicked += (o, e) => {
+                App.ShowToast("YEET");
+            };
+
             epView = new MainEpisodeView();
             BindingContext = epView;
 
@@ -262,6 +273,39 @@ namespace CloudStreamForms
         {
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
             PlayEpisode(episodeResult);
+        }
+    }
+
+    public static class YouTube
+    {
+        static readonly YoutubeClient client = new YoutubeClient();
+        static readonly YoutubeConverter converter = new YoutubeConverter();
+
+        public static async Task<Video> GetYTVideo(string url)
+        {
+            var id = YoutubeClient.ParseVideoId(url); // "bnsUkE8i0tU"
+
+            return await client.GetVideoAsync(id);
+        }
+
+        public static async void DownloadVideo(string url, string name)
+        {
+            var id = YoutubeClient.ParseVideoId(url);
+            var mediaStreamInfoSet = await client.GetVideoMediaStreamInfosAsync(id);
+
+            // Select audio stream
+            var audioStreamInfo = mediaStreamInfoSet.Audio.WithHighestBitrate();
+
+            // Select video stream
+            var videoStreamInfo = mediaStreamInfoSet.Video.OrderBy(t => (t.Resolution.Height * t.Resolution.Width*t.Framerate)).First();//.FirstOrDefault(s => s.VideoQualityLabel == "1080p60");
+
+            // Combine them into a collection
+            var mediaStreamInfos = new MediaStreamInfo[] { audioStreamInfo, videoStreamInfo };
+
+           
+
+            // Download and process them into one file
+            await converter.DownloadAndProcessMediaStreamsAsync(mediaStreamInfos, App.GetDownloadPath(name,"YouTube") + ".mp4", "mp4");
         }
     }
 
