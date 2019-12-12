@@ -119,16 +119,67 @@ namespace CloudStreamForms
         private void ShareBttClicked(object sender, EventArgs e)
         {
             if (currentMovie.title.id != "" && currentMovie.title.name != "") {
-                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
-                if (_s != "") {
-                    Clipboard.SetTextAsync(_s);
 
-                    App.ShowToast("Copied Link to Clipboard");
-                }
+                Share();
+
+
             }
         }
 
+        async void Share()
+        {
 
+            List<string> actions = new List<string>() { "Everything", "CloudStream Link", "IMDb Link", "Title", "Title and Description" };
+            if (CurrentMalLink != "") {
+                actions.Insert(3, "MAL Link");
+            }
+            if (trailerUrl != "") {
+                actions.Insert(actions.Count-2, "Trailer Link");
+            }
+            string a = await DisplayActionSheet("Copy", "Cancel", null, actions.ToArray());
+            string copyTxt = "";
+            if (a == "CloudStream Link") {
+                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
+                if (_s != "") {
+                    copyTxt = _s;
+                }
+            }
+            else if (a == "IMDb Link") {
+                copyTxt = "https://www.imdb.com/title/" + currentMovie.title.id;
+            }
+            else if (a == "Title") {
+                copyTxt = currentMovie.title.name + "\n" + currentMovie.title.description;
+            }
+            else if (a == "MAL Link") {
+                copyTxt = CurrentMalLink;
+            }
+            else if (a == "Title and Description") {
+                copyTxt = currentMovie.title.name + "\n" + currentMovie.title.description;
+            }
+            else if (a == "Trailer Link") {
+                copyTxt = trailerUrl;
+            }
+            else if (a == "Everything") {
+                copyTxt = currentMovie.title.name + " | " + RatingLabel.Text + "\n" + currentMovie.title.description;
+
+                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
+                if (_s != "") {
+                    copyTxt = copyTxt + "\nCloudStream: " + _s;
+                }
+                copyTxt = copyTxt + "\nIMDb: " + "https://www.imdb.com/title/" + currentMovie.title.id;
+                if (CurrentMalLink != "") {
+                    copyTxt = copyTxt + "\nMAL: " + CurrentMalLink;
+                }
+                if (trailerUrl != "") {
+                    copyTxt = copyTxt + "\nTrailer: " + trailerUrl;
+                }
+            }
+            if (a != "Cancel" && copyTxt != "") {
+                await Clipboard.SetTextAsync(copyTxt);
+                App.ShowToast("Copied " + a + " to Clipboard");
+            }
+
+        }
 
         void ChangeStar(bool? overrideBool = null)
         {
@@ -189,7 +240,7 @@ namespace CloudStreamForms
 
         private void OpenChromecastView(object sender, EventArgs e)
         {
-           // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
             //Navigation.PushModalAsync(p, false);
         }
 
@@ -799,7 +850,7 @@ namespace CloudStreamForms
                 if (rYear == null || rYear == "") {
                     rYear = e.title.year;
                 }
-                RatingLabel.Text = rYear + " | " + e.title.runtime + " | " + extra + "★ " + e.title.rating;
+                RatingLabel.Text = (rYear + " | " + e.title.runtime + " | " + extra + "★ " + e.title.rating).Replace("|  |", "|");
                 DescriptionLabel.Text = Settings.MovieDecEnabled ? e.title.description.Replace("\\u0027", "\'") : "";
                 if (e.title.description == "") {
                     DescriptionLabel.HeightRequest = 0;
