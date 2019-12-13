@@ -356,8 +356,9 @@ namespace CloudStreamForms
             Gradient.Clicked += TrailerBtt_Clicked;
             linkAdded += MovieResult_linkAdded;
             linksProbablyDone += MovieResult_linksProbablyDone;
-            movie123FishingDone += MovieResult_movie123FishingDone;
-            yesmovieFishingDone += MovieResult_yesmovieFishingDone;
+            movie123FishingDone += MovieFishingDone;
+            yesmovieFishingDone += MovieFishingDone;
+            watchSeriesFishingDone += MovieFishingDone;
 
             if (Device.RuntimePlatform == Device.UWP) {
                 //QuickMenu.WidthRequest = 500;
@@ -685,7 +686,7 @@ namespace CloudStreamForms
 
 
 
-        private void MovieResult_movie123FishingDone(object sender, Movie e)
+        private void MovieFishingDone(object sender, Movie e)
         {
             if (!SameAsActiveMovie()) return;
             currentMovie = e;

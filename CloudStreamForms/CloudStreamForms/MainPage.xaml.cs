@@ -983,6 +983,8 @@ namespace CloudStreamForms
         public static event EventHandler<Episode> linksProbablyDone;
         public static event EventHandler<Movie> movie123FishingDone;
         public static event EventHandler<Movie> yesmovieFishingDone;
+        public static event EventHandler<Movie> watchSeriesFishingDone;
+        //public static event EventHandler<Movie> yesmovieFishingDone;
 
 
         // public static int tempInt = 0;
@@ -1750,7 +1752,7 @@ namespace CloudStreamForms
                                 season = i;
                             }
                         }
-                        string removedTitle = title.Replace(" - Season " + season, "").Replace(" ","");
+                        string removedTitle = title.Replace(" - Season " + season, "").Replace(" ", "");
 
                         print(imdbScore + "|" + released + "|" + href + "|" + title + "|" + removedTitle);
 
@@ -1802,7 +1804,7 @@ namespace CloudStreamForms
                         int i1 = int.Parse(s1.Replace(".", ""));
                         int i2 = int.Parse(s2.Replace(".", ""));
 
-                        print(i1 + "||" + i2 +  "START:::"+ToDown(other[i].removedTitle.Replace("-", "").Replace(":", ""), replaceSpace: "") + "<<>>"+ ToDown(activeMovie.title.name.Replace("-", "").Replace(":", ""), replaceSpace: "")+":::");
+                        print(i1 + "||" + i2 + "START:::" + ToDown(other[i].removedTitle.Replace("-", "").Replace(":", ""), replaceSpace: "") + "<<>>" + ToDown(activeMovie.title.name.Replace("-", "").Replace(":", ""), replaceSpace: "") + ":::");
                         if ((i1 == i2 || i1 == i2 - 1 || i1 == i2 + 1) && ToDown(other[i].removedTitle.Replace("-", "").Replace(":", ""), replaceSpace: "") == ToDown(activeMovie.title.name.Replace("-", "").Replace(":", ""), replaceSpace: "")) {
 
                             if (other[i].released == activeMovie.title.ogYear || activeMovie.title.movieType != MovieType.Movie) {
@@ -1813,7 +1815,7 @@ namespace CloudStreamForms
                             }
                         }
                     }
-
+                    watchSeriesFishingDone?.Invoke(null, activeMovie);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -1822,6 +1824,42 @@ namespace CloudStreamForms
             tempThred.Thread.Name = "WatchSeriesHdMetaData";
             tempThred.Thread.Start();
 
+        }
+
+        static void FishMovieJoy() // DONT USE  https://www1.moviesjoy.net/search/ THEY USE GOOGLE RECAPTCH TO GET LINKS
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    if (activeMovie.title.movieType == MovieType.Anime) { return; }
+
+                    bool canMovie = GetSettings(MovieType.Movie);
+                    bool canShow = GetSettings(MovieType.TVSeries);
+
+                    string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
+                    string url = "http://watchserieshd.tv/search.html?keyword=" + rinput.Replace("+", "%20");
+
+                    string d = DownloadString(url);
+                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                    string lookFor = " <div class=\"vid_info\">";
+
+                    while (d.Contains(lookFor)) {
+                        d = RemoveOne(d, lookFor);
+                        
+
+                        // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
+                    }
+
+                    watchSeriesFishingDone?.Invoke(null, activeMovie);
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "WatchSeriesHdMetaData";
+            tempThred.Thread.Start();
         }
 
         static void GetLinksFromWatchSeries(int season, int normalEpisode)
@@ -1838,7 +1876,20 @@ namespace CloudStreamForms
                         if (meta.season == season) {
                             string href = "http://watchserieshd.tv" + meta.url + "-episode-" + (normalEpisode + 1);
                             string d = DownloadString(href, tempThred);
-                            AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                            if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                            string dError = "<h1 class=\"entry-title\">Page not found</h1>";
+                            if (d.Contains(dError) && activeMovie.title.movieType == MovieType.Movie) {
+                                href = "http://watchserieshd.tv" + meta.url + "-episode-0";
+                                d = DownloadString(href, tempThred);
+                                if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                            }
+                            if (d.Contains(dError)) {
+
+                            }
+                            else {
+
+                                AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                            }
                             print("HREF:" + href);
                         }
                     }
@@ -1851,7 +1902,7 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
         }
 
-        public static void FishYesMoviesLinks() // TO MAKE LINK EXTRACTION EASIER
+        public static void FishYesMoviesLinks() // TO MAKE LINK EXTRACTION EASIER, http://vumoo.to/
         {
             TempThred tempThred = new TempThred();
             tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
@@ -2145,7 +2196,7 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
         }
 
-        static void AddEpisodesFromMirrors(TempThred tempThred,string d, int normalEpisode)
+        static void AddEpisodesFromMirrors(TempThred tempThred, string d, int normalEpisode)
         {
             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
             print(mp4);
@@ -2185,8 +2236,12 @@ namespace CloudStreamForms
             if (vid == "") {
                 vid = FindHTML(d, "//vidstreaming.io/streaming.php?", "\"");
             }
+            if (vid == "") {
+                vid = FindHTML(d, "//vidnode.net/load.php?id=", "\"");
+            }
+            print(">>STREAM::" + vid);
             if (vid != "") {
-                string dLink = "https://vidstreaming.io/download?" + vid;
+                string dLink = "https://vidstreaming.io/download?id=" + vid.Replace("id=", "");
                 string _d = DownloadString(dLink, tempThred);
                 if (!GetThredActive(tempThred)) { return; };
 
@@ -2744,7 +2799,7 @@ namespace CloudStreamForms
 
             */
 
-        static void YesMovies(int normalEpisode, string url)
+        static void YesMovies(int normalEpisode, string url) // MIRROR https://cmovies.tv/ 
         {
             print("URL: " + url);
 
@@ -3564,7 +3619,13 @@ namespace CloudStreamForms
                     while (!done) {
                         Thread.Sleep(20);
                     }
-                    linksProbablyDone?.Invoke(null, activeMovie.episodes[episode]);
+                    try {
+                        linksProbablyDone?.Invoke(null, activeMovie.episodes[episode]);
+
+                    }
+                    catch (Exception) {
+
+                    }
                     JoinThred(tempThred);
                 }
             });
