@@ -488,7 +488,9 @@ namespace CloudStreamForms
             }
             //https://www.imdb.com/search/title/?genres=adventure&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=5aab685f-35eb-40f3-95f7-c53f09d542c3&pf_rd_r=VV0XPKMS8FXZ6D8MM0VP&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_2
             //https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=51&ref_=adv_nxt
-            string d = await GetHTMLAsync("https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "action&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count, true);
+            string trueUrl = "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count;
+            print("TRUEURL:" + trueUrl);
+            string d = await GetHTMLAsync(trueUrl, true);
             string lookFor = "class=\"loadlate\"";
             int place = start - 1;
             while (d.Contains(lookFor)) {
