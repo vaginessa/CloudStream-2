@@ -21,12 +21,12 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 + Top 100 movies 
 
 **REQUIREMENTS:**
-+ On Android, you must have VLC installed in order to play .m3u8 files. 
++ On Android, you must have VLC or any other video player that can play .m3u8 files installed. 
 + On Windows, VLC is recommended, but other video players can be used. Note that *ONLY VLC* can autoselect subtitles on Windows, on other video players, and on Android, you have to do that manually.
 
 **CANT PLAY VIDEO?**
 + Make sure that you have installed VLC, or any other video player if you are running Windows.
-+ If you can't play any movie, make sure to link the .m3u8 filetype to a video player. On Android you have to go to file manager and open the sample.m3u8 file that CloudStream 2 generated as a video file. You can do this on Windows by creating a .txt file and renaming it to example.m3u8, then right click and open with VLC. 
++ If you can't play any movie, make sure to link the .m3u8 filetype to a video player. On Android you have to go to file manager and open the mirrorlist.m3u8 file that CloudStream 2 generated as a video file. You can do this on Windows by creating a .txt file and renaming it to example.m3u8, then right click and open with VLC. 
 
 **SCREENSHOTS:**
 <p align="center">
@@ -57,6 +57,8 @@ https://www9.gogoanime.io/ (Anime HD links)
 https://1movietv.com/ (Movie and Tv-Show links)
 
 https://www.freefullmovies.zone (Movie Links)
+
+http://watchserieshd.tv (slow Tv-Show mirror links)
 
 https://www.opensubtitles.org (Subtitles)
 
