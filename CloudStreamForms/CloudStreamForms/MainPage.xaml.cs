@@ -462,6 +462,49 @@ namespace CloudStreamForms
         // -------------------------------- END CHROMECAST --------------------------------
 
 
+        public struct IMDbTopList
+        {
+            public string name;
+            public string id;
+            public string img;
+            public string runtime;
+            public string rating;
+            public string genres;
+            public string descript;
+            public int place;
+        }
+
+        public static async Task< List<IMDbTopList>> FetchTop100(List<string> order, int start = 1, int count = 250)
+        {
+            List<IMDbTopList> topLists = new List<IMDbTopList>();
+            //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
+            //List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+            string orders = "";
+            for (int i = 0; i < order.Count; i++) {
+                if (i != 0) {
+                    orders += ",";
+                }
+                orders += order[i];
+            }
+            //https://www.imdb.com/search/title/?genres=adventure&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=5aab685f-35eb-40f3-95f7-c53f09d542c3&pf_rd_r=VV0XPKMS8FXZ6D8MM0VP&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_2
+            //https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=51&ref_=adv_nxt
+            string d = await GetHTMLAsync("https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "action&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count, true);
+            string lookFor = "class=\"loadlate\"";
+            int place = start - 1;
+            while (d.Contains(lookFor)) {
+                place++;
+                d = RemoveOne(d, lookFor);
+                string img = FindHTML(d, "loadlate=\"", "\"");
+                string id = FindHTML(d, "data-tconst=\"", "\"");
+                string runtime = FindHTML(d, "<span class=\"runtime\">", "<");
+                string name = FindHTML(d, "ref_=adv_li_tt\"\n>", "<");
+                string rating = FindHTML(d, "</span>\n        <strong>", "<");
+                string _genres = FindHTML(d, "<span class=\"genre\">\n", "<").Replace("  ", "");
+                string descript = FindHTML(d, "<p class=\"text-muted\">\n    ", "<").Replace("  ", "");
+                topLists.Add(new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
+            }
+            return topLists;
+        }
 
 
 
@@ -2970,6 +3013,40 @@ namespace CloudStreamForms
             }
 
         }
+
+        /// <summary>
+        /// WHEN DOWNLOADSTRING DOSNE'T WORK, BASILCY SAME THING, BUT CAN ALSO BE USED TO FORCE ENGLISH
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="en"></param>
+        /// <returns></returns>
+        public static async Task< string> GetHTMLAsync(string url, bool en = true)
+        {
+            string html = string.Empty;
+            try {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                WebHeaderCollection myWebHeaderCollection = request.Headers;
+                if (en) {
+                    myWebHeaderCollection.Add("Accept-Language", "en;q=0.8");
+                }
+                request.AutomaticDecompression = DecompressionMethods.GZip;
+                request.UserAgent = USERAGENT;
+                request.Referer = url;
+                //request.AddRange(1212416);
+
+                using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
+                using (Stream stream = response.GetResponseStream())
+
+                using (StreamReader reader = new StreamReader(stream)) {
+                    html = reader.ReadToEnd();
+                }
+                return html;
+            }
+            catch (Exception) {
+                return "";
+            }
+        }
+
         static string ReadJson(string all, string inp)
         {
             try {
