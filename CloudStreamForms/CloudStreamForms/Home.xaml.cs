@@ -17,6 +17,8 @@ namespace CloudStreamForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Home : ContentPage
     {
+        const int POSTER_HIGHT = 98;
+        const int POSTER_WIDTH = 67;
         public MainEpisodeView epView;
         public List<IMDbTopList> iMDbTopList;
         readonly List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
@@ -27,7 +29,7 @@ namespace CloudStreamForms
             ClearEpisodes();
             print(genres[MovieTypePicker.SelectedIndex] + "<<>>>");
             iMDbTopList = (await FetchTop100(new List<string>() { genres[MovieTypePicker.SelectedIndex] }));
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < iMDbTopList.Count; i++) {
 
                 double mMulti = 4;
                 int pwidth = 67;
@@ -35,12 +37,15 @@ namespace CloudStreamForms
                 pheight = (int)Math.Round(pheight * mMulti * posterRezMulti);
                 pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);
                 string x1 = "67"; string y1 = "98";
-                string img = iMDbTopList[i].img.Replace(","+ x1 + ","+y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY"+y1, "UY" + pheight).Replace("UX"+x1, "UX" + pwidth);//@._V1_UY67_CR0,0,45,67_AL_.jpg
+                string img = iMDbTopList[i].img.Replace("," + x1 + "," + y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY" + y1, "UY" + pheight).Replace("UX" + x1, "UX" + pwidth);//@._V1_UY67_CR0,0,45,67_AL_.jpg
                 print("IMG:" + img);
                 IMDbTopList x = iMDbTopList[i];
 
-                AddEpisode(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = x.id }, false);
+                await AddEpisodeAsync(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = x.id }, false, setH: true);
             }
+            Application.Current.MainPage.SizeChanged += (o, e) => {
+                SetHeight();
+            };
             SetHeight();
         }
         private void episodeView_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -103,9 +108,35 @@ namespace CloudStreamForms
             // MovieTypePicker.IsEnabled = false;
             //MovieTypePicker.IsVisible = false;
         }
-        void AddEpisode(EpisodeResult episodeResult, bool setHeight = true)
+
+        async Task AddEpisodeAsync(EpisodeResult episodeResult, bool setHeight = true, int delay = 10, bool setH = false)
         {
-            epView.MyEpisodeResultCollection.Add(episodeResult);
+            AddEpisode(episodeResult, setHeight, setH);
+            await Task.Delay(delay);
+        }
+
+        void AddEpisode(EpisodeResult episodeResult, bool setHeight = true, bool setH = false)
+        {
+            /*
+            epView.MyEpisodeResultCollection.Add(episodeResult);*/
+            var ff = new FFImageLoading.Forms.CachedImage {
+                Source = episodeResult.PosterUrl,
+                HeightRequest = POSTER_HIGHT,
+                WidthRequest = POSTER_WIDTH,
+                BackgroundColor = Color.Transparent,
+                VerticalOptions = LayoutOptions.Start,
+                Transformations = {
+                                new FFImageLoading.Transformations.RoundedTransformation(10,1,1.5,10,"#303F9F")
+                            },
+                InputTransparent = true,
+            };
+            print(episodeResult.Id);
+            ItemGrid.Children.Add(ff);
+            cachedImages.Add(ff);
+            if (setH) {
+                SetChashedImagePos(ItemGrid.Children.Count - 1);
+            }
+
             if (setHeight) {
                 SetHeight();
             }
@@ -113,13 +144,35 @@ namespace CloudStreamForms
 
         void ClearEpisodes()
         {
+            ItemGrid.Children.Clear();
             epView.MyEpisodeResultCollection.Clear();
+            cachedImages.Clear();
             SetHeight();
         }
 
+        public int PosterAtScreenWith { get { return (int)(currentWidth / (double)POSTER_WIDTH); } }
+        List<FFImageLoading.Forms.CachedImage> cachedImages = new List<FFImageLoading.Forms.CachedImage>();
+
         void SetHeight()
         {
-            Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
+            ItemGrid.RowSpacing = POSTER_HIGHT / 2;
+
+            for (int i = 0; i < cachedImages.Count; i++) {
+                SetChashedImagePos(i);
+            }
+
+            // Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
+        }
+
+        void SetChashedImagePos(int pos)
+        {
+            try {
+                Grid.SetColumn(cachedImages[pos], pos % PosterAtScreenWith);
+                Grid.SetRow(cachedImages[pos], (int)(pos / PosterAtScreenWith));
+            }
+            catch (Exception) {
+
+            }
         }
 
         protected override void OnAppearing()
@@ -191,7 +244,7 @@ namespace CloudStreamForms
                 // data.Add(App.GetKey("BookmarkData"))
             }
         }
-
+        public double currentWidth { get { return Application.Current.MainPage.Width; } }
 
     }
     public class MainEpisode100View

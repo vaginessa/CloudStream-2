@@ -491,6 +491,8 @@ namespace CloudStreamForms
             string trueUrl = "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count;
             print("TRUEURL:" + trueUrl);
             string d = await GetHTMLAsync(trueUrl, true);
+            print("FALSEURL:" + trueUrl);
+
             string lookFor = "class=\"loadlate\"";
             int place = start - 1;
             while (d.Contains(lookFor)) {

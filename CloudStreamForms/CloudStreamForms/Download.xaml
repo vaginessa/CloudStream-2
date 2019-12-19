@@ -8,8 +8,9 @@
              mc:Ignorable="d"
              x:Class="CloudStreamForms.Download">
     <StackLayout>
-        <ImageButton x:Name="ytBtt"  HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="50" BackgroundColor="Transparent"> </ImageButton>
-        <ProgressBar Progress="0.5"></ProgressBar>
+        <Label Text="YouTube Download"></Label>
+        <ImageButton x:Name="ytBtt"  HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="50" BackgroundColor="Transparent"  > </ImageButton>
+       <!-- <ProgressBar Progress="0.5"></ProgressBar> -->
         <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="episodeView_ItemTapped" RowHeight="100"

@@ -12,7 +12,7 @@
         <!--TextColor="#303F9F"-->
         <Label Text="Bookmarks" FontAttributes="Italic" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Small"  x:Name="BTxt"></Label>
         <!--<BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
-        <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" >
+        <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" HeightRequest="130">
             <StackLayout>
                 <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
 
@@ -20,21 +20,30 @@
             </StackLayout>
         </ScrollView>
      <!--   <BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
-        <Picker x:Name="MovieTypePicker">
+        <Picker x:Name="MovieTypePicker" HorizontalOptions="Start">
             
         </Picker>
+
+        <ScrollView >
+            <StackLayout>
+                <Grid x:Name="ItemGrid">
+
+                </Grid>
+            </StackLayout>
+        </ScrollView>
+        <!--
         <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="episodeView_ItemTapped" RowHeight="100"
-                    x:Name="episodeView"  SeparatorColor="Transparent"                  >
+                    x:Name="episodeView"  SeparatorColor="Transparent"           >
 
 
 
             <ListView.ItemTemplate>
-                <DataTemplate >
-                    <ViewCell Tapped="ViewCell_Tapped">
-                        <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill" >
-                            <!--SizeChanged="ViewCell_SizeChanged"-->
+                <DataTemplate     >
+                    <ViewCell Tapped="ViewCell_Tapped"   >
+                        <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill"  HeightRequest="98" >
+                           
 
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="Auto" />
@@ -57,7 +66,7 @@
                                     </Grid.ColumnDefinitions>
                                     <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="67" TranslationY="{Binding TranslateYOffset}">
 
-                                        <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
+                                        <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" ></ImageButton>
 
                                         <ff:CachedImage WidthRequest="67" HeightRequest="98" Source="{Binding PosterUrl}" InputTransparent="True" >
 
@@ -74,53 +83,21 @@
 
 
 
-                                        <!-- Source="{Binding PosterUrl}"-->
                                     </Grid>
-                                    <!--
-                                    <Grid  Grid.Row="0"  Grid.Column="1">
-                                        <Grid RowSpacing="0" Padding="0" >
-                                            <Grid.RowDefinitions >
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions >
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <Grid Grid.Row="0"  Grid.Column="0" >
-                                                <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
-                                            </Grid>
-                                            <Grid Grid.Row="1"  Grid.Column="0" >
-                                                <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
-                                            </Grid>
-                                        </Grid>
-                                    </Grid>-->
+                                 
 
                                 </Grid>
 
                             </Grid>
-                            <!--
                             <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" TranslationY="95">
                                 <ProgressBar Progress="{Binding ExtraProgress}" IsVisible="{Binding DownloadNotDone}" IsEnabled="{Binding DownloadNotDone}" HeightRequest="5"  VerticalOptions="Start"/>
-                            </Grid>-->
-                            <!--
+                            </Grid>
+                            
                                     <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
                                         <ContentView VerticalOptions="Center">
                                             <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" IsEnabled="False"></ProgressBar>
                                         </ContentView>
                                     </Grid>
--->
-                            <!--  Progress="{Binding Progress}"  IsVisible="False" WidthRequest="126"-->
-
-                            <!--    <Label Text="{Binding Description}" /> -->
-
-                            <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
-                                FontSize="16" />-->
-                            <!--   Style="{DynamicResource ListItemDetailTextStyle}"        LineBreakMode="NoWrap"
-                                FontSize="13"                           d:Text="Item descripton"
--->
 
 
                         </Grid>
@@ -129,7 +106,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
 
-        </ListView>
+        </ListView>-->
 
     </StackLayout>
 </ContentPage>
