@@ -8,21 +8,70 @@
              mc:Ignorable="d"
              x:Class="CloudStreamForms.Download">
     <StackLayout>
-        <Label Text="YouTube Download"></Label>
-        <ImageButton x:Name="ytBtt"  HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="50" BackgroundColor="Transparent"  > </ImageButton>
-       <!-- <ProgressBar Progress="0.5"></ProgressBar> -->
+        <ProgressBar HorizontalOptions="Fill" Progress="0.7"></ProgressBar>
+       
+        
+        <Grid  >
+            <Grid.ColumnDefinitions >
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid  Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" TranslationX="10">
+                <Label x:Name="DownloadTxt" Text="Download - 13.5GB of 16.0GB"></Label>
+
+            </Grid>
+            <Grid  Grid.Row="0" Grid.Column="1" HorizontalOptions="Fill">
+
+                <AbsoluteLayout HorizontalOptions="End" >
+
+                    <Button x:Name="ytrealBtt"  VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent"  TranslationY="0" TranslationX="-10"></Button>
+                    <ff:CachedImage x:Name="ytBtt" VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent" InputTransparent="True"  TranslationY="0" TranslationX="-10">
+
+                        <ff:CachedImage.Transformations>
+                            <ffTransformations:TintTransformation HexColor="#404040" >
+
+                            </ffTransformations:TintTransformation>
+                        </ff:CachedImage.Transformations>
+                    </ff:CachedImage>
+                </AbsoluteLayout>
+            </Grid>
+        
+
+            <!--
+            <Grid Grid.Row="0" Grid.Column="1" >
+                <AbsoluteLayout HorizontalOptions="End" >
+
+                    <Button x:Name="ytrealBtt"  VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent"  TranslationY="10" TranslationX="-10"></Button>
+                    <ff:CachedImage x:Name="ytBtt" VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent" InputTransparent="True"  TranslationY="10" TranslationX="-10">
+
+                        <ff:CachedImage.Transformations>
+                            <ffTransformations:TintTransformation HexColor="#404040" >
+
+                            </ffTransformations:TintTransformation>
+                        </ff:CachedImage.Transformations>
+                    </ff:CachedImage>
+                </AbsoluteLayout>
+            </Grid>
+-->
+
+        </Grid>
+
+
+
+
+        <!-- <ProgressBar Progress="0.5"></ProgressBar> -->
         <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="episodeView_ItemTapped" RowHeight="100"
                     x:Name="episodeView"  SeparatorColor="Transparent"                  >
 
-            
+
 
             <ListView.ItemTemplate>
                 <DataTemplate >
                     <ViewCell Tapped="ViewCell_Tapped">
-                            <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill" >
-                                <!--SizeChanged="ViewCell_SizeChanged"-->
+                        <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill" >
+                            <!--SizeChanged="ViewCell_SizeChanged"-->
 
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="Auto" />
@@ -33,64 +82,64 @@
                             <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" >
                                 <Grid  RowSpacing="0"  Padding="10" >
                                     <Grid.RowDefinitions >
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
 
-                                        <Grid.ColumnDefinitions >
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
+                                    <Grid.ColumnDefinitions >
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
 
-                                            <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
+                                        <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
 
-                                            <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
+                                        <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
 
-                                                <ff:CachedImage.Transformations>
-                                                    <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
+                                            <ff:CachedImage.Transformations>
+                                                <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
 
-                                                    </ffTransformations:RoundedTransformation>
-                                                </ff:CachedImage.Transformations>
-                                            </ff:CachedImage>
-                                            <ff:CachedImage PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent">
+                                                </ffTransformations:RoundedTransformation>
+                                            </ff:CachedImage.Transformations>
+                                        </ff:CachedImage>
+                                        <ff:CachedImage PropertyChanging="Image_PropertyChanging" InputTransparent="True" BackgroundColor="Transparent">
 
-                                            </ff:CachedImage>
-
-
-
-
-                                            <!-- Source="{Binding PosterUrl}"-->
-                                        </Grid>
-                                        <Grid  Grid.Row="0"  Grid.Column="1">
-                                            <Grid RowSpacing="0" Padding="0" >
-                                                <Grid.RowDefinitions >
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions >
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Grid Grid.Row="0"  Grid.Column="0" >
-                                                    <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
-                                                </Grid>
-                                                <Grid Grid.Row="1"  Grid.Column="0" >
-                                                    <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
-                                                </Grid>
+                                        </ff:CachedImage>
 
 
 
+
+                                        <!-- Source="{Binding PosterUrl}"-->
+                                    </Grid>
+                                    <Grid  Grid.Row="0"  Grid.Column="1">
+                                        <Grid RowSpacing="0" Padding="0" >
+                                            <Grid.RowDefinitions >
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions >
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Row="0"  Grid.Column="0" >
+                                                <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
                                             </Grid>
-                                        </Grid>
+                                            <Grid Grid.Row="1"  Grid.Column="0" >
+                                                <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
+                                            </Grid>
 
+
+
+                                        </Grid>
                                     </Grid>
 
                                 </Grid>
+
+                            </Grid>
                             <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" TranslationY="95">
                                 <ProgressBar Progress="{Binding ExtraProgress}" IsVisible="{Binding DownloadNotDone}" IsEnabled="{Binding DownloadNotDone}" HeightRequest="5"  VerticalOptions="Start"/>
                             </Grid>
@@ -101,18 +150,18 @@
                                         </ContentView>
                                     </Grid>
 -->
-                                <!--  Progress="{Binding Progress}"  IsVisible="False" WidthRequest="126"-->
+                            <!--  Progress="{Binding Progress}"  IsVisible="False" WidthRequest="126"-->
 
-                                <!--    <Label Text="{Binding Description}" /> -->
+                            <!--    <Label Text="{Binding Description}" /> -->
 
-                                <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
+                            <!--  d:Text="{Binding .}"   LineBreakMode="NoWrap" 
                                 FontSize="16" />-->
-                                <!--   Style="{DynamicResource ListItemDetailTextStyle}"        LineBreakMode="NoWrap"
+                            <!--   Style="{DynamicResource ListItemDetailTextStyle}"        LineBreakMode="NoWrap"
                                 FontSize="13"                           d:Text="Item descripton"
 -->
-                         
 
-                            </Grid>
+
+                        </Grid>
 
                     </ViewCell>
                 </DataTemplate>

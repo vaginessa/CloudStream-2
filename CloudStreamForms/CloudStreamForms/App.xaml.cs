@@ -44,6 +44,16 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
+        public double GetTotalStorageSize()
+        {
+            return 0;
+        }
+
+        public double GetUsedStorageSize()
+        {
+            return 0;
+        }
+
         public static bool DeleteFile(string path)
         {
             return platformDep.DeleteFile(path);

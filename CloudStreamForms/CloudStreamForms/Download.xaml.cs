@@ -27,11 +27,13 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
-            ytBtt.Source = App.GetImageSource("ytIcon.png");
+            
+            ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
 
-            ytBtt.Clicked += (o, e) => {
+            ytrealBtt.Clicked += (o, e) => {
                 App.ShowToast("YEET");
             };
+
 
             epView = new MainEpisodeView();
             BindingContext = epView;
