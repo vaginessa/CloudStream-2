@@ -20,7 +20,7 @@ namespace CloudStreamForms
         const int POSTER_HIGHT = 98;
         const int POSTER_WIDTH = 67;
         public MainEpisodeView epView;
-        public List<IMDbTopList> iMDbTopList;
+        public List<IMDbTopList> iMDbTopList = new List<IMDbTopList>();
         readonly List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
         readonly List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
 
@@ -31,24 +31,33 @@ namespace CloudStreamForms
         public int currentImageCount = 0;
         public void LoadMoreImages(bool setHeight = true)
         {
-            for (int i = 0; i < PosterAtScreenHight * PosterAtScreenWith * 3; i++) {
-                if (currentImageCount >= cachedImages.Count) {
-                    if (!fething) {
-                        GetFetch(currentImageCount + 1);
-                    }
-                    return;
-                    //Feth more data
-                }
-                else {
-                    ItemGrid.Children.Add(cachedImages[currentImageCount]);
-                    //SetChashedImagePos(ItemGrid.Children.Count - 1);
-                }
-                currentImageCount++;
+            Device.BeginInvokeOnMainThread(() => {
 
-            }
-            if (setHeight) {
-                SetHeight();
-            }
+                int count = 10;//PosterAtScreenHight * PosterAtScreenWith * 3
+                for (int i = 0; i < count; i++) {
+                    if (currentImageCount >= iMDbTopList.Count) {
+                        if (!fething) {
+                            GetFetch(currentImageCount + 1);
+                        }
+                        return;
+                        //Feth more data
+                    }
+                    else {
+                        string img = ConvertIMDbImagesToHD(iMDbTopList[currentImageCount].img, 67, 98, 4);
+                        IMDbTopList x = iMDbTopList[currentImageCount];
+
+                        AddEpisode(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = "Id=" + x.id + "|||Name=" + x.name + "|||" }, false);
+
+                        // ItemGrid.Children.Add(cachedImages[currentImageCount]);
+                        //SetChashedImagePos(ItemGrid.Children.Count - 1);
+                    }
+                    currentImageCount++;
+
+                }
+                if (setHeight) {
+                    SetHeight();
+                }
+            });
         }
 
         bool fething = false;
@@ -59,22 +68,24 @@ namespace CloudStreamForms
             tempThred.typeId = 0; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(async () => {
                 try {
-                    iMDbTopList = (await FetchTop100(new List<string>() { genres[MovieTypePicker.SelectedIndex] }, start));
-                    Device.BeginInvokeOnMainThread(() => {
-                        for (int i = 0; i < iMDbTopList.Count; i++) {
 
-                            string img = ConvertIMDbImagesToHD(iMDbTopList[i].img, 67, 98, 4);
-                            IMDbTopList x = iMDbTopList[i];
+                    iMDbTopList.AddRange(await FetchTop100(new List<string>() { genres[MovieTypePicker.SelectedIndex] }, start));
+                    /*  Device.BeginInvokeOnMainThread(() => {
 
-                            AddEpisode(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = x.id }, false);
-                        }
+                          for (int i = 0; i < iMDbTopList.Count; i++) {
 
-                        LoadMoreImages(false);
-                        LoadMoreImages();
+                              string img = ConvertIMDbImagesToHD(iMDbTopList[i].img, 67, 98, 4);
+                              IMDbTopList x = iMDbTopList[i];
 
-                    });
+                              AddEpisode(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = "Id="+x.id+"|||Name="+x.name+"|||" }, false);
+                          }
+
+                    //  LoadMoreImages(false);
+                    // LoadMoreImages();
+
+                });*/
                     //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
+                    LoadMoreImages();
                 }
                 finally {
                     fething = false;
@@ -88,6 +99,7 @@ namespace CloudStreamForms
         }
         private void episodeView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
+            episodeView.SelectedItem = null;
             //EpisodeResult episodeResult = ((EpisodeResult)((ListView)sender).BindingContext);
             //PlayEpisode(episodeResult);
 
@@ -95,12 +107,16 @@ namespace CloudStreamForms
         private void ImageButton_Clicked(object sender, EventArgs e)
         {
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
+            PushPageFromUrlAndName(FindShortend(episodeResult.extraInfo, "Id"), FindShortend(episodeResult.extraInfo, "Name"));
+
             //  PlayEpisode(episodeResult);
         }
 
         private void ViewCell_Tapped(object sender, EventArgs e)
         {
             EpisodeResult episodeResult = (EpisodeResult)(((ViewCell)sender).BindingContext);
+            PushPageFromUrlAndName(FindShortend(episodeResult.extraInfo,"Id"), FindShortend(episodeResult.extraInfo, "Name"));
+
             // EpsodeShow(episodeResult);
             //EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
             //App.PlayVLCWithSingleUrl(episodeResult.mirrosUrls[0], episodeResult.Title);
@@ -139,20 +155,33 @@ namespace CloudStreamForms
             MovieTypePicker.SelectedIndexChanged += (o, e) => {
                 ClearEpisodes();
                 GetFetch();
-                print(MovieTypePicker.SelectedIndex + "<<Selected");
+              //  print(MovieTypePicker.SelectedIndex + "<<Selected");
             };
 
             MovieTypePicker.SelectedIndex = 0;
+            episodeView.Scrolled += (o, e) => {
+                double maxY = episodeView.HeightRequest - episodeView.Height;
+                //print(maxY);
+                if (e.ScrollY >= maxY - 200) {
+                    LoadMoreImages();
+                }
+            };
+            /*
             ImageScroller.Scrolled += (o, e) => {
                 double maxY = ImageScroller.ContentSize.Height - ImageScroller.Height;
                 if (e.ScrollY >= maxY - 200) {
                     LoadMoreImages();
                 }
 
-            };
+            };*/
 
             // MovieTypePicker.IsEnabled = false;
             //MovieTypePicker.IsVisible = false;
+        }
+
+        static string FindShortend(string d , string key)
+        {
+            return FindHTML(d, key + "=", "|||");
         }
 
 
@@ -164,9 +193,11 @@ namespace CloudStreamForms
 
         void AddEpisode(EpisodeResult episodeResult, bool setHeight = true, bool setH = false, bool addtoGrid = false)
         {
-            /*
-            epView.MyEpisodeResultCollection.Add(episodeResult);*/
+            epView.MyEpisodeResultCollection.Add(episodeResult);
 
+
+            /*
+           
             // Device.BeginInvokeOnMainThread(() => {
             var ff = new FFImageLoading.Forms.CachedImage {
                 Source = episodeResult.PosterUrl,
@@ -180,12 +211,13 @@ namespace CloudStreamForms
                 InputTransparent = true,
             };
 
-            cachedImages.Add(ff);
+            cachedImages.Add(ff);*/
             if (addtoGrid) {
+                /*
                 ItemGrid.Children.Add(ff);
                 if (setH) {
                     SetChashedImagePos(ItemGrid.Children.Count - 1);
-                }
+                }*/
             }
 
             if (setHeight) {
@@ -199,11 +231,11 @@ namespace CloudStreamForms
 
         void ClearEpisodes()
         {
-            ItemGrid.Children.Clear();
+            //ItemGrid.Children.Clear();
             epView.MyEpisodeResultCollection.Clear();
             cachedImages.Clear();
             currentImageCount = 0;
-            SetHeight();
+            SetHeight(); iMDbTopList.Clear();
         }
 
         public int PosterAtScreenWith { get { return (int)(currentWidth / (double)POSTER_WIDTH); } }
@@ -212,13 +244,14 @@ namespace CloudStreamForms
 
         void SetHeight()
         {
+            /*
             ItemGrid.RowSpacing = POSTER_HIGHT / 2;
 
             for (int i = 0; i < cachedImages.Count; i++) {
                 SetChashedImagePos(i);
-            }
+            }*/
 
-            // Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
+             Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
         }
 
         void SetChashedImagePos(int pos)
@@ -234,9 +267,10 @@ namespace CloudStreamForms
         {
             base.OnAppearing();
             if (!hasAppered) {
+                /*
                 Application.Current.MainPage.SizeChanged += (o, e) => {
                     SetHeight();
-                };
+                };*/
             }
             UpdateBookmarks();
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);

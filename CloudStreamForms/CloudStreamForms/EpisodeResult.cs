@@ -42,6 +42,17 @@ namespace CloudStreamForms.Models
                 }
             }
         }
+        public double TranslateYOffsetVertical
+        {
+            get {
+                if (Device.RuntimePlatform == Device.UWP) {
+                    return 0;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
     }
     /*
     public enum LoadSelection { Play,Download,CopyLink,CopySubtitleLink }

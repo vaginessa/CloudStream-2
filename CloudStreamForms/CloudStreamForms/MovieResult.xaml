@@ -220,7 +220,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="ListView_ItemTapped" RowHeight="100"
-                    x:Name="episodeView"  SeparatorColor="Transparent"                  >
+                    x:Name="episodeView" SeparatorColor="Transparent" VerticalScrollBarVisibility="Never">
 
 
 
@@ -329,7 +329,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                 <StackLayout>
                     <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
-                    <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start">
+                    <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" HorizontalScrollBarVisibility="Never">
                         <StackLayout>
                             <Grid x:Name="Recommendations" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
 

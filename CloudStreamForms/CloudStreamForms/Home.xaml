@@ -7,35 +7,41 @@
              xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
              mc:Ignorable="d"
              x:Class="CloudStreamForms.Home">
-    <StackLayout>
+        <StackLayout>
         <Label Margin="3" Text="Home" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold" ></Label>
         <!--TextColor="#303F9F"-->
         <Label Text="Bookmarks" FontAttributes="Italic" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Small"  x:Name="BTxt"></Label>
-        <!--<BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
-        <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" HeightRequest="130">
-            <StackLayout>
-                <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
-
-                </Grid>
-            </StackLayout>
-        </ScrollView>
-     <!--   <BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
-        <Picker x:Name="MovieTypePicker" HorizontalOptions="Start">
+        <FlexLayout>
             
+           
+            <!--<BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
+            <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" HeightRequest="130" HorizontalScrollBarVisibility="Never">
+                <StackLayout>
+                    <Grid x:Name="Bookmarks" VerticalOptions="Start" HorizontalOptions="Start" HeightRequest="130">
+
+                    </Grid>
+                </StackLayout>
+            </ScrollView>
+
+            <!--   <BoxView HeightRequest="1" Color="#303F9F"></BoxView>-->
+           
+        </FlexLayout>
+        <Picker x:Name="MovieTypePicker" HorizontalOptions="Start" TranslationX="10">
+
         </Picker>
 
-        <ScrollView x:Name="ImageScroller">
+        <!--        <ScrollView x:Name="ImageScroller">
             <StackLayout>
                 <Grid x:Name="ItemGrid">
             
                 </Grid>
             </StackLayout>
-        </ScrollView>
-        <!--
+        </ScrollView>-->
+            
         <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
                              CachingStrategy="RecycleElement" 
                 ItemTapped="episodeView_ItemTapped" RowHeight="100"
-                    x:Name="episodeView"  SeparatorColor="Transparent"           >
+                    x:Name="episodeView"  SeparatorColor="Transparent"  VerticalOptions="Start" VerticalScrollBarVisibility="Never"     >
 
 
 
@@ -43,7 +49,7 @@
                 <DataTemplate     >
                     <ViewCell Tapped="ViewCell_Tapped"   >
                         <Grid RowSpacing="0"  Padding="0"  HorizontalOptions="Fill"  HeightRequest="98" >
-                           
+
 
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="Auto" />
@@ -64,7 +70,7 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="67" TranslationY="{Binding TranslateYOffset}">
+                                    <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="67" TranslationY="{Binding TranslateYOffsetVertical}">
 
                                         <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" ></ImageButton>
 
@@ -84,20 +90,39 @@
 
 
                                     </Grid>
-                                 
-
+                                    <Grid  Grid.Row="0"  Grid.Column="1">
+                                        <Grid RowSpacing="0" Padding="0" >
+                                            <Grid.RowDefinitions >
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions >
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Row="0"  Grid.Column="0" >
+                                                <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
+                                            </Grid>
+                                            <Grid Grid.Row="1"  Grid.Column="0" >
+                                                <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
 
                             </Grid>
+
                             <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" TranslationY="95">
                                 <ProgressBar Progress="{Binding ExtraProgress}" IsVisible="{Binding DownloadNotDone}" IsEnabled="{Binding DownloadNotDone}" HeightRequest="5"  VerticalOptions="Start"/>
                             </Grid>
-                            
-                                    <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
-                                        <ContentView VerticalOptions="Center">
-                                            <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" IsEnabled="False"></ProgressBar>
-                                        </ContentView>
-                                    </Grid>
+                            <!--
+                            <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">
+                                <ContentView VerticalOptions="Center">
+                                    <ProgressBar Progress="{Binding Progress}" VerticalOptions="Center" PropertyChanged="ProgressBar_BindingContextChanged" IsVisible="False" IsEnabled="False"></ProgressBar>
+                                </ContentView>
+                            </Grid>-->
 
 
                         </Grid>
@@ -106,7 +131,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
 
-        </ListView>-->
+        </ListView>
 
     </StackLayout>
 </ContentPage>
