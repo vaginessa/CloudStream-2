@@ -24,10 +24,10 @@
             
         </Picker>
 
-        <ScrollView >
+        <ScrollView x:Name="ImageScroller">
             <StackLayout>
                 <Grid x:Name="ItemGrid">
-
+            
                 </Grid>
             </StackLayout>
         </ScrollView>

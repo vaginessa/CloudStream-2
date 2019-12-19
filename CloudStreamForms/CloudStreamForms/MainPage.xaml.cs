@@ -474,7 +474,7 @@ namespace CloudStreamForms
             public int place;
         }
 
-        public static async Task< List<IMDbTopList>> FetchTop100(List<string> order, int start = 1, int count = 250)
+        public static async Task<List<IMDbTopList>> FetchTop100(List<string> order, int start = 1, int count = 250)
         {
             List<IMDbTopList> topLists = new List<IMDbTopList>();
             //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
@@ -1894,7 +1894,7 @@ namespace CloudStreamForms
 
                     while (d.Contains(lookFor)) {
                         d = RemoveOne(d, lookFor);
-                        
+
 
                         // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
                     }
@@ -2846,6 +2846,17 @@ namespace CloudStreamForms
 
             */
 
+        public static string ConvertIMDbImagesToHD(string nonHDImg, int pwidth = 67, int pheight = 98, double mMulti = 4)
+        {
+            string x1 = pwidth.ToString();
+            string y1 = pheight.ToString();
+            pheight = (int)Math.Round(pheight * mMulti * posterRezMulti);
+            pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);
+            
+            string img = nonHDImg.Replace("," + x1 + "," + y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY" + y1, "UY" + pheight).Replace("UX" + x1, "UX" + pwidth);
+            return img;
+        }
+
         static void YesMovies(int normalEpisode, string url) // MIRROR https://cmovies.tv/ 
         {
             print("URL: " + url);
@@ -3024,7 +3035,7 @@ namespace CloudStreamForms
         /// <param name="url"></param>
         /// <param name="en"></param>
         /// <returns></returns>
-        public static async Task< string> GetHTMLAsync(string url, bool en = true)
+        public static async Task<string> GetHTMLAsync(string url, bool en = true)
         {
             string html = string.Empty;
             try {
@@ -3038,7 +3049,7 @@ namespace CloudStreamForms
                 request.Referer = url;
                 //request.AddRange(1212416);
 
-                using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                 using (Stream stream = response.GetResponseStream())
 
                 using (StreamReader reader = new StreamReader(stream)) {
