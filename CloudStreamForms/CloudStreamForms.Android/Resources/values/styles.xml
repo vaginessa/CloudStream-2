@@ -30,7 +30,8 @@
     <item name="android:colorPressedHighlight">@color/ListViewSelected</item>
     <item name="android:colorFocusedHighlight">@color/ListViewSelected</item>
     <item name="android:colorActivatedHighlight">@color/ListViewSelected</item>
-    <!--
+    <!--  <color name="ListViewSelected">#111111</color>
+
     <item name="android:activatedBackgroundIndicator">@color/ListViewSelected</item>-->
         <item name="windowActionModeOverlay">true</item>
     

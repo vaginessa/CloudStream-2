@@ -114,7 +114,9 @@ namespace CloudStreamForms
                 Children =
                 {
                     searchBar,
+                    new Image() {Source = App.GetImageSource("gradient.png"), HeightRequest=3,HorizontalOptions=LayoutOptions.Fill, ScaleX=100,Opacity=0.5},
                     listView
+        //new BoxView() {Color = Color.LightGray,HeightRequest=1,TranslationY=-2 ,}, // {Color = new Color(   .188, .247, .624) { },HeightRequest=2 },
                 }
             };
             // searchBar.Text = startText;
