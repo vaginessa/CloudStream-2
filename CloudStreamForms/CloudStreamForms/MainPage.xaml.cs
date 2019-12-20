@@ -472,6 +472,59 @@ namespace CloudStreamForms
             public string genres;
             public string descript;
             public int place;
+            public List<int> contansGenres;
+        }
+        private static Random rng = new Random();
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1) {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+        public static List<IMDbTopList> FetchRecomended(List<string> inp, bool shuffle = true)
+        {
+            List<IMDbTopList> topLists = new List<IMDbTopList>();
+
+            for (int q = 0; q < inp.Count; q++) {
+                string url = "https://www.imdb.com/title/" + inp[q];
+
+                //string d =;
+                string _d = DownloadString(url);
+                string lookFor = "<div class=\"rec_item\"";
+                while (_d.Contains(lookFor)) {
+                    _d = RemoveOne(_d, lookFor);
+                    string tt = FindHTML(_d, " data-tconst=\"", "\"");
+                    string name = FindHTML(_d, "alt=\"", "\"", decodeToNonHtml: true);
+                    string img = FindHTML(_d, "loadlate=\"", "\"");
+                    string d = RemoveOne(_d, "<a href=\"/title/" + tt + "/vote?v=X;k", -200);
+                    string __d = FindHTML(_d, "<div class=\"rec-title\">\n       <a href=\"/title/" + tt, "<div class=\"rec-rating\">");
+                    List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+                    List<int> contansGenres = new List<int>();
+                    for (int i = 0; i < genresNames.Count; i++) {
+                        if (__d.Contains(genresNames[i])) {
+                            contansGenres.Add(i);
+                        }
+                    }
+                    string value = FindHTML(d, "<span class=\"value\">", "<");
+                    string descript = FindHTML(d, "<div class=\"rec-outline\">\n    <p>\n    ", "</p>");
+                    if (!value.Contains(".")) {
+                        value += ".0";
+                    }
+                    topLists.Add(new IMDbTopList() {name=name,descript=descript,contansGenres=contansGenres,id= inp[q],img=img,place=-1,rating=value,runtime="",genres="" });
+                }
+            }
+            
+            if(shuffle) {
+                Shuffle<IMDbTopList>(topLists);
+            }
+
+            return topLists;
         }
 
         public static async Task<List<IMDbTopList>> FetchTop100(List<string> order, int start = 1, int count = 250)

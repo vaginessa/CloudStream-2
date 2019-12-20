@@ -22,32 +22,41 @@ namespace CloudStreamForms
         const int POSTER_WIDTH = 67;
         public MainEpisodeView epView;
         public List<IMDbTopList> iMDbTopList = new List<IMDbTopList>();
-        readonly List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
-        readonly List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+        readonly List<string> genres = new List<string>() { "", "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
+        readonly List<string> genresNames = new List<string>() { "Any", "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+
+        readonly List<string> recomendationTypes = new List<string> { "Recommended", "Top 100" };
 
 
 
-
+        public bool IsRecommended { get { return ImdbTypePicker.SelectedIndex == 0; } }
 
         public int currentImageCount = 0;
         public void LoadMoreImages(bool setHeight = true)
         {
             Device.BeginInvokeOnMainThread(() => {
-
                 int count = 10;//PosterAtScreenHight * PosterAtScreenWith * 3
                 for (int i = 0; i < count; i++) {
                     if (currentImageCount >= iMDbTopList.Count) {
-                        if (!fething) {
+                        if (!fething && !IsRecommended) {
                             GetFetch(currentImageCount + 1);
                         }
                         return;
                         //Feth more data
                     }
                     else {
-                        string img = ConvertIMDbImagesToHD(iMDbTopList[currentImageCount].img, 67, 98, 4);
                         IMDbTopList x = iMDbTopList[currentImageCount];
 
-                        AddEpisode(new EpisodeResult() { Description = x.descript, Title = x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = "Id=" + x.id + "|||Name=" + x.name + "|||" }, false);
+                        int selGen = MovieTypePicker.SelectedIndex - 1;
+                        if (selGen != -1 && IsRecommended) {
+                            if(!x.contansGenres.Contains(selGen)) {
+                                continue;
+                            }
+                        }
+
+                        string img = ConvertIMDbImagesToHD(iMDbTopList[currentImageCount].img, IsRecommended ? 76 : 67 , IsRecommended ? 113 : 98, 4);
+
+                        AddEpisode(new EpisodeResult() { Description = x.descript, Title = (x.place > 0 ? (x.place + ". ") : "") + x.name + " | ★ " + x.rating.Replace(",", "."), Id = x.place, PosterUrl = img, extraInfo = "Id=" + x.id + "|||Name=" + x.name + "|||" }, false);
 
                         // ItemGrid.Children.Add(cachedImages[currentImageCount]);
                         //SetChashedImagePos(ItemGrid.Children.Count - 1);
@@ -59,6 +68,28 @@ namespace CloudStreamForms
                     SetHeight();
                 }
             });
+        }
+
+       
+        public void GetFetchRecomended()
+        {
+            fething = true;
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 0; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+
+                    iMDbTopList.AddRange(FetchRecomended(bookmarkPosters.Select(t => t.id).ToList()));
+                    LoadMoreImages();
+                }
+                finally {
+                    fething = false;
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "FethTop100";
+            tempThred.Thread.Start();
+
         }
 
         bool fething = false;
@@ -116,7 +147,7 @@ namespace CloudStreamForms
         private void ViewCell_Tapped(object sender, EventArgs e)
         {
             EpisodeResult episodeResult = (EpisodeResult)(((ViewCell)sender).BindingContext);
-            PushPageFromUrlAndName(FindShortend(episodeResult.extraInfo,"Id"), FindShortend(episodeResult.extraInfo, "Name"));
+            PushPageFromUrlAndName(FindShortend(episodeResult.extraInfo, "Id"), FindShortend(episodeResult.extraInfo, "Name"));
 
             // EpsodeShow(episodeResult);
             //EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
@@ -146,17 +177,33 @@ namespace CloudStreamForms
 
         public Home()
         {
-
             InitializeComponent();
             epView = new MainEpisodeView();
             BindingContext = epView;
 
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             MovieTypePicker.ItemsSource = genresNames;
+            ImdbTypePicker.ItemsSource = recomendationTypes;
+            ImdbTypePicker.SelectedIndex = 0;
+            ImdbTypePicker.SelectedIndexChanged += (o, e) => {
+                ClearEpisodes();
+                if (IsRecommended) {
+                    GetFetchRecomended();
+                }
+                else {
+                    GetFetch();
+                }
+            };
             MovieTypePicker.SelectedIndexChanged += (o, e) => {
                 ClearEpisodes();
-                GetFetch();
-              //  print(MovieTypePicker.SelectedIndex + "<<Selected");
+                if(IsRecommended) {
+                    LoadMoreImages();
+                }
+                else {
+                    GetFetch();
+                }
+                //GetFetchRecomended
+                //  print(MovieTypePicker.SelectedIndex + "<<Selected");
             };
 
             MovieTypePicker.SelectedIndex = 0;
@@ -167,6 +214,9 @@ namespace CloudStreamForms
                     LoadMoreImages();
                 }
             };
+      
+
+            OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
             /*
             ImageScroller.Scrolled += (o, e) => {
                 double maxY = ImageScroller.ContentSize.Height - ImageScroller.Height;
@@ -180,7 +230,7 @@ namespace CloudStreamForms
             //MovieTypePicker.IsVisible = false;
         }
 
-        static string FindShortend(string d , string key)
+        static string FindShortend(string d, string key)
         {
             return FindHTML(d, key + "=", "|||");
         }
@@ -252,7 +302,8 @@ namespace CloudStreamForms
                 SetChashedImagePos(i);
             }*/
 
-             Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
+            Device.BeginInvokeOnMainThread(() => { episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20; }
+);
         }
 
         void SetChashedImagePos(int pos)

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
 
+  <!-- <color name="ListViewSelected">#1976D2</color> -->
   <style name="MainTheme" parent="MainTheme.Base">
-  
   </style>
   <!-- Base theme applied no matter what API -->
   <style name="MainTheme.Base" parent="Theme.Design.NoActionBar">
@@ -26,13 +26,14 @@
 
     <item name="android:navigationBarColor">@color/mtrl_btn_transparent_bg_color</item>
     <item name="android:statusBarColor">@color/mtrl_btn_transparent_bg_color</item>
-    
-    <item name="android:colorLongPressedHighlight">@color/ListViewHighlighted</item>
-
     <item name="android:colorPressedHighlight">@color/ListViewSelected</item>
+    <item name="android:colorLongPressedHighlight">@color/ListViewHighlighted</item>
     <item name="android:colorFocusedHighlight">@color/ListViewSelected</item>
     <item name="android:colorActivatedHighlight">@color/ListViewSelected</item>
-    <!--
+    <item name="android:activatedBackgroundIndicator">@color/ListViewSelected</item>
+
+    <!--  <color name="ListViewSelected">#111111</color>
+
     <item name="android:activatedBackgroundIndicator">@color/ListViewSelected</item>-->
     <item name="windowActionModeOverlay">true</item>
 

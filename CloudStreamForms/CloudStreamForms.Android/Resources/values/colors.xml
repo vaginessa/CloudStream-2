@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="launcher_background">#111111</color>
   <color name="colorPrimary">#3F51B5</color>
@@ -7,7 +7,6 @@
   <color name="navigationBarColor">#111111</color>
   <color name="statusBarColor">#111111</color>
   <color name="windowBackground">#111111</color>
-  <color name="ListViewHighlighted">#111111</color>
-  <color name="ListViewSelected">#111111</color>
-
+  <color name="ListViewHighlighted">#ff0000</color>
+  <color name="ListViewSelected">#ff0000</color>
 </resources>
