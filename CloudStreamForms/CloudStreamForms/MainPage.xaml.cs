@@ -495,7 +495,7 @@ namespace CloudStreamForms
                 string url = "https://www.imdb.com/title/" + inp[q];
 
                 //string d =;
-                string _d = DownloadString(url);
+                string _d = GetHTML(url);
                 string lookFor = "<div class=\"rec_item\"";
                 while (_d.Contains(lookFor)) {
                     _d = RemoveOne(_d, lookFor);
@@ -512,22 +512,34 @@ namespace CloudStreamForms
                         }
                     }
                     string value = FindHTML(d, "<span class=\"value\">", "<");
-                    string descript = FindHTML(d, "<div class=\"rec-outline\">\n    <p>\n    ", "</p>");
+                    string descript = FindHTML(d, "<div class=\"rec-outline\">\n    <p>\n    ", "<");
                     if (!value.Contains(".")) {
                         value += ".0";
                     }
-                    topLists.Add(new IMDbTopList() {name=name,descript=descript,contansGenres=contansGenres,id= inp[q],img=img,place=-1,rating=value,runtime="",genres="" });
+
+                    bool add = true;
+                    for (int z = 0; z < topLists.Count; z++) {
+                        if(topLists[z].id == tt) {
+                            
+                            add = false;
+                        };
+                    }
+
+                    if (add) {
+                        topLists.Add(new IMDbTopList() { name = name, descript = descript, contansGenres = contansGenres, id = tt, img = img, place = -1, rating = value, runtime = "", genres = "" });
+                    }else {
+                    }
                 }
             }
-            
-            if(shuffle) {
+
+            if (shuffle) {
                 Shuffle<IMDbTopList>(topLists);
             }
 
             return topLists;
         }
 
-        public static async Task<List<IMDbTopList>> FetchTop100(List<string> order, int start = 1, int count = 250)
+        public static List<IMDbTopList> FetchTop100(List<string> order, int start = 1, int count = 250)
         {
             List<IMDbTopList> topLists = new List<IMDbTopList>();
             //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
@@ -543,7 +555,7 @@ namespace CloudStreamForms
             //https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=51&ref_=adv_nxt
             string trueUrl = "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count;
             print("TRUEURL:" + trueUrl);
-            string d = await GetHTMLAsync(trueUrl, true);
+            string d = GetHTML(trueUrl, true);
             print("FALSEURL:" + trueUrl);
 
             string lookFor = "class=\"loadlate\"";
@@ -2905,7 +2917,7 @@ namespace CloudStreamForms
             string y1 = pheight.ToString();
             pheight = (int)Math.Round(pheight * mMulti * posterRezMulti);
             pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);
-            
+
             string img = nonHDImg.Replace("," + x1 + "," + y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY" + y1, "UY" + pheight).Replace("UX" + x1, "UX" + pwidth);
             return img;
         }

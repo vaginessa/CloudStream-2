@@ -10,7 +10,7 @@
         <StackLayout>
         <Label Margin="3" Text="Home" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold" ></Label>
         <!--TextColor="#303F9F"-->
-        <Label Text="Bookmarks" FontAttributes="Italic" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Small"  x:Name="BTxt"></Label>
+        <!--   <Label Text="Bookmarks" FontAttributes="Italic" TranslationX="10" VerticalOptions="Start" HorizontalOptions="FillAndExpand" FontSize="Small"  x:Name="BTxt"></Label>-->
         <FlexLayout Margin="0,0,0,-10">
             
            
@@ -47,7 +47,7 @@
                 </Grid>
 
                 <Grid Grid.Row="0"  Grid.Column="2">
-                    <BoxView Color="#303F9F" VerticalOptions="Center" HeightRequest="2" WidthRequest="10000" Margin="10"></BoxView>
+                    <BoxView x:Name="BlueSeperator" Color="#303F9F" VerticalOptions="Center" HeightRequest="2" WidthRequest="10000" Margin="10"></BoxView>
             </Grid>
 
             </Grid>
