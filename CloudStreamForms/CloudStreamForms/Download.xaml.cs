@@ -48,7 +48,19 @@ namespace CloudStreamForms
 
 
             var d = App.GetStorage();
-            print("Total Size: " + App.ConvertBytesToGB(d.TotalSpace,2) + "GB Current Space: " + App.ConvertBytesToGB(d.FreeSpace,2) + "GB" + " Used Space: " + App.ConvertBytesToGB(d.UsedSpace, 2) + "GB");
+            SpaceProgress.Progress = d.UsedProcentage;
+
+            FreeSpace.Text = "Free Space · " + App.ConvertBytesToGB(d.FreeSpace) + "GB";
+            UsedSpace.Text = "Used Space · " + App.ConvertBytesToGB(d.UsedSpace) + "GB";
+            if (Device.RuntimePlatform == Device.UWP) {
+                OffBar.IsVisible = false;
+                OffBar.IsEnabled = false;
+            }
+            else {
+                OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
+            }
+
+            print("PRO:" + d.UsedProcentage + " Total Size: " + App.ConvertBytesToGB(d.TotalSpace,2) + "GB Current Space: " + App.ConvertBytesToGB(d.FreeSpace,2) + "GB" + " Used Space: " + App.ConvertBytesToGB(d.UsedSpace, 2) + "GB");
 
         }
         List<DownloadPoster> downloadposter = new List<DownloadPoster>();

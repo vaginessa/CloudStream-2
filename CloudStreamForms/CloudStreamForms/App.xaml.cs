@@ -38,6 +38,10 @@ namespace CloudStreamForms
             public long AvailableSpace = 0;
             public long FreeSpace = 0;
             public long UsedSpace { get { return TotalSpace - AvailableSpace; } }
+            /// <summary>
+            /// From 0-1
+            /// </summary>
+            public double UsedProcentage { get { return ConvertBytesToGB(UsedSpace,4) / ConvertBytesToGB(TotalSpace,4); } } 
         }
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
@@ -61,7 +65,7 @@ namespace CloudStreamForms
             return platformDep.GetStorageInformation();
         }
 
-        public static double ConvertBytesToGB(long bytes, int digits = 1)
+        public static double ConvertBytesToGB(long bytes, int digits = 2)
         {
             int div = Device.RuntimePlatform == Device.UWP ? 1024 : 1000;
             return Math.Round((bytes / Math.Pow(div, 3)), digits);
