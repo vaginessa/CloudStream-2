@@ -47,9 +47,8 @@ namespace CloudStreamForms
             UpdateDownloads();
 
 
-            long d = App.GetTotalStorageSize();
-            long ddd = App.GetAvailableSpace();
-            print("DSIZE: " + d + "|||" + ddd);
+            var d = App.GetStorage();
+            print("Total Size: " + App.ConvertBytesToGB(d.TotalSpace,2) + "GB Current Space: " + App.ConvertBytesToGB(d.FreeSpace,2) + "GB" + " Used Space: " + App.ConvertBytesToGB(d.UsedSpace, 2) + "GB");
 
         }
         List<DownloadPoster> downloadposter = new List<DownloadPoster>();

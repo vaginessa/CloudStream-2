@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Management;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -276,16 +278,26 @@ namespace CloudStreamForms.UWP
             if (path == "") {
                 path = GetExternalStoragePath();
             }
+            ulong FreeBytesAvailable;
+            ulong TotalNumberOfBytes;
+            ulong TotalNumberOfFreeBytes;
 
-            System.IO.DriveInfo info = new System.IO.DriveInfo(path);
-            double totalhddsize = info.TotalSize;
-            print("DRIVE: " + totalhddsize);
-            return new _App.StorageInfo() { AvailableSpace = info.AvailableFreeSpace, FreeSpace = info.TotalFreeSpace, TotalSpace = info.TotalSize };
+            bool success = GetDiskFreeSpaceEx(ApplicationData.Current.LocalFolder.Path,
+                                              out FreeBytesAvailable,
+                                              out TotalNumberOfBytes,
+                                              out TotalNumberOfFreeBytes);            
+            //  var drive = DriveInfo.GetDrives().Where(t => t.Name == path).ToList()[0];
 
-            using (var isolatedStorageFile = IsolatedStorageFile.GetUserStoreForApplication()) {
-                return new _App.StorageInfo() { AvailableSpace = isolatedStorageFile.AvailableFreeSpace, FreeSpace = isolatedStorageFile.AvailableFreeSpace, TotalSpace = isolatedStorageFile.Quota };
-            }
+            return new _App.StorageInfo() { AvailableSpace=(long) FreeBytesAvailable, FreeSpace= (long)TotalNumberOfFreeBytes, TotalSpace= (long)TotalNumberOfBytes };//AvailableSpace = drive.AvailableFreeSpace, FreeSpace = drive.TotalFreeSpace, TotalSpace = drive.TotalSize };
+
         }
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetDiskFreeSpaceEx(string lpDirectoryName,
+           out ulong lpFreeBytesAvailable,
+           out ulong lpTotalNumberOfBytes,
+           out ulong lpTotalNumberOfFreeBytes);
+
 
         public string GetExternalStoragePath()
         {

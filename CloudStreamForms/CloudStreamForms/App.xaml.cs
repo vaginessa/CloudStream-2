@@ -37,6 +37,7 @@ namespace CloudStreamForms
             public long TotalSpace = 0;
             public long AvailableSpace = 0;
             public long FreeSpace = 0;
+            public long UsedSpace { get { return TotalSpace - AvailableSpace; } }
         }
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
@@ -54,15 +55,19 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
-        public static long GetTotalStorageSize()
+   
+        public static StorageInfo GetStorage()
         {
-            return platformDep.GetStorageInformation().TotalSpace;
+            return platformDep.GetStorageInformation();
         }
 
-        public static long GetAvailableSpace()
+        public static double ConvertBytesToGB(long bytes, int digits = 1)
         {
-            return platformDep.GetStorageInformation().FreeSpace;
+            int div = Device.RuntimePlatform == Device.UWP ? 1024 : 1000;
+            return Math.Round((bytes / Math.Pow(div, 3)), digits);
         }
+
+
 
         public static bool DeleteFile(string path)
         {

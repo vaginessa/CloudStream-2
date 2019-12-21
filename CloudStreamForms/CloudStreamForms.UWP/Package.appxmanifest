@@ -9,7 +9,8 @@
   xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
   xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
   xmlns:uap6="http://schemas.microsoft.com/appx/manifest/uap/windows10/6"
-  IgnorableNamespaces="uap mp uap3 uap4 iot uap2 uap6">
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp uap3 uap4 iot uap2 uap6 rescap">
 
   <Identity
     Name="CloudStreamForms"
@@ -66,5 +67,6 @@
   <Capabilities>
     <Capability Name="internetClient"/>
     <iot:Capability Name="systemManagement" />
+	<rescap:Capability Name="broadFileSystemAccess" />
   </Capabilities>
 </Package>
