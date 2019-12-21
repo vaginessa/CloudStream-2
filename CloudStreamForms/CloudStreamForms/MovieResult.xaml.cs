@@ -317,6 +317,11 @@ namespace CloudStreamForms
 
             // -------------- CHROMECASTING THINGS --------------
 
+            if(Device.RuntimePlatform == Device.UWP) {
+                ImgChromeCastBtt.TranslationX = 0;
+                ImgChromeCastBtt.TranslationY = 0;
+            }
+
             ChromeCastQQ.Source = GetImageSource(MainChrome.GetSourceFromInt());
             SetIsCasting(MainChrome.IsCastingVideo);
 
@@ -1461,7 +1466,6 @@ namespace CloudStreamForms
 
         async void EpisodeSettings(EpisodeResult episodeResult)
         {
-            episodeView.SelectedItem = null;
 
             if (!episodeResult.LoadedLinks) {
                 try {
@@ -1603,6 +1607,8 @@ namespace CloudStreamForms
 
 
             }
+            episodeView.SelectedItem = null;
+
         }
 
         public string GetId(EpisodeResult episodeResult)
@@ -1633,14 +1639,15 @@ namespace CloudStreamForms
         private void ViewCell_Tapped(object sender, EventArgs e) // MORE INFO HERE
         {
             EpisodeResult episodeResult = ((EpisodeResult)(((ViewCell)sender).BindingContext));
-            episodeView.SelectedItem = null;
 
             if (toggleViewState) {
                 ToggleEpisode(episodeResult);
+                episodeView.SelectedItem = null;
             }
             else {
                 EpisodeSettings(episodeResult);
             }
+           // episodeView.SelectedItem = null;
 
         }
         bool toggleViewState = false;

@@ -38,7 +38,7 @@ namespace CloudStreamForms
                 int count = 10;//PosterAtScreenHight * PosterAtScreenWith * 3
                 for (int i = 0; i < count; i++) {
                     if (currentImageCount >= iMDbTopList.Count) {
-                        if (!fething && !IsRecommended) {
+                        if (!Fething && !IsRecommended) {
                             GetFetch(currentImageCount + 1);
                         }
                         return;
@@ -82,8 +82,8 @@ namespace CloudStreamForms
 
         public void GetFetchRecomended()
         {
-            if (!fething) {
-                fething = true;
+            if (!Fething) {
+                Fething = true;
                 TempThred tempThred = new TempThred();
                 tempThred.typeId = 21; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
                 tempThred.Thread = new System.Threading.Thread(() => {
@@ -94,7 +94,7 @@ namespace CloudStreamForms
                         LoadMoreImages();
                     }
                     finally {
-                        fething = false;
+                        Fething = false;
                         JoinThred(tempThred);
                     }
                 });
@@ -103,13 +103,23 @@ namespace CloudStreamForms
             }
         }
 
-        bool fething = false;
-        public async void GetFetch(int start = 1)
+        bool _fething = false;
+        public bool Fething
         {
-            fething = true;
+            set {
+                if ((value && epView.MyEpisodeResultCollection.Count == 0) || !value) {
+                    Device.BeginInvokeOnMainThread(() => { LoadingIndicator.IsVisible = value; LoadingIndicator.IsEnabled = value; LoadingIndicator.IsRunning = value; });
+                }
+                _fething = value;
+            }
+            get { return _fething; }
+        }
+        public void GetFetch(int start = 1)
+        {
+            Fething = true;
             TempThred tempThred = new TempThred();
             tempThred.typeId = 21; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-            tempThred.Thread = new System.Threading.Thread(async () => {
+            tempThred.Thread = new System.Threading.Thread( () => {
                 try {
                     var f = FetchTop100(new List<string>() { genres[MovieTypePicker.SelectedIndex] }, start);
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
@@ -133,7 +143,7 @@ namespace CloudStreamForms
                     LoadMoreImages();
                 }
                 finally {
-                    fething = false;
+                    Fething = false;
                     JoinThred(tempThred);
                 }
             });
@@ -203,24 +213,23 @@ namespace CloudStreamForms
             ImdbTypePicker.SelectedIndexChanged += (o, e) => {
                 ClearEpisodes();
                 PurgeThreds(21);
-                fething = false;
+                Fething = false;
                 if (IsRecommended) {
                     GetFetchRecomended();
                 }
                 else {
-                    
                     GetFetch();
                 }
             };
             MovieTypePicker.SelectedIndexChanged += (o, e) => {
                 ClearEpisodes(!IsRecommended);
                 if (IsRecommended) {
-                    Main.Shuffle(iMDbTopList); 
+                    Main.Shuffle(iMDbTopList);
                     LoadMoreImages();
                 }
                 else {
                     PurgeThreds(21);
-                    fething = false;
+                    Fething = false;
                     GetFetch();
                 }
                 //GetFetchRecomended
@@ -237,7 +246,7 @@ namespace CloudStreamForms
             };
 
 
-            if(Device.RuntimePlatform == Device.UWP) {
+            if (Device.RuntimePlatform == Device.UWP) {
                 BlueSeperator.IsVisible = false;
                 BlueSeperator.IsEnabled = false;
                 OffBar.IsVisible = false;

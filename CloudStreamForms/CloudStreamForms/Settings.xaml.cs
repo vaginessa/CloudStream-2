@@ -96,7 +96,7 @@ namespace CloudStreamForms
         }
 
 
-        public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#1976D2"; } }
+        public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#515467"; } }
 
         public static string MainBackgroundColor
         {
@@ -119,6 +119,13 @@ namespace CloudStreamForms
         {
             InitializeComponent();
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
+            if (Device.RuntimePlatform == Device.UWP) {
+                OffBar.IsVisible = false;
+                OffBar.IsEnabled = false;
+            }
+            else {
+                OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
+            }
 
             //Main.print("COLOR: "+ BlackBgToggle.OnColor);
             //  if (Device.RuntimePlatform == Device.UWP) {

@@ -71,6 +71,7 @@
             <Grid.RowDefinitions >
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <ActivityIndicator x:Name="LoadingIndicator" TranslationY="30"></ActivityIndicator>
 
             <Grid Grid.Row="1"  Grid.Column="0">
                 <ListView ItemsSource="{Binding MyEpisodeResultCollection}"
@@ -175,7 +176,6 @@
             </Grid>
 
         </Grid>
-
 
     </StackLayout>
 </ContentPage>

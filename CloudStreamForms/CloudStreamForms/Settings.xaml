@@ -9,51 +9,58 @@
     <ContentPage.Content >
 
         <StackLayout >
+            <Label Margin="3,13,3,4.5" Text="Settings" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold"  ></Label>
 
-            <Label Margin="3" Text="Settings" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold" ></Label>
+            <Grid>
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1"  Grid.Column="0">
+                    <TableView VerticalOptions="Start" >
+                        <TableRoot>
+                            <TableSection >
+                                <SwitchCell Text="Force black background (Restart recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Instant search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Default anime dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}" ></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <TextCell Text="Clear watch history"  Detail="This will clear all episodes/movies you have watched" Tapped="TextCell_Tapped" TextColor="#b3bdfa">
+                                </TextCell>
+                            </TableSection>
+                            <TableSection>
+                                <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2" TextColor="#b3bdfa">
+                                </TextCell>
+                            </TableSection>
+                        </TableRoot>
+                    </TableView>
+                </Grid>
+                <Grid Grid.Row="0"  Grid.Column="0">
+                    <Image x:Name="OffBar" InputTransparent="True" VerticalOptions="Start"></Image>
+                </Grid>
+            </Grid>
 
-            <TableView>
-                <TableRoot>
-                    <TableSection>
-                        <SwitchCell Text="Force black background (Restart recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}" ></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <SwitchCell Text="Instant search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                 
-                    <TableSection>
-                        <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <SwitchCell Text="Default anime dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                    </TableSection>
-                    <TableSection>
-                        <TextCell Text="Clear watch history"  Detail="This will clear all episodes/movies you have watched" Tapped="TextCell_Tapped">
-
-                        </TextCell>
-                    </TableSection>
-                    <TableSection>
-                        <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2">
-
-                        </TextCell>
-                    </TableSection>
-                </TableRoot>
-            </TableView>
             <Label Text="Loading Time" x:Name="LoadingTime" TranslationX="5"></Label>
-            <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider"></Slider>
+            <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider" ThumbColor="#b3bdfa"></Slider>
             <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
             <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5"></Label>
             <Button Text="Update To..." x:Name="UpdateBtt" IsEnabled="False" IsVisible="False"></Button>
-            <Button Text="Star me on Github" x:Name="StarMe" > 
+            <Button Text="Star me on Github" x:Name="StarMe" BackgroundColor="#303F9F"> 
                 <!--★-->
             </Button>
         </StackLayout>

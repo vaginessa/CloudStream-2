@@ -487,9 +487,15 @@ namespace CloudStreamForms
                 list[n] = value;
             }
         }
-        public static List<IMDbTopList> FetchRecomended(List<string> inp, bool shuffle = true)
+
+        public static List<IMDbTopList> FetchRecomended(List<string> inp, bool shuffle = true, int max = 10)
         {
             List<IMDbTopList> topLists = new List<IMDbTopList>();
+
+            Shuffle(inp);
+            if (inp.Count > max) {
+                inp.RemoveRange(max, inp.Count - max);
+            }
 
             for (int q = 0; q < inp.Count; q++) {
                 string url = "https://www.imdb.com/title/" + inp[q];
@@ -519,15 +525,16 @@ namespace CloudStreamForms
 
                     bool add = true;
                     for (int z = 0; z < topLists.Count; z++) {
-                        if(topLists[z].id == tt) {
-                            
+                        if (topLists[z].id == tt) {
+
                             add = false;
                         };
                     }
 
                     if (add) {
                         topLists.Add(new IMDbTopList() { name = name, descript = descript, contansGenres = contansGenres, id = tt, img = img, place = -1, rating = value, runtime = "", genres = "" });
-                    }else {
+                    }
+                    else {
                     }
                 }
             }
@@ -572,6 +579,7 @@ namespace CloudStreamForms
                 string descript = FindHTML(d, "<p class=\"text-muted\">\n    ", "<").Replace("  ", "");
                 topLists.Add(new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
             }
+            print("------------------------------------ DONE! ------------------------------------");
             return topLists;
         }
 
@@ -2847,7 +2855,7 @@ namespace CloudStreamForms
         public static double GetFileSizeOnSystem(string path)
         {
             try {
-                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / Math.Pow((double)App.GetSizeOfJumpOnSystem(),2.0) , 2);
+                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / Math.Pow((double)App.GetSizeOfJumpOnSystem(), 2.0), 2);
             }
             catch (Exception) {
                 return -1;

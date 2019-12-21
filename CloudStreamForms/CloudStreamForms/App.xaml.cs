@@ -46,7 +46,7 @@ namespace CloudStreamForms
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
         {
-            Main.print("PATH: " + path + " | Progress:" + progress.ProgressPercentage);
+           // Main.print("PATH: " + path + " | Progress:" + progress.ProgressPercentage);
         }
 
 

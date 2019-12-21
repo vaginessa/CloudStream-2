@@ -40,7 +40,11 @@ public class CustomSwitchCellRenderer : SwitchCellRenderer
     {
 
         var cell = base.GetCellCore(item, convertView, parent, context);
-      //  print("-->>>" + cell);
+        // cell.SetBackgroundColor(new Android.Graphics.Color(0, 0, 0));
+        //var f = ((LinearLayout)(((LinearLayout)cell).GetChildAt(1))).GetChildAt(2);
+        // print("FFFFFFFFFF:" + f.ToString());
+        cell.SetBackgroundColor(new Android.Graphics.Color(20, 20, 20));
+        //  print("-->>>" + cell);
         // var child1 = ((LinearLayout)cell).GetChildAt(1);
         try {
             Android.Widget.Switch child0 = (Android.Widget.Switch)((LinearLayout)cell).GetChildAt(2);
@@ -73,7 +77,9 @@ public class CustomSwitchCellRenderer : SwitchCellRenderer
     {
         try {
             var _c = ((Android.Widget.Switch)o);
-            _c.ThumbDrawable.SetColorFilter((_c.Checked ? Android.Graphics.Color.ParseColor("#1976D2") : Android.Graphics.Color.White), PorterDuff.Mode.Multiply);
+           // _c.(_c.Checked ? Android.Graphics.Color.ParseColor("#5D73FF") : Android.Graphics.Color.White);
+            //_c.ThumbDrawable.SetColorFilter(Android.Graphics.Color.White, PorterDuff.Mode.Multiply);//(_c.Checked ? Android.Graphics.Color.ParseColor("#1363b1") : Android.Graphics.Color.White), PorterDuff.Mode.Multiply);
+            _c.ThumbDrawable.SetColorFilter(_c.Checked ? Android.Graphics.Color.ParseColor("#1363b1") : Android.Graphics.Color.White, PorterDuff.Mode.Multiply);
         }
         catch (Exception) {
         }

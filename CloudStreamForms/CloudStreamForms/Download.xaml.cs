@@ -169,8 +169,8 @@ namespace CloudStreamForms
                 string movieTitle = FindHTML(keys[i], "_movieTitle=", "|||");
                 string epCounter = FindHTML(keys[i], "_epCounter=", "|||");
                 print("KEY:" + keys[i]);
-                const double height = 80;
-                const double width = 126;
+              //  const double height = 80;
+              //  const double width = 126;
                 if (moviePath != "") {
                     double currentProgress = GetFileSizeOnSystem(moviePath);
                     double maxProgress = App.GetKey("DownloadSize", id, -1.0);
