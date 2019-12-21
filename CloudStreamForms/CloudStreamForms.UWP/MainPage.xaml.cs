@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
 using static CloudStreamForms.Main;
-using System.Text.RegularExpressions;
 using _App = CloudStreamForms.App;
 
 namespace CloudStreamForms.UWP
@@ -170,7 +172,7 @@ namespace CloudStreamForms.UWP
         }
 
 
-        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath,string toast = "")
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "")
         {
 
             Main.print(fileName);
@@ -268,6 +270,30 @@ namespace CloudStreamForms.UWP
         {
             return GetPath(CensorFilename(path));
         }
+
+        public _App.StorageInfo GetStorageInformation(string path = "")
+        {
+            if (path == "") {
+                path = GetExternalStoragePath();
+            }
+
+            System.IO.DriveInfo info = new System.IO.DriveInfo(path);
+            double totalhddsize = info.TotalSize;
+            print("DRIVE: " + totalhddsize);
+            return new _App.StorageInfo() { AvailableSpace = info.AvailableFreeSpace, FreeSpace = info.TotalFreeSpace, TotalSpace = info.TotalSize };
+
+            using (var isolatedStorageFile = IsolatedStorageFile.GetUserStoreForApplication()) {
+                return new _App.StorageInfo() { AvailableSpace = isolatedStorageFile.AvailableFreeSpace, FreeSpace = isolatedStorageFile.AvailableFreeSpace, TotalSpace = isolatedStorageFile.Quota };
+            }
+        }
+
+        public string GetExternalStoragePath()
+        {
+            return "C:\\";
+        }
+
+
+
     }
 
     public static class Message

@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using static CloudStreamForms.Main;
 using Android.Provider;
 using Acr.UserDialogs;
+using static CloudStreamForms.App;
 
 namespace CloudStreamForms.Droid
 {
@@ -104,6 +105,52 @@ namespace CloudStreamForms.Droid
     }
     public class MainDroid : App.IPlatformDep
     {
+
+        public StorageInfo GetStorageInformation(string path = "")
+        {
+            StorageInfo storageInfo = new StorageInfo();
+
+            long totalSpaceBytes = 0;
+            long freeSpaceBytes = 0;
+            long availableSpaceBytes = 0;
+
+            /*
+              We have to do the check for the Android version, because the OS calls being made have been deprecated for older versions. 
+              The ‘old style’, pre Android level 18 didn’t use the Long suffixes, so if you try and call use those on 
+              anything below Android 4.3, it’ll crash on you, telling you that that those methods are unavailable. 
+              http://blog.wislon.io/posts/2014/09/28/xamarin-and-android-how-to-use-your-external-removable-sd-card/
+             */
+            if (path == "") {
+                totalSpaceBytes = Android.OS.Environment.ExternalStorageDirectory.TotalSpace;
+                freeSpaceBytes = Android.OS.Environment.ExternalStorageDirectory.FreeSpace;
+                availableSpaceBytes = Android.OS.Environment.ExternalStorageDirectory.UsableSpace;
+            }
+            else {
+                StatFs stat = new StatFs(path); //"/storage/sdcard1"
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.JellyBeanMr2) {
+
+
+                    long blockSize = stat.BlockSizeLong;
+                    totalSpaceBytes = stat.BlockCountLong * stat.BlockSizeLong;
+                    availableSpaceBytes = stat.AvailableBlocksLong * stat.BlockSizeLong;
+                    freeSpaceBytes = stat.FreeBlocksLong * stat.BlockSizeLong;
+
+                }
+                else {
+                    totalSpaceBytes = (long)stat.BlockCount * (long)stat.BlockSize;
+                    availableSpaceBytes = (long)stat.AvailableBlocks * (long)stat.BlockSize;
+                    freeSpaceBytes = (long)stat.FreeBlocks * (long)stat.BlockSize;
+                }
+            }
+
+            storageInfo.TotalSpace = totalSpaceBytes;
+            storageInfo.AvailableSpace = availableSpaceBytes;
+            storageInfo.FreeSpace = freeSpaceBytes;
+            return storageInfo;
+
+        }
+
         public static void OpenPathAsVideo(string path, string name, string subtitleLoc)
         {
             OpenPathsAsVideo(new List<string>() { path }, new List<string>() { name }, subtitleLoc);
@@ -448,7 +495,12 @@ namespace CloudStreamForms.Droid
 
         public string GetDownloadPath(string path, string extraFolder)
         {
-            return GetPath(true, extraFolder + "/" + CensorFilename(path,false));
+            return GetPath(true, extraFolder + "/" + CensorFilename(path, false));
+        }
+
+        public string GetExternalStoragePath()
+        {
+            return Android.OS.Environment.ExternalStorageDirectory.Path;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Xamarin.Essentials;
 using System.Net;
+using System.IO;
 
 namespace CloudStreamForms
 {
@@ -23,10 +24,19 @@ namespace CloudStreamForms
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
             void ShowToast(string message, double duration);
             string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
-            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath,string toast = "");
+            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "");
             bool DeleteFile(string path);
             void DownloadUpdate(string update);
             string GetDownloadPath(string path, string extraFolder);
+            StorageInfo GetStorageInformation(string path = "");
+
+            string GetExternalStoragePath();
+        }
+        public class StorageInfo
+        {
+            public long TotalSpace = 0;
+            public long AvailableSpace = 0;
+            public long FreeSpace = 0;
         }
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
@@ -44,14 +54,14 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
-        public double GetTotalStorageSize()
+        public static long GetTotalStorageSize()
         {
-            return 0;
+            return platformDep.GetStorageInformation().TotalSpace;
         }
 
-        public double GetUsedStorageSize()
+        public static long GetAvailableSpace()
         {
-            return 0;
+            return platformDep.GetStorageInformation().FreeSpace;
         }
 
         public static bool DeleteFile(string path)
@@ -234,4 +244,6 @@ namespace CloudStreamForms
             // Handle when your app resumes
         }
     }
+
+
 }

@@ -27,7 +27,6 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
-            
             ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
 
             ytrealBtt.Clicked += (o, e) => {
@@ -46,6 +45,12 @@ namespace CloudStreamForms
             base.OnAppearing();
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             UpdateDownloads();
+
+
+            long d = App.GetTotalStorageSize();
+            long ddd = App.GetAvailableSpace();
+            print("DSIZE: " + d + "|||" + ddd);
+
         }
         List<DownloadPoster> downloadposter = new List<DownloadPoster>();
         struct DownloadPoster
