@@ -67,10 +67,19 @@ namespace CloudStreamForms
 
         public static double ConvertBytesToGB(long bytes, int digits = 2)
         {
-            int div = Device.RuntimePlatform == Device.UWP ? 1024 : 1000;
-            return Math.Round((bytes / Math.Pow(div, 3)), digits);
+            return ConvertBytesToAny(bytes, digits, 3);
         }
 
+        public static double ConvertBytesToAny(long bytes, int digits = 2,int steps = 3)
+        {
+            int div = GetSizeOfJumpOnSystem();
+            return Math.Round((bytes / Math.Pow(div, steps)), digits);
+        }
+
+        public static int GetSizeOfJumpOnSystem()
+        {
+            return Device.RuntimePlatform == Device.UWP ? 1024 : 1000; 
+        }
 
 
         public static bool DeleteFile(string path)

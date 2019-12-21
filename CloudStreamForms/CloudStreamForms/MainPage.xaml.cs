@@ -2834,7 +2834,7 @@ namespace CloudStreamForms
 
                 using (var webResponse = webRequest.GetResponse()) {
                     var fileSize = webResponse.Headers.Get("Content-Length");
-                    var fileSizeInMegaByte = Math.Round(Convert.ToDouble(fileSize) / 1024.0 / 1024.0, 2);
+                    var fileSizeInMegaByte = Math.Round(Convert.ToDouble(fileSize) / Math.Pow((double)App.GetSizeOfJumpOnSystem(), 2.0), 2);
                     return fileSizeInMegaByte;
                 }
             }
@@ -2847,7 +2847,7 @@ namespace CloudStreamForms
         public static double GetFileSizeOnSystem(string path)
         {
             try {
-                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / 1024.0 / 1024.0, 2);
+                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / Math.Pow((double)App.GetSizeOfJumpOnSystem(),2.0) , 2);
             }
             catch (Exception) {
                 return -1;
