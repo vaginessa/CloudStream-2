@@ -548,7 +548,7 @@ namespace CloudStreamForms
 
         public static List<IMDbTopList> FetchTop100(List<string> order, int start = 1, int count = 250)
         {
-            List<IMDbTopList> topLists = new List<IMDbTopList>();
+            IMDbTopList[] topLists = new IMDbTopList[count];
             //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
             //List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
             string orders = "";
@@ -567,9 +567,11 @@ namespace CloudStreamForms
 
             string lookFor = "class=\"loadlate\"";
             int place = start - 1;
+            int counter = 0;
             while (d.Contains(lookFor)) {
                 place++;
                 d = RemoveOne(d, lookFor);
+
                 string img = FindHTML(d, "loadlate=\"", "\"");
                 string id = FindHTML(d, "data-tconst=\"", "\"");
                 string runtime = FindHTML(d, "<span class=\"runtime\">", "<");
@@ -577,10 +579,11 @@ namespace CloudStreamForms
                 string rating = FindHTML(d, "</span>\n        <strong>", "<");
                 string _genres = FindHTML(d, "<span class=\"genre\">\n", "<").Replace("  ", "");
                 string descript = FindHTML(d, "<p class=\"text-muted\">\n    ", "<").Replace("  ", "");
-                topLists.Add(new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
+                topLists[counter] = (new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
+                counter++;
             }
             print("------------------------------------ DONE! ------------------------------------");
-            return topLists;
+            return topLists.ToList();
         }
 
 
@@ -1473,6 +1476,7 @@ namespace CloudStreamForms
                 PurgeThreds(2);
             }
             activeMovie = new Movie();
+            activeMovie.title.id = imdb.url.Replace("https://imdb.com/title/", "");
             // TurnNullMovieToActive(movie);
             TempThred tempThred = new TempThred();
             tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
@@ -4058,7 +4062,8 @@ namespace CloudStreamForms
         /// <returns></returns>
         public static string RemoveOne(string d, string rem, int offset = 1)
         {
-            return d.Substring(d.IndexOf(rem) + offset, d.Length - d.IndexOf(rem) - offset);
+            int indexOfRem = d.IndexOf(rem);
+            return d.Substring(indexOfRem + offset, d.Length - indexOfRem - offset);
         }
         /// <summary>
         /// Used to find string in string, for example 123>Hello<132123, hello can be found using FindHTML(d,">","<");
@@ -4071,10 +4076,11 @@ namespace CloudStreamForms
         /// <returns></returns>
         public static string FindHTML(string all, string first, string end, int offset = 0, bool readToEndOfFile = false, bool decodeToNonHtml = false)
         {
-            if (all.IndexOf(first) == -1) {
+            int firstIndex = all.IndexOf(first);
+            if (firstIndex == -1) {
                 return "";
             }
-            int x = all.IndexOf(first) + first.Length + offset;
+            int x = firstIndex + first.Length + offset;
 
             all = all.Substring(x, all.Length - x);
             int y = all.IndexOf(end);

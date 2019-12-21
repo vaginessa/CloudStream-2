@@ -72,6 +72,9 @@ namespace CloudStreamForms
                     lastMovie.RemoveAt(lastMovie.Count - 1);
                 }
             }
+            if(setKey) {
+                App.RemoveKey("BookmarkData", currentMovie.title.id);
+            }
             //Navigation.PopModalAsync();
             // return true;
             return base.OnBackButtonPressed();
@@ -91,7 +94,12 @@ namespace CloudStreamForms
         }
         public MainEpisodeView epView;
 
-
+        bool setKey = false;
+        void SetKey()
+        {
+            App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "|||PosterUrl=" + currentMovie.title.hdPosterUrl + "|||Id=" + currentMovie.title.id + "|||TypeId=" + ((int)currentMovie.title.movieType) + "|||ShortEpView=" + currentMovie.title.shortEpView + "|||=EndAll");
+            setKey = false;
+        }
 
         private void StarBttClicked(object sender, EventArgs e)
         {
@@ -102,9 +110,15 @@ namespace CloudStreamForms
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
             else {
-                App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "|||PosterUrl=" + currentMovie.title.hdPosterUrl + "|||Id=" + currentMovie.title.id + "|||TypeId=" + ((int)currentMovie.title.movieType) + "|||ShortEpView=" + currentMovie.title.shortEpView + "|||=EndAll");
-            }
+                if (currentMovie.title.name == null) {
+                    App.SetKey("BookmarkData", currentMovie.title.id, "Name=" + currentMovie.title.name + "|||Id=" + currentMovie.title.id + "|||");
 
+                    setKey = true;
+                }
+                else {
+                    SetKey();
+                }
+            }
 
             ChangeStar(!keyExists);
         }
@@ -119,22 +133,18 @@ namespace CloudStreamForms
         private void ShareBttClicked(object sender, EventArgs e)
         {
             if (currentMovie.title.id != "" && currentMovie.title.name != "") {
-
                 Share();
-
-
             }
         }
 
         async void Share()
         {
-
             List<string> actions = new List<string>() { "Everything", "CloudStream Link", "IMDb Link", "Title", "Title and Description" };
             if (CurrentMalLink != "") {
                 actions.Insert(3, "MAL Link");
             }
             if (trailerUrl != "") {
-                actions.Insert(actions.Count-2, "Trailer Link");
+                actions.Insert(actions.Count - 2, "Trailer Link");
             }
             string a = await DisplayActionSheet("Copy", "Cancel", null, actions.ToArray());
             string copyTxt = "";
@@ -181,12 +191,15 @@ namespace CloudStreamForms
 
         }
 
-        void ChangeStar(bool? overrideBool = null)
+        void ChangeStar(bool? overrideBool = null, string key = null)
         {
-
             bool keyExists = false;
+            if (key == null) {
+                key = currentMovie.title.id;
+            }
             if (overrideBool == null) {
-                keyExists = App.KeyExists("BookmarkData", currentMovie.title.id);
+                keyExists = App.KeyExists("BookmarkData", key);
+                print("KEYEXISTS:" + keyExists + "|" + currentMovie.title.id);
             }
             else {
                 keyExists = (bool)overrideBool;
@@ -199,7 +212,6 @@ namespace CloudStreamForms
         }
         void ChangeSubtitle(bool? overrideBool = null)
         {
-
             bool res = false;
             if (overrideBool == null) {
                 res = SubtitlesEnabled;
@@ -308,7 +320,7 @@ namespace CloudStreamForms
 
             mainPoster = Search.mainPoster;
 
-            Gradient.Source = GetImageSource("gradient.png");
+            Gradient.Source = GetImageSource(BlackBg ? "gradient.png" : "gradientGray.png");
             IMDbBtt.Source = GetImageSource("imdbIcon.png");
             MALBtt.Source = GetImageSource("MALIcon.png");
             ShareBtt.Source = GetImageSource("shareIcon.png");
@@ -317,9 +329,14 @@ namespace CloudStreamForms
 
             // -------------- CHROMECASTING THINGS --------------
 
-            if(Device.RuntimePlatform == Device.UWP) {
+            if (Device.RuntimePlatform == Device.UWP) {
                 ImgChromeCastBtt.TranslationX = 0;
                 ImgChromeCastBtt.TranslationY = 0;
+                OffBar.IsVisible = false;
+                OffBar.IsEnabled = false;
+            }
+            else {
+                OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
             }
 
             ChromeCastQQ.Source = GetImageSource(MainChrome.GetSourceFromInt());
@@ -368,125 +385,11 @@ namespace CloudStreamForms
             if (Device.RuntimePlatform == Device.UWP) {
                 //QuickMenu.WidthRequest = 500;
             }
+            if (Settings.BlackBg) {
+                BackgroundColor = Color.Black;
+            }
+            // Gradient.Opacity = BlackBg ? 1 : 0.5;
 
-            //  myEpisodeResultCollection;
-
-            //  FakePlayBtt.Source = ImageSource.FromUri(new System.Uri("https://m.media-amazon.com/images/M/MV5BMjEyNzQ0MjE2OF5BMl5BanBnXkFtZTcwMTkyNjE5Ng@@._V1_CR0,60,640,360_AL_UX477_CR0,0,477,268_AL_.jpg"));
-            //FakePlayBtt.Source = ImageSource.FromResource("CloudStreamForms.Resource.playBtt.png");
-            BackgroundColor = Color.Black;
-            #region notUsed
-            /*
-            DataTemplate dataTemplate = new ListViewDataTemplateSelector();
-            
-            episodeView = new ListView {
-                //VerticalOptions = LayoutOptions.Start,
-                //HorizontalOptions = LayoutOptions.FillAndExpand,
-                // TranslationY = heightRequestAddEpisode / 2f,
-                // Source of data items.
-                ItemsSource = MyEpisodeResultCollection,
-
-                // Define template for displaying each item.
-                // (Argument of DataTemplate constructor is called for 
-                //      each item; it must return a Cell derivative.)
-                ItemTemplate = dataTemplate, /*new DataTemplate(() => {
-
-                    // Create views with bindings for displaying each property.
-                    Label nameLabel = new Label();
-                    Label desLabel = new Label();
-                    nameLabel.SetBinding(Label.TextProperty, "Title");
-                    desLabel.SetBinding(Label.TextProperty, "Description");
-                    desLabel.FontSize = nameLabel.FontSize / 1.2f;
-                    
-                    desLabel.TextColor = Color.Gray;
-                    nameLabel.TranslationX = 5;
-                    desLabel.TranslationX = 5;
-                    ProgressBar progressBar = new ProgressBar();
-                    progressBar.IsVisible = false;
-                    progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
-
-                    Picker linkPicker = new Picker();
-                    // linkPicker.Items.Add("Mirror 1");
-                    //  linkPicker.Items.Add("Mirror 2");
-                    // linkPicker.Items.Add("Mirror 3");
-                    linkPicker.SetBinding(Picker.ItemsSourceProperty, "Mirros");
-
-
-                    Picker subPicker = new Picker();
-                    subPicker.SetBinding(Picker.ItemsSourceProperty, "Subtitles");
-
-                    
-                    //   subPicker.Items.Add("English");
-                    //   subPicker.Items.Add("Swedish");
-
-                    Picker exePicker = new Picker();
-                    exePicker.Items.Add("Play");
-                    exePicker.Items.Add("Download");
-                    exePicker.Items.Add("Copy Link");
-                    exePicker.Items.Add("Copy Subtitle Link");
-
-                    // Button playBtt = new Button() { Text="Play" };
-
-                    Grid grid = new Grid();
-                    grid.Children.Add(linkPicker);
-                    grid.Children.Add(subPicker);
-                    grid.Children.Add(exePicker);
-                    //   grid.Children.Add(playBtt);
-
-                    Grid.SetColumn(subPicker, 1);
-                    Grid.SetColumn(exePicker, 2);
-
-                    grid.SetBinding(Grid.IsVisibleProperty, "EpVis");
-
-                    try {
-                        exePicker.SelectedIndex = 0;
-                        subPicker.SelectedIndex = 0;
-                        linkPicker.SelectedIndex = 0;
-                    }
-                    catch (Exception) {
-
-                    }
-                    //grid.IsVisible = true;
-                    //    Grid.SetColumn(playBtt, 3);
-
-                    //nameLabel.SetBinding(Label.d, "Extra");
-
-
-                    // Return an assembled ViewCell.
-                    return new ViewCell {
-                        View = new StackLayout {
-                            // Padding = new Thickness(0, 5),
-                            HeightRequest = heightRequestPerEpisode,
-                            MinimumHeightRequest = heightRequestPerEpisode,
-                            Orientation = StackOrientation.Horizontal,
-                            VerticalOptions = LayoutOptions.Start,
-                            Children =
-                            {
-                                //boxView,
-                                new StackLayout
-                                {
-                                    VerticalOptions = LayoutOptions.Start,
-                                    Spacing = 0,
-                                    Children =
-                                    {
-                                        nameLabel,
-                                        desLabel,
-                                        grid,
-                                        progressBar,
-                                        //birthdayLabel
-                                    }
-                                }
-                            }
-                        }
-                    };
-                })    star/
-
-            };
-            episodeView.ItemTapped += ListView_ItemTapped;
-       //     episodeView.HeightRequest = 0;
-            episodeView.MinimumHeightRequest = 0;
-            episodeView.VerticalOptions = LayoutOptions.Start;
-            episodeView.HasUnevenRows = true;*/
-            #endregion
             MALBtt.IsVisible = false;
             MALTxt.IsVisible = false;
             epView = new MainEpisodeView();
@@ -529,6 +432,8 @@ namespace CloudStreamForms
             //episodeView.HeightRequest = 10000;
             // print(mainPoster.name + "|" + mainPoster.url + "|" + mainPoster.year);
             GetImdbTitle(mainPoster);
+            currentMovie.title.id = mainPoster.url.Replace("https://imdb.com/title/", "");
+            ChangeStar();
             //  episodeView.HeightRequest = 0;
             //  AbsoluteLayout.SetLayoutFlags(episodeView, AbsoluteLayoutFlags.PositionProportional);
             //   AbsoluteLayout.SetLayoutBounds(episodeView, new Rectangle(0f, 0f, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
@@ -824,6 +729,9 @@ namespace CloudStreamForms
             loadedTitle = true;
             isMovie = (e.title.movieType == MovieType.Movie || e.title.movieType == MovieType.AnimeMovie);
             currentMovie = e;
+            if (setKey) {
+                SetKey();
+            }
             print("Title loded" + " | " + mainPoster.name);
             MainThread.BeginInvokeOnMainThread(() => {
                 try {
@@ -1647,7 +1555,7 @@ namespace CloudStreamForms
             else {
                 EpisodeSettings(episodeResult);
             }
-           // episodeView.SelectedItem = null;
+            // episodeView.SelectedItem = null;
 
         }
         bool toggleViewState = false;

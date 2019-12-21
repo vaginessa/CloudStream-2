@@ -394,6 +394,7 @@ namespace CloudStreamForms
             Bookmarks.Children.Clear();
             for (int i = 0; i < keys.Count; i++) {
                 string name = FindHTML(keys[i], "Name=", "|||");
+                print("BOOKMARK:" + name);
                 string posterUrl = FindHTML(keys[i], "PosterUrl=", "|||");
                 string id = FindHTML(keys[i], "Id=", "|||");
                 if (name != "" && posterUrl != "" && id != "") {

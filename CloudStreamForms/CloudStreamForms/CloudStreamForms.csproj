@@ -31,6 +31,7 @@
   <ItemGroup>
     <None Remove="Resource\bookmarkedBtt.png" />
     <None Remove="Resource\gradient.png" />
+    <None Remove="Resource\gradientGray.png" />
     <None Remove="Resource\homeIcon.png" />
     <None Remove="Resource\ic_media_route_connected_dark_00_mtrl.png" />
     <None Remove="Resource\ic_media_route_connected_dark_01_mtrl.png" />
@@ -99,6 +100,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resource\bookmarkedBtt.png" />
     <EmbeddedResource Include="Resource\gradient.png" />
+    <EmbeddedResource Include="Resource\gradientGray.png" />
     <EmbeddedResource Include="Resource\homeIcon.png" />
     <EmbeddedResource Include="Resource\ic_media_route_connected_dark_00_mtrl.png" />
     <EmbeddedResource Include="Resource\ic_media_route_connected_dark_01_mtrl.png" />

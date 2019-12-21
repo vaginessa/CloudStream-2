@@ -67,6 +67,8 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0"  Grid.Column="0">
@@ -86,7 +88,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
 
                     <Grid Grid.Row="3"  Grid.Column="0">
-                        <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Fill" VerticalOptions="Start" Margin="10" MinimumHeightRequest="0" TranslationY="-20" TextColor="Gray"></Label>
+                        <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Fill" VerticalOptions="Start" Margin="10,0,10,0" MinimumHeightRequest="0" TranslationY="-20" TextColor="Gray"></Label>
                     </Grid>
                     <Grid Grid.Row="4"  Grid.Column="0" x:Name="ChromeRow" >
                         <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Start" >
@@ -202,14 +204,24 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                 <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
                 </Grid>
                 -->
-                <StackLayout Orientation="Horizontal" TranslationX="10" >
+                <Grid Margin="0,-13,0,-5">
+                    <Grid.RowDefinitions >
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                    <Picker x:Name="SeasonPicker" TitleColor="Blue" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
-                    <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start"  ></Picker>
+                    <Grid Grid.Row="1"  Grid.Column="0">
+                        <StackLayout Orientation="Horizontal" TranslationX="10" >
+                            <Picker x:Name="SeasonPicker" TitleColor="Blue" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start" ></Picker>
+                            <Picker x:Name="DubPicker" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Start"  ></Picker>
+                        </StackLayout>
+                    </Grid>
 
+                    <Grid Grid.Row="0"  Grid.Column="0">
 
-                </StackLayout>
+                        <Image x:Name="OffBar" InputTransparent="True" VerticalOptions="Start"></Image>
+                    </Grid>
 
+                </Grid>
 
                 <!--
 
@@ -327,7 +339,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                 </ListView>
 
-                <StackLayout>
+                <StackLayout Margin="0,-10,0,0">
                     <Label x:Name="RText" Text="Recommendations" FontAttributes="Bold" TranslationX="10" VerticalOptions="Start" FontSize="Medium" TextColor="White"></Label>
                     <ScrollView Orientation="Horizontal" x:Name="MScroll" VerticalOptions="Start" HorizontalScrollBarVisibility="Never">
                         <StackLayout>
