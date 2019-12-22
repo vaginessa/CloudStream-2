@@ -133,7 +133,7 @@
     <AndroidResource Include="Resources\drawable\downloadIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\xml\filepaths.xml">
+    <AndroidResource Include="Resources\xml\provider_paths.xml">
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
       <SubType>Designer</SubType>
     </AndroidResource>

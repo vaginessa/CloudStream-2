@@ -199,7 +199,7 @@ namespace CloudStreamForms
             if (Device.RuntimePlatform == Device.Android) {
                 UpdateBtt.IsEnabled = Main.NewGithubUpdate;
                 UpdateBtt.IsVisible = Main.NewGithubUpdate;
-                UpdateBtt.Text = "Update to v" + App.GetBuildNumber() + " -> " + githubUpdateTag + " " + githubUpdateText;
+                UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag + " · " + githubUpdateText;
                 BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             }
 

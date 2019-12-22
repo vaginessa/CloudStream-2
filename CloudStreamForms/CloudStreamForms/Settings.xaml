@@ -58,8 +58,8 @@
             <Label Text="Loading Time" x:Name="LoadingTime" TranslationX="5"></Label>
             <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider" ThumbColor="#b3bdfa"></Slider>
             <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
-            <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5"></Label>
-            <Button Text="Update To..." x:Name="UpdateBtt" IsEnabled="False" IsVisible="False"></Button>
+            <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5" ></Label>
+            <Button Text="Update To..." x:Name="UpdateBtt" IsEnabled="False" IsVisible="False" BackgroundColor="#1976D2" HeightRequest="40"></Button>
             <Button Text="Star me on Github" x:Name="StarMe" BackgroundColor="#303F9F"> 
                 <!--★-->
             </Button>
