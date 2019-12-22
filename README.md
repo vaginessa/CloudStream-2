@@ -16,9 +16,8 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 + Subtitles directly from www.opensubtitles.org 
 + Title sharing, share any movie via a link.
 + Chromecast
-
-**COMING SOON:**
 + Top 100 movies 
++ YouTube Download
 
 **REQUIREMENTS:**
 + On Android, you must have VLC or any other video player that can play .m3u8 files installed. 
@@ -30,10 +29,12 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 
 **SCREENSHOTS:**
 <p align="center">
-    <img src="https://cdn.discordapp.com/attachments/516902391300227074/638075873945321473/Screenshot_20191027_190533_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-     <img src="https://cdn.discordapp.com/attachments/542987806285496322/638080537101074441/Screenshot_20191027_192406_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-    <img src="https://cdn.discordapp.com/attachments/542987806285496322/638079343075262480/cloudstream.PNG" width="500" title="hover text">
- 
+    <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232851334037504/Screenshot_20191222_095908_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+        <img src="" width="200" title="hover text">
+     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268939/Screenshot_20191222_095916_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232898205253642/Screenshot_20191222_100116_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268938/Screenshot_20191222_100024_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+       <img src="https://cdn.discordapp.com/attachments/542070959067103232/658233859841982484/Screenshot_20191222_100604_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
 </p>
 
 ***How it works:***
