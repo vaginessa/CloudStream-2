@@ -32,8 +32,9 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232851334037504/Screenshot_20191222_095908_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
      <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268939/Screenshot_20191222_095916_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
      <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232898205253642/Screenshot_20191222_100116_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232897622507530/Screenshot_20191222_100122_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
      <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268938/Screenshot_20191222_100024_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-       <img src="https://cdn.discordapp.com/attachments/542070959067103232/658233859841982484/Screenshot_20191222_100604_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+       <img src="https://cdn.discordapp.com/attachments/542070959067103232/658234839211704330/Screenshot_20191222_101009_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
 </p>
 
 ***How it works:***
