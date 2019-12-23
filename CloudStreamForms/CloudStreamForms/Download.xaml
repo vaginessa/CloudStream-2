@@ -11,7 +11,7 @@
         <ProgressBar x:Name="SpaceProgress" HorizontalOptions="Fill" Progress="0.7" ProgressColor="#303F9F" ></ProgressBar>
 
 
-        <Grid x:Name="DownloadSizeGrid" TranslationX="10" HeightRequest="17">
+        <Grid x:Name="DownloadSizeGrid" TranslationX="10" HeightRequest="17" MinimumHeightRequest="17">
             <Grid.ColumnDefinitions >
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>

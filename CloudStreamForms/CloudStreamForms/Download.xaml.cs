@@ -120,7 +120,7 @@ namespace CloudStreamForms
             catch (Exception) {
 
             }
-
+            episodeView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
 
             //print("PRO:" + d.UsedProcentage + " Total Size: " + App.ConvertBytesToGB(d.TotalSpace, 2) + "GB Current Space: " + App.ConvertBytesToGB(d.FreeSpace, 2) + "GB" + " Used Space: " + App.ConvertBytesToGB(d.UsedSpace, 2) + "GB");
 

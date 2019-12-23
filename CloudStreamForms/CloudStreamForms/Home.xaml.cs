@@ -256,6 +256,7 @@ namespace CloudStreamForms
                 OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
             }
 
+            episodeView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
 
             /*
             ImageScroller.Scrolled += (o, e) => {

@@ -72,7 +72,7 @@ namespace CloudStreamForms
                     lastMovie.RemoveAt(lastMovie.Count - 1);
                 }
             }
-            if(setKey) {
+            if (setKey) {
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
             //Navigation.PopModalAsync();
@@ -103,6 +103,7 @@ namespace CloudStreamForms
 
         private void StarBttClicked(object sender, EventArgs e)
         {
+
             //bool SetValue = !App.GetKey("Bookmark", currentMovie.title.id, false);
             //  App.SetKey("Bookmark", currentMovie.title.id, SetValue);
             bool keyExists = App.KeyExists("BookmarkData", currentMovie.title.id);
@@ -313,14 +314,17 @@ namespace CloudStreamForms
             ChromeRow.IsEnabled = e;
             Grid.SetRow(SecChromeRow, e ? 5 : 4);
         }
-
+        public static ImageSource GetGradient()
+        {
+            return GetImageSource(BlackBg ? "gradient.png" : "gradientGray.png");
+        }
         public MovieResult()
         {
             InitializeComponent();
 
             mainPoster = Search.mainPoster;
 
-            Gradient.Source = GetImageSource(BlackBg ? "gradient.png" : "gradientGray.png");
+            Gradient.Source = GetGradient();
             IMDbBtt.Source = GetImageSource("imdbIcon.png");
             MALBtt.Source = GetImageSource("MALIcon.png");
             ShareBtt.Source = GetImageSource("shareIcon.png");
@@ -424,6 +428,8 @@ namespace CloudStreamForms
             //  Grid.SetRow(RowSeason, 0);
             episodeView.ItemAppearing += EpisodeView_ItemAppearing;
             SizeChanged += MainPage_SizeChanged;
+            episodeView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
+            MScroll.HorizontalScrollBarVisibility = Settings.ScrollBarVisibility;
             // Grid.SetRow(RowDub, 0);
             //  Grid.SetRow(RowMal, 0);
 
@@ -1104,11 +1110,10 @@ namespace CloudStreamForms
 
 
         List<FFImageLoading.Forms.CachedImage> play_btts = new List<FFImageLoading.Forms.CachedImage>();
+        List<FFImageLoading.Forms.CachedImage> gray_images = new List<FFImageLoading.Forms.CachedImage>();
         private void Image_PropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-
             FFImageLoading.Forms.CachedImage image = ((FFImageLoading.Forms.CachedImage)sender);
-
             if (play_btts.Where(t => t.Id == image.Id).Count() == 0) {
                 play_btts.Add(image);
                 image.Source = ImageSource.FromResource("CloudStreamForms.Resource.playBtt.png", Assembly.GetExecutingAssembly());
@@ -1119,7 +1124,14 @@ namespace CloudStreamForms
                     image.Scale = 0.3f;
                 }
             }
-
+        }
+        private void ImageGetGradient(object sender, PropertyChangingEventArgs e)
+        {
+            FFImageLoading.Forms.CachedImage image = ((FFImageLoading.Forms.CachedImage)sender);
+            if (play_btts.Where(t => t.Id == image.Id).Count() == 0) {
+                play_btts.Add(image);
+                image.Source = GetGradient();
+            }
         }
 
         async void SetProgress(int sec, int sender)

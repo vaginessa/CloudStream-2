@@ -106,6 +106,8 @@ namespace CloudStreamForms
             };
             listView.ItemTapped += ListView_ItemTapped;
             listView.SeparatorColor = Color.Transparent;
+            listView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
+
             // Accomodate iPhone status bar.
             // this.Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
 

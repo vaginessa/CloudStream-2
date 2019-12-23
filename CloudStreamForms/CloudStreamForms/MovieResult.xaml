@@ -73,7 +73,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                     <Grid Grid.Row="0"  Grid.Column="0">
                         <ff:CachedImage x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></ff:CachedImage>
-                        <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="50" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
+                        <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="1" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
                     <Grid Grid.Row="1"  Grid.Column="0">
@@ -272,6 +272,33 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
+                                            <Grid  Grid.Row="0"  Grid.Column="1">
+                                                <Grid RowSpacing="0" Padding="0" >
+                                                    <Grid.RowDefinitions >
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions >
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid Grid.Row="0"  Grid.Column="0" >
+                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
+                                                    </Grid>
+                                                    <Grid Grid.Row="1"  Grid.Column="0" >
+                                                        <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
+                                                 
+                                                    </Grid>
+                                                   
+
+                                                </Grid>
+                                            </Grid>
+
+                                            <ff:CachedImage PropertyChanging="ImageGetGradient" InputTransparent="True" ScaleX="300" TranslationY="2" HeightRequest="10" Rotation="180" VerticalOptions="End" BackgroundColor="Transparent">
+
+                                            </ff:CachedImage>
                                             <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
 
                                                 <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
@@ -292,26 +319,6 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
 
                                                 <!-- Source="{Binding PosterUrl}"-->
-                                            </Grid>
-                                            <Grid  Grid.Row="0"  Grid.Column="1">
-                                                <Grid RowSpacing="0" Padding="0" >
-                                                    <Grid.RowDefinitions >
-                                                        <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="Auto" />
-                                                    </Grid.RowDefinitions>
-                                                    <Grid.ColumnDefinitions >
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Grid Grid.Row="0"  Grid.Column="0" >
-                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
-                                                    </Grid>
-                                                    <Grid Grid.Row="1"  Grid.Column="0" >
-                                                        <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
-                                                    </Grid>
-                                                </Grid>
                                             </Grid>
                                         </Grid>
                                     </Grid>

@@ -114,6 +114,15 @@ namespace CloudStreamForms
             }
         }
 
+        public static bool HasScrollBar { get {
+                return Device.RuntimePlatform == Device.UWP;
+            }
+        }
+
+        public static ScrollBarVisibility ScrollBarVisibility
+        {
+            get { return HasScrollBar ? ScrollBarVisibility.Default : ScrollBarVisibility.Never; }
+        }
 
         public Settings()
         {
