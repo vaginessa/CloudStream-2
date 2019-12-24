@@ -38,16 +38,16 @@
 
             <Grid  Grid.Row="0" Grid.Column="4" >
 
-                <AbsoluteLayout  HorizontalOptions="End" TranslationY="0" TranslationX="-17">
+                <AbsoluteLayout  HorizontalOptions="End" TranslationY="0" TranslationX="-20">
 
                     <Button x:Name="ytrealBtt"  VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent"  TranslationY="0"  ScaleX="2" ScaleY="2"></Button>
-                    <ff:CachedImage x:Name="ytBtt" VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent" InputTransparent="True" ScaleX="2" ScaleY="2" >
-
+                    <ff:CachedImage x:Name="ytBtt" VerticalOptions="Start" WidthRequest="30" BackgroundColor="Transparent" InputTransparent="True" ScaleX="1.4" ScaleY="1.4" >
+<!--
                         <ff:CachedImage.Transformations>
                             <ffTransformations:TintTransformation HexColor="#404040" >
 
                             </ffTransformations:TintTransformation>
-                        </ff:CachedImage.Transformations>
+                        </ff:CachedImage.Transformations>-->
                     </ff:CachedImage>
                 </AbsoluteLayout>
             </Grid>

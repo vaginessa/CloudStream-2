@@ -31,7 +31,8 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
-            ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
+           // ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
+            ytBtt.Source = App.GetImageSource("ytIcon.png");
 
             ytrealBtt.Clicked += async (o, e) => {
                 string txt = await Clipboard.GetTextAsync();
