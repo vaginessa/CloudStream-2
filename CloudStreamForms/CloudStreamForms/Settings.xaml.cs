@@ -125,7 +125,6 @@ namespace CloudStreamForms
         }
 
         public static bool CacheImdb = true;
-        public static bool CacheImdbRecommendaton = true;
         public static bool CacheMAL = true;
 
         public Settings()

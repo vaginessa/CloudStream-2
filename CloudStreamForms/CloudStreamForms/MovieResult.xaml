@@ -57,7 +57,6 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
         </Grid>
 -->
-
                 <Grid x:Name="XGRID" HorizontalOptions="Center"
             RowSpacing="0" Margin="0" MinimumHeightRequest="0" 
 				    VerticalOptions="Start">
@@ -72,8 +71,11 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0"  Grid.Column="0">
+
                         <ff:CachedImage x:Name="TrailerBtt" BackgroundColor="Transparent" HorizontalOptions="Fill" Aspect="AspectFill" ></ff:CachedImage>
                         <ImageButton x:Name="Gradient" HorizontalOptions="Fill" Aspect="AspectFill" Rotation="180" Opacity="1" Source="gradient.png" BackgroundColor="Transparent"></ImageButton>
+                        <ImageButton x:Name="ReloadAllBtt" BackgroundColor="Transparent" HorizontalOptions="End" HeightRequest="30" WidthRequest="30" VerticalOptions="Start" TranslationX="-10" TranslationY="10"></ImageButton>
+
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
                     <Grid Grid.Row="1"  Grid.Column="0">

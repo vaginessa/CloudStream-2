@@ -914,6 +914,7 @@ namespace CloudStreamForms
             public List<MALSeasonData> seasonData;
             public bool done;
             public List<int> currentActiveMaxEpsPerSeason;
+            public string currentSelectedYear;
         }
 
         public struct Title
@@ -1177,125 +1178,143 @@ namespace CloudStreamForms
         {
             return System.Net.WebUtility.HtmlDecode(inp);
         }
-        public static void GetMALData()
+        public static void GetMALData(bool cacheData = true)
         {
+            bool fetchData = true;
+            if (Settings.CacheMAL) {
+                if (App.KeyExists("CacheMAL", activeMovie.title.id)) {
+                    fetchData = false;
+                    activeMovie.title.MALData = App.GetKey<MALData>("CacheMAL", activeMovie.title.id, new MALData());
+                    if (activeMovie.title.MALData.currentActiveMaxEpsPerSeason == null) {
+                        fetchData = true;
+                    }
+                }
+            }
             TempThred tempThred = new TempThred();
             tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
-
-                    string year = activeMovie.title.year.Substring(0, 4); // this will not work in 8000 years time :)
-                    string _d = DownloadString("https://myanimelist.net/search/prefix.json?type=anime&keyword=" + activeMovie.title.name, tempThred);
-                    string url = "";
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                    string lookFor = "\"name\":\"";
-                    bool done = false;
                     string currentSelectedYear = "";
-                    while (_d.Contains(lookFor) && !done) { // TO FIX MY HERO ACADIMEA CHOOSING THE SECOND SEASON BECAUSE IT WAS FIRST SEARCHRESULT
-                        string name = FindHTML(_d, lookFor, "\"");
-                        print("NAME FOUND: " + name);
-                        string _url = FindHTML(_d, "url\":\"", "\"").Replace("\\/", "/");
-                        string startYear = FindHTML(_d, "start_year\":", ",");
-                        string aired = FindHTML(_d, "aired\":\"", "\"");
-                        string _aired = FindHTML(aired, ", ", " ", readToEndOfFile: true);
-                        string score = FindHTML(_d, "score\":\"", "\"");
-                        print("SCORE:" + score);
-                        if (!name.Contains(" Season") && year == _aired && score != "N\\/A") {
-                            print("URL FOUND: " + _url);
-                            print(_d);
-                            url = _url;
-                            done = true;
-                            currentSelectedYear = _aired;
+
+                    if (fetchData) {
+                        string year = activeMovie.title.year.Substring(0, 4); // this will not work in 8000 years time :)
+                        string _d = DownloadString("https://myanimelist.net/search/prefix.json?type=anime&keyword=" + activeMovie.title.name, tempThred);
+                        string url = "";
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                        string lookFor = "\"name\":\"";
+                        bool done = false;
+                        while (_d.Contains(lookFor) && !done) { // TO FIX MY HERO ACADIMEA CHOOSING THE SECOND SEASON BECAUSE IT WAS FIRST SEARCHRESULT
+                            string name = FindHTML(_d, lookFor, "\"");
+                            print("NAME FOUND: " + name);
+                            string _url = FindHTML(_d, "url\":\"", "\"").Replace("\\/", "/");
+                            string startYear = FindHTML(_d, "start_year\":", ",");
+                            string aired = FindHTML(_d, "aired\":\"", "\"");
+                            string _aired = FindHTML(aired, ", ", " ", readToEndOfFile: true);
+                            string score = FindHTML(_d, "score\":\"", "\"");
+                            print("SCORE:" + score);
+                            if (!name.Contains(" Season") && year == _aired && score != "N\\/A") {
+                                print("URL FOUND: " + _url);
+                                print(_d);
+                                url = _url;
+                                done = true;
+                                currentSelectedYear = _aired;
+                            }
+                            _d = RemoveOne(_d, lookFor);
+                            _d = RemoveOne(_d, "\"id\":");
                         }
-                        _d = RemoveOne(_d, lookFor);
-                        _d = RemoveOne(_d, "\"id\":");
+
+                        /*
+
+                        string d = DownloadString("https://myanimelist.net/search/all?q=" + activeMovie.title.name);
+
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                        d = RemoveOne(d, " <div class=\"picSurround di-tc thumb\">"); // DONT DO THIS USE https://myanimelist.net/search/prefix.json?type=anime&keyword=my%20hero%20acadimea
+                        string url = "";//"https://myanimelist.net/anime/" + FindHTML(d, "<a href=\"https://myanimelist.net/anime/", "\"");
+                        */
+
+                        if (url == "") return;
+
+                        WebClient webClient = new WebClient();
+                        webClient.Encoding = Encoding.UTF8;
+
+                        string d = webClient.DownloadString(url);
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                        string jap = FindHTML(d, "Japanese:</span> ", "<").Replace("  ", "").Replace("\n", ""); // JAP NAME IS FOR SEARCHING, BECAUSE ALL SEASONS USE THE SAME NAME
+                        string eng = FindHTML(d, "English:</span> ", "<").Replace("  ", "").Replace("\n", "");
+
+                        string currentName = FindHTML(d, "<span itemprop=\"name\">", "<");
+                        List<MALSeasonData> data = new List<MALSeasonData>() { new MALSeasonData() { malUrl = url, seasons = new List<MALSeason>() } };
+
+                        string sqlLink = "-1";
+
+                        // ----- GETS ALL THE SEASONS OF A SHOW WITH MY ANIME LIST AND ORDERS THEM IN THE CORRECT SEASON (BOTH Shingeki no Kyojin Season 3 Part 2 and Shingeki no Kyojin Season 3 is season 3) -----
+                        while (sqlLink != "") {
+                            string _malLink = (sqlLink == "-1" ? url.Replace("https://myanimelist.net", "") : sqlLink);
+                            currentName = FindHTML(d, "<span itemprop=\"name\">", "<", decodeToNonHtml: true);
+                            string sequel = FindHTML(d, "Sequel:", "</a></td>") + "<";
+                            sqlLink = FindHTML(sequel, "<a href=\"", "\"");
+                            string _jap = FindHTML(d, "Japanese:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
+                            string _eng = FindHTML(d, "English:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
+                            string _syno = FindHTML(d, "Synonyms:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "") + ",";
+                            List<string> _synos = new List<string>();
+                            while (_syno.Contains(",")) {
+                                string _current = _syno.Substring(0, _syno.IndexOf(",")).Replace("  ", "");
+                                if (_current.StartsWith(" ")) {
+                                    _current = _current.Substring(1, _current.Length - 1);
+                                }
+                                _synos.Add(_current);
+                                _syno = RemoveOne(_syno, ",");
+                            }
+                            print("CURRENTNAME: " + currentName + "|" + _eng + "|" + _jap);
+
+                            if (currentName.Contains("Part ") && !currentName.Contains("Part 1")) // WILL ONLY WORK UNTIL PART 10, BUT JUST HOPE THAT THAT DOSENT HAPPEND :)
+                            {
+                                data[data.Count - 1].seasons.Add(new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos });
+                            }
+                            else {
+                                data.Add(new MALSeasonData() {
+                                    seasons = new List<MALSeason>() { new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos } },
+                                    malUrl = "https://myanimelist.net" + _malLink
+                                });
+                            }
+                            if (sqlLink != "") {
+                                try {
+                                    d = webClient.DownloadString("https://myanimelist.net" + sqlLink);
+                                }
+                                catch (Exception) {
+                                    d = "";
+                                }
+                            }
+                        }
+                        for (int i = 0; i < data.Count; i++) {
+                            for (int q = 0; q < data[i].seasons.Count; q++) {
+                                var e = data[i].seasons[q];
+                                string _s = "";
+                                for (int z = 0; z < e.synonyms.Count; z++) {
+                                    _s += e.synonyms[z] + "|";
+                                }
+                                print("SEASON: " + (i + 1) + "  -  " + e.name + "|" + e.engName + "|" + e.japName + "| SYNO: " + _s);
+                            }
+                        }
+                        activeMovie.title.MALData = new MALData() {
+                            seasonData = data,
+                            japName = jap,
+                            engName = eng,
+                            done = false,
+                            currentSelectedYear = currentSelectedYear,
+                        };
+                        if (fetchData && cacheData) {
+                            App.SetKey("CacheMAL", activeMovie.title.id, activeMovie.title.MALData);
+                        }
+                    } else {
+                        currentSelectedYear = activeMovie.title.MALData.currentSelectedYear;
                     }
-
-                    /*
-
-                    string d = DownloadString("https://myanimelist.net/search/all?q=" + activeMovie.title.name);
-
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                    d = RemoveOne(d, " <div class=\"picSurround di-tc thumb\">"); // DONT DO THIS USE https://myanimelist.net/search/prefix.json?type=anime&keyword=my%20hero%20acadimea
-                    string url = "";//"https://myanimelist.net/anime/" + FindHTML(d, "<a href=\"https://myanimelist.net/anime/", "\"");
-                    */
-
-                    if (url == "") return;
-
-                    WebClient webClient = new WebClient();
-                    webClient.Encoding = Encoding.UTF8;
-
-                    string d = webClient.DownloadString(url);
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                    string jap = FindHTML(d, "Japanese:</span> ", "<").Replace("  ", "").Replace("\n", ""); // JAP NAME IS FOR SEARCHING, BECAUSE ALL SEASONS USE THE SAME NAME
-                    string eng = FindHTML(d, "English:</span> ", "<").Replace("  ", "").Replace("\n", "");
-
-                    string currentName = FindHTML(d, "<span itemprop=\"name\">", "<");
-                    List<MALSeasonData> data = new List<MALSeasonData>() { new MALSeasonData() { malUrl = url, seasons = new List<MALSeason>() } };
-
-                    string sqlLink = "-1";
-
-                    // ----- GETS ALL THE SEASONS OF A SHOW WITH MY ANIME LIST AND ORDERS THEM IN THE CORRECT SEASON (BOTH Shingeki no Kyojin Season 3 Part 2 and Shingeki no Kyojin Season 3 is season 3) -----
-                    while (sqlLink != "") {
-                        string _malLink = (sqlLink == "-1" ? url.Replace("https://myanimelist.net", "") : sqlLink);
-                        currentName = FindHTML(d, "<span itemprop=\"name\">", "<", decodeToNonHtml: true);
-                        string sequel = FindHTML(d, "Sequel:", "</a></td>") + "<";
-                        sqlLink = FindHTML(sequel, "<a href=\"", "\"");
-                        string _jap = FindHTML(d, "Japanese:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
-                        string _eng = FindHTML(d, "English:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "");
-                        string _syno = FindHTML(d, "Synonyms:</span> ", "<", decodeToNonHtml: true).Replace("  ", "").Replace("\n", "") + ",";
-                        List<string> _synos = new List<string>();
-                        while (_syno.Contains(",")) {
-                            string _current = _syno.Substring(0, _syno.IndexOf(",")).Replace("  ", "");
-                            if (_current.StartsWith(" ")) {
-                                _current = _current.Substring(1, _current.Length - 1);
-                            }
-                            _synos.Add(_current);
-                            _syno = RemoveOne(_syno, ",");
-                        }
-                        print("CURRENTNAME: " + currentName + "|" + _eng + "|" + _jap);
-
-                        if (currentName.Contains("Part ") && !currentName.Contains("Part 1")) // WILL ONLY WORK UNTIL PART 10, BUT JUST HOPE THAT THAT DOSENT HAPPEND :)
-                        {
-                            data[data.Count - 1].seasons.Add(new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos });
-                        }
-                        else {
-                            data.Add(new MALSeasonData() {
-                                seasons = new List<MALSeason>() { new MALSeason() { name = currentName, engName = _eng, japName = _jap, synonyms = _synos } },
-                                malUrl = "https://myanimelist.net" + _malLink
-                            });
-                        }
-                        if (sqlLink != "") {
-                            try {
-                                d = webClient.DownloadString("https://myanimelist.net" + sqlLink);
-                            }
-                            catch (Exception) {
-                                d = "";
-                            }
-                        }
-                    }
-                    for (int i = 0; i < data.Count; i++) {
-                        for (int q = 0; q < data[i].seasons.Count; q++) {
-                            var e = data[i].seasons[q];
-                            string _s = "";
-                            for (int z = 0; z < e.synonyms.Count; z++) {
-                                _s += e.synonyms[z] + "|";
-                            }
-                            print("SEASON: " + (i + 1) + "  -  " + e.name + "|" + e.engName + "|" + e.japName + "| SYNO: " + _s);
-                        }
-                    }
-                    activeMovie.title.MALData = new MALData() {
-                        seasonData = data,
-                        japName = jap,
-                        engName = eng,
-                        done = false,
-                    };
                     if (activeMovie.title.MALData.japName != "error") {
-                        d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName.Substring(0, Math.Min(5, activeMovie.title.MALData.japName.Length)), tempThred);
+                        string d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName.Substring(0, Math.Min(5, activeMovie.title.MALData.japName.Length)), tempThred);
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                         string look = "<p class=\"name\"><a href=\"/category/";
-
 
                         while (d.Contains(look)) {
                             string ur = FindHTML(d, look, "\"").Replace("-dub", "");
@@ -1369,6 +1388,7 @@ namespace CloudStreamForms
                         japName = md.japName,
                         done = true,
                     };
+
                     //print(sequel + "|" + realSquel + "|" + sqlLink);
 
                 }
@@ -1476,16 +1496,12 @@ namespace CloudStreamForms
             string __id = imdb.url.Replace("https://imdb.com/title/", "");
             bool fetchData = true;
             if (Settings.CacheImdb) {
-                print("GETKEY::" + __id);
                 if (App.KeyExists("CacheImdb", __id)) {
-                    print("KEYEXISTS!!");
                     fetchData = false;
                     activeMovie = App.GetKey<Movie>("CacheImdb", __id, new Movie());
                     if (activeMovie.title.name == null || activeMovie.title.id == null) {
                         fetchData = true;
                     }
-                    print("FETHCH" + fetchData);
-                    print(activeMovie.title.id + "<<<<<<<");
                 }
             }
 
@@ -1526,7 +1542,6 @@ namespace CloudStreamForms
                         try {
                             // ----- GET -----
                             if (fetchData) {
-
                                 int seasons = 0; // d.Count<string>("");
 
                                 for (int i = 1; i <= 100; i++) {
@@ -1585,7 +1600,7 @@ namespace CloudStreamForms
                                     description = descript,
                                     runtime = duration,
                                     seasons = seasons,
-                                    MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>() },
+                                    MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>(),currentSelectedYear="" },
                                     movieType = movieType,
                                     year = year,
                                     ogName = ogName,
@@ -1598,15 +1613,13 @@ namespace CloudStreamForms
 
                             }
                             try {
-
                                 if (autoSearchTrailer) { GetRealTrailerLinkFromImdb(activeMovie.title.trailers[0].url); }
                             }
                             catch (Exception) {
-                                print("TRAILER NOT FOUND");
+
                             }
 
                             if (activeMovie.title.movieType == MovieType.Anime) {
-                                print("GEt mal data");
                                 GetMALData();
                             }
                             else {
@@ -1617,7 +1630,7 @@ namespace CloudStreamForms
 
                         }
                         catch (Exception) {
-                            print("ERROR :(((");
+
                         }
 
                         // ------ RECOMENDATIONS ------
@@ -1644,7 +1657,6 @@ namespace CloudStreamForms
                                 }
                             }
                             if (cacheData) {
-                                print("SETKEY::" + __id);
                                 App.SetKey("CacheImdb", __id, activeMovie);
                             }
                         }
@@ -3209,6 +3221,9 @@ namespace CloudStreamForms
             return false;
         }
 
+        public static int UnixTime { get { return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds; } }
+
+
         /// <summary>
         /// GET LOWHD MIRROR SERVER USED BY MOVIES123 AND PLACE THEM IN ACTIVEMOVIE
         /// </summary>
@@ -3222,9 +3237,9 @@ namespace CloudStreamForms
             minorTempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             minorTempThred.Thread = new System.Threading.Thread(() => {
                 try {
-                    Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                    //  int unixTimestamp = ;
 
-                    string jsn = GetWebRequest(realMoveLink + "?server=server_" + f + "&_=" + unixTimestamp);
+                    string jsn = GetWebRequest(realMoveLink + "?server=server_" + f + "&_=" + UnixTime);
 
                     if (!GetThredActive(minorTempThred)) { return; };  // ---- THREAD CANCELLED ----
 
@@ -3844,8 +3859,6 @@ namespace CloudStreamForms
         public static string PostRequest(string myUri, string referer = "", string _requestBody = "", TempThred? _tempThred = null)
         {
             try {
-
-
                 HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(myUri);
 
                 webRequest.Method = "POST";

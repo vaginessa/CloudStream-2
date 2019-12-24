@@ -430,6 +430,13 @@ namespace CloudStreamForms
             SizeChanged += MainPage_SizeChanged;
             episodeView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
             MScroll.HorizontalScrollBarVisibility = Settings.ScrollBarVisibility;
+            ReloadAllBtt.Clicked += (o, e) => {
+                App.RemoveKey("CacheImdb", currentMovie.title.id);
+                App.RemoveKey("CacheMAL", currentMovie.title.id);
+                Navigation.PopModalAsync(false);
+                PushPageFromUrlAndName(currentMovie.title.id, currentMovie.title.name);
+            };
+            ReloadAllBtt.Source = GetImageSource("round_replay_white_48dp.png");
             // Grid.SetRow(RowDub, 0);
             //  Grid.SetRow(RowMal, 0);
 
@@ -788,7 +795,15 @@ namespace CloudStreamForms
                     for (int i = 1; i <= e.title.seasons; i++) {
                         SeasonPicker.Items.Add("Season " + i);
                     }
-                    SeasonPicker.SelectedIndex = 0;
+                    int selIndex = App.GetKey<int>("SeasonIndex", activeMovie.title.id, 0);
+                    try {
+                        SeasonPicker.SelectedIndex = Math.Min(selIndex, SeasonPicker.Items.Count - 1);
+
+                    }
+                    catch (Exception) {
+                        SeasonPicker.SelectedIndex = 0; // JUST IN CASE
+                    }
+
                     currentSeason = 1;
                     GetImdbEpisodes(currentSeason);
                 }
@@ -911,7 +926,6 @@ namespace CloudStreamForms
         private void DubPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
             try {
-
                 isDub = "Dub" == DubPicker.Items[DubPicker.SelectedIndex];
                 SetDubExist();
             }
@@ -924,6 +938,8 @@ namespace CloudStreamForms
         {
             ClearEpisodes();
             currentSeason = SeasonPicker.SelectedIndex + 1;
+            App.SetKey("SeasonIndex", activeMovie.title.id, SeasonPicker.SelectedIndex);
+
             GetImdbEpisodes(currentSeason);
             // myEpisodeResultCollection.Clear();
         }
@@ -1045,8 +1061,13 @@ namespace CloudStreamForms
                             int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
                             max += _epCount;
                             if (!SameAsActiveMovie()) return;
+                            try {
+                                activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(_epCount);
 
-                            activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(_epCount);
+                            }
+                            catch (Exception) {
+
+                            }
                         }
 
                         MainThread.BeginInvokeOnMainThread(() => {
@@ -1314,7 +1335,6 @@ namespace CloudStreamForms
         {
             string id = GetId(episodeResult);
             if (id != "") {
-
                 if (App.KeyExists("ViewHistory", id)) {
                     App.RemoveKey("ViewHistory", id);
                 }
