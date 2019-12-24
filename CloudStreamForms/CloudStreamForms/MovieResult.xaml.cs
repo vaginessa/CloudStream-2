@@ -63,7 +63,7 @@ namespace CloudStreamForms
 
 
         List<Episode> currentEpisodes { set { currentMovie.episodes = value; } get { return currentMovie.episodes; } }
-
+        
         protected override bool OnBackButtonPressed()
         {
             if (lastMovie != null) {
@@ -75,9 +75,15 @@ namespace CloudStreamForms
             if (setKey) {
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
-            //Navigation.PopModalAsync();
-            // return true;
-            return base.OnBackButtonPressed();
+            const bool animate = true;
+            if(animate) {
+                return base.OnBackButtonPressed();
+            }
+            else {
+                Navigation.PopModalAsync(false);
+                return true;
+            }
+           
         }
 
         void SetRows()

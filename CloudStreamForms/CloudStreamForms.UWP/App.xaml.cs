@@ -59,6 +59,8 @@ namespace CloudStreamForms.UWP
                // ((Style)this.Resources["TabbedPageStyle"]).Setters[2] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[1];
 
                 FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
+                Rg.Plugins.Popup.Popup.Init();
+
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) {
                     //TODO: Load state from previously suspended application
                 }

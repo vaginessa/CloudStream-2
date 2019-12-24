@@ -70,8 +70,8 @@ namespace CloudStreamForms
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
-            // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-            //  Navigation.PushModalAsync(p, false);
+            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            Navigation.PushModalAsync(p, false);
 
             //PushPageFromUrlAndName("tt4869896", "Overlord");
         }
@@ -866,8 +866,6 @@ namespace CloudStreamForms
         public enum MovieType { Movie, TVSeries, Anime, AnimeMovie }
         public enum PosterType { Imdb, Raw }
 
-
-
         public struct Trailer
         {
             public string name;
@@ -978,10 +976,6 @@ namespace CloudStreamForms
             public string posterUrl;
             public string year;
             public string rank;
-
-            //public int posterX;
-            //public int posterY;
-
             //public string id; // IMDB ID
 
             public string url;
@@ -993,8 +987,6 @@ namespace CloudStreamForms
             public string name;
             public string url;
             public int priority;
-            //public string posterUrl;
-            //public string description;
         }
 
         public struct Episode
@@ -1022,74 +1014,12 @@ namespace CloudStreamForms
         public struct Movie
         {
             public Title title;
-            // public List<Link> links;
             public List<Subtitle> subtitles;
             public List<Episode> episodes;
         }
 
         // -------------------- END --------------------
 
-        /*
-    static void Main(string[] args)
-    {
-
-        activeSearchResults = new List<Poster>();
-        string searchFor = "Attack On Titan";
-        QuickSearch(searchFor);
-        print("Searching For: " + searchFor);
-        searchLoaded += (o, e) =>
-        {
-            print("Loading Recomendations");
-            GetImdbTitle(e.First());
-        };
-        titleLoaded += (o, e) =>
-        {
-            print("Loading Links");
-            print(e.title.name);
-            print(e.title.rating);
-            for (int i = 0; i < e.title.recomended.Count; i++)
-            {
-                print(e.title.recomended[i].name);
-            }
-            GetImdbEpisodes();
-                //print("NAME: " + e.title.name + "|" + e.title.trailers.First().url);
-            };
-        trailerLoaded += (o, e) =>
-        {
-            print(e);
-        };
-        epsiodesLoaded += (o, e) =>
-        {
-            GetEpisodeLink(1);
-        };
-        linkAdded += (o, e) =>
-        {
-            print(e / 14f);
-        };
-
-        bool done = false;
-        while (!done)
-        {
-            try
-            {
-                float progress = activeMovie.episodes[1].Progress / (float)activeMovie.episodes[1].maxProgress;
-                //print(progress);
-                done = progress == 1;
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-        foreach (var item in activeMovie.episodes[1].links)
-        {
-            print("");
-            print(item.name + " | " + item.url);
-            print("");
-        }
-        Console.ReadKey();
-    }
-    */
 
         // -------------------- SEARCH --------------------
 
@@ -1308,7 +1238,8 @@ namespace CloudStreamForms
                         if (fetchData && cacheData && Settings.CacheMAL) {
                             App.SetKey("CacheMAL", activeMovie.title.id, activeMovie.title.MALData);
                         }
-                    } else {
+                    }
+                    else {
                         currentSelectedYear = activeMovie.title.MALData.currentSelectedYear;
                     }
                     if (activeMovie.title.MALData.japName != "error") {
@@ -1600,7 +1531,7 @@ namespace CloudStreamForms
                                     description = descript,
                                     runtime = duration,
                                     seasons = seasons,
-                                    MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>(),currentSelectedYear="" },
+                                    MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>(), currentSelectedYear = "" },
                                     movieType = movieType,
                                     year = year,
                                     ogName = ogName,
