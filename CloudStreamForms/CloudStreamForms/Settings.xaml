@@ -11,13 +11,13 @@
         <StackLayout >
             <Label Margin="3,13,3,4.5" Text="Settings" HorizontalOptions="Center"  FontSize="Large" FontAttributes="Bold"  ></Label>
 
-            <Grid>
+            <Grid >
                 <Grid.RowDefinitions >
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="1"  Grid.Column="0">
-                    <TableView VerticalOptions="Start" >
-                        <TableRoot>
+                    <TableView VerticalOptions="Start" x:Name="SettingsToggles">
+                        <TableRoot x:Name="SettingsTable">
                             <TableSection >
                                 <SwitchCell Text="Force black background (Restart recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
@@ -25,13 +25,19 @@
                                 <SwitchCell Text="Instant search" x:Name="SearchToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
-                                <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
-                            </TableSection>
-                            <TableSection>
                                 <SwitchCell Text="Subtitles" x:Name="SubtitesToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
+                                <SwitchCell Text="Cache movie data" x:Name="CacheToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
                                 <SwitchCell Text="Default anime dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Top 100 enabled" x:Name="TopToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
                                 <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}" ></SwitchCell>
@@ -45,6 +51,10 @@
                             </TableSection>
                             <TableSection>
                                 <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2" TextColor="#b3bdfa">
+                                </TextCell>
+                            </TableSection>
+                            <TableSection>
+                                <TextCell Text="Clear cached data"  Detail="This will remove all cached data" Tapped="TextCell_Tapped3" TextColor="#b3bdfa">
                                 </TextCell>
                             </TableSection>
                         </TableRoot>

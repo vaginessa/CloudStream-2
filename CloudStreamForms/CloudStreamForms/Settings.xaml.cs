@@ -95,6 +95,25 @@ namespace CloudStreamForms
             }
         }
 
+        public static bool CacheData
+        {
+            set {
+                App.SetKey("Settings", nameof(CacheData), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(CacheData), true);
+            }
+        }
+
+        public static bool Top100Enabled
+        {
+            set {
+                App.SetKey("Settings", nameof(Top100Enabled), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(Top100Enabled), true);
+            }
+        }
 
         public string MainColor { get { return Device.RuntimePlatform == Device.UWP ? "#303F9F" : "#515467"; } }
 
@@ -124,8 +143,8 @@ namespace CloudStreamForms
             get { return HasScrollBar ? ScrollBarVisibility.Default : ScrollBarVisibility.Never; }
         }
 
-        public static bool CacheImdb = true;
-        public static bool CacheMAL = true;
+        public static bool CacheImdb { get { return CacheData; } }
+        public static bool CacheMAL { get { return CacheData; } }
 
         public Settings()
         {
@@ -152,15 +171,12 @@ namespace CloudStreamForms
             ViewHistoryToggle.OnChanged += (o, e) => {
                 ViewHistory = !e.Value;
             };
-
             DubToggle.OnChanged += (o, e) => {
                 DefaultDub = e.Value;
             };
-
             BlackBgToggle.OnChanged += (o, e) => {
                 BlackBg = e.Value;
             };
-
             SubtitesToggle.OnChanged += (o, e) => {
                 SubtitlesEnabled = e.Value;
             };
@@ -173,6 +189,13 @@ namespace CloudStreamForms
             SearchToggle.OnChanged += (o, e) => {
                 SearchEveryCharEnabled = e.Value;
             };
+            CacheToggle.OnChanged += (o, e) => {
+                CacheData = e.Value;
+            };
+            TopToggle.OnChanged += (o, e) => {
+                Top100Enabled = e.Value;
+            };
+
             UpdateBtt.Clicked += (o, e) => {
                 if (NewGithubUpdate) {
                     App.DownloadNewGithubUpdate(Main.githubUpdateTag);
@@ -192,6 +215,9 @@ namespace CloudStreamForms
                 DecToggle.On = MovieDecEnabled;
                 EpsDecToggle.On = EpDecEnabled;
                 SearchToggle.On = SearchEveryCharEnabled;
+                CacheToggle.On = CacheData;
+                TopToggle.On = Top100Enabled;
+
                 if (Device.RuntimePlatform == Device.UWP) {
                     BlackBgToggle.IsEnabled = false;
                     BlackBgToggle.On = true;
@@ -211,7 +237,7 @@ namespace CloudStreamForms
             if (Device.RuntimePlatform == Device.Android) {
                 UpdateBtt.IsEnabled = Main.NewGithubUpdate;
                 UpdateBtt.IsVisible = Main.NewGithubUpdate;
-                UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag + " · " + githubUpdateText;
+                UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag.Replace("v","") + " · " + githubUpdateText;
                 BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             }
 
@@ -232,19 +258,32 @@ namespace CloudStreamForms
         {
             ClearBookmarks();
         }
+        private void TextCell_Tapped3(object sender, EventArgs e)
+        {
+            ClearCache();
+        }
+
         async void ClearBookmarks()
         {
-            bool action = await DisplayAlert("Clear bookmarks", "Are you sure that you want to remove all bookmarks","Yes", "Cancel");
+            bool action = await DisplayAlert("Clear bookmarks", "Are you sure that you want to remove all bookmarks" + " ("+ App.GetKeyCount("BookmarkData") + " items)", "Yes", "Cancel");
             if (action) {
                 App.RemoveFolder("BookmarkData");
             }
         }
+
         async void ClearHistory()
-        {
-            
-            bool action = await DisplayAlert("Clear watch history", "Are you sure that you want to clear all watch history", "Yes", "Cancel");
+        {            bool action = await DisplayAlert("Clear watch history", "Are you sure that you want to clear all watch history" + " (" + App.GetKeyCount("ViewHistory") + " items)", "Yes", "Cancel");
             if (action) {
                 App.RemoveFolder("ViewHistory");
+            }
+        }
+
+        async void ClearCache()
+        {
+            bool action = await DisplayAlert("Clear cached data", "Are you sure that you want to clear all cached data" + " (" + (App.GetKeyCount("CacheMAL")+ App.GetKeyCount("CacheImdb")) + " items)", "Yes", "Cancel");
+            if (action) {
+                App.RemoveFolder("CacheMAL");
+                App.RemoveFolder("CacheImdb"); 
             }
         }
     }

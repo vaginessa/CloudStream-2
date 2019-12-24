@@ -177,6 +177,12 @@ namespace CloudStreamForms
 
             return allKeys;
         }
+
+        public static int GetKeyCount(string folder)
+        {
+            return GetKeysPath(folder).Count;
+        }
+
         public static List<string> GetKeysPath(string folder)
         {
             List<string> keyNames = Current.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();

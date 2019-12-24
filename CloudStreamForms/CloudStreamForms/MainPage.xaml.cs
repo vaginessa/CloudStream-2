@@ -1305,7 +1305,7 @@ namespace CloudStreamForms
                             done = false,
                             currentSelectedYear = currentSelectedYear,
                         };
-                        if (fetchData && cacheData) {
+                        if (fetchData && cacheData && Settings.CacheMAL) {
                             App.SetKey("CacheMAL", activeMovie.title.id, activeMovie.title.MALData);
                         }
                     } else {
@@ -1656,7 +1656,7 @@ namespace CloudStreamForms
 
                                 }
                             }
-                            if (cacheData) {
+                            if (cacheData && Settings.CacheImdb) {
                                 App.SetKey("CacheImdb", __id, activeMovie);
                             }
                         }

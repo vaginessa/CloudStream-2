@@ -34,6 +34,7 @@ namespace CloudStreamForms
         public int currentImageCount = 0;
         public void LoadMoreImages(bool setHeight = true)
         {
+            if (!Settings.Top100Enabled) return;
             Device.BeginInvokeOnMainThread(() => {
                 int count = 10;//PosterAtScreenHight * PosterAtScreenWith * 3
                 for (int i = 0; i < count; i++) {
@@ -82,6 +83,8 @@ namespace CloudStreamForms
 
         public void GetFetchRecomended()
         {
+            if (!Settings.Top100Enabled) return;
+
             if (!Fething) {
                 Fething = true;
                 TempThred tempThred = new TempThred();
@@ -116,6 +119,8 @@ namespace CloudStreamForms
         }
         public void GetFetch(int start = 1)
         {
+            if (!Settings.Top100Enabled) return;
+
             Fething = true;
             TempThred tempThred = new TempThred();
             tempThred.typeId = 21; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
@@ -370,6 +375,8 @@ namespace CloudStreamForms
                 };*/
             }
             UpdateBookmarks();
+            Top100Stack.IsEnabled = Settings.Top100Enabled;
+            Top100Stack.IsVisible = Settings.Top100Enabled;
             BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             hasAppered = true;
         }

@@ -23,5 +23,8 @@ public class CustomTableViewRenderer : TableViewRenderer
         
         listView.Divider.SetAlpha(0);
         listView.Focusable = false;
+
+        listView.VerticalScrollBarEnabled = CloudStreamForms.Settings.HasScrollBar;
+
     }
 }
