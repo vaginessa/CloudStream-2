@@ -1470,110 +1470,142 @@ namespace CloudStreamForms
         {
             return inp.ToLower().Replace("-", " ").Replace("`", "\'");
         }
-        public static void GetImdbTitle(Poster imdb, bool purgeCurrentTitleThread = true, bool autoSearchTrailer = true)
+
+        public static void GetImdbTitle(Poster imdb, bool purgeCurrentTitleThread = true, bool autoSearchTrailer = true, bool cacheData = true)
         {
+            string __id = imdb.url.Replace("https://imdb.com/title/", "");
+            bool fetchData = true;
+            if (Settings.CacheImdb) {
+                print("GETKEY::" + __id);
+                if (App.KeyExists("CacheImdb", __id)) {
+                    print("KEYEXISTS!!");
+                    fetchData = false;
+                    activeMovie = App.GetKey<Movie>("CacheImdb", __id, new Movie());
+                    if (activeMovie.title.name == null || activeMovie.title.id == null) {
+                        fetchData = true;
+                    }
+                    print("FETHCH" + fetchData);
+                    print(activeMovie.title.id + "<<<<<<<");
+                }
+            }
+
             if (purgeCurrentTitleThread) {
                 PurgeThreds(2);
             }
-            activeMovie = new Movie();
-            activeMovie.title.id = imdb.url.Replace("https://imdb.com/title/", "");
+            if (fetchData) {
+                activeMovie = new Movie();
+                activeMovie.title.id = __id;
+            }
             // TurnNullMovieToActive(movie);
             TempThred tempThred = new TempThred();
             tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
-
-                    string url = "https://imdb.com/title/" + imdb.url.Replace("https://imdb.com/title/", "") + "/";
-                    string d = GetHTML(url); // DOWNLOADSTRING WILL GET THE LOCAL LAUNGEGE, AND NOT EN, THAT WILL MESS WITH RECOMENDATIONDS, GetHTML FIXES THAT
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-
+                    string d = "";
                     List<string> keyWords = new List<string>();
-                    string _d = DownloadString(url + "keywords", tempThred);
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                    string _lookFor = "data-item-keyword=\"";
-                    while (_d.Contains(_lookFor)) {
-                        keyWords.Add(FindHTML(_d, _lookFor, "\""));
-                        _d = RemoveOne(_d, _lookFor);
-                    }
-                    for (int i = 0; i < keyWords.Count; i++) {
-                        // print("Keyword: " + keyWords[i]);
-                    }
 
-                    if (d != "") {
+                    if (fetchData) {
+                        string url = "https://imdb.com/title/" + imdb.url.Replace("https://imdb.com/title/", "") + "/";
+                        d = GetHTML(url); // DOWNLOADSTRING WILL GET THE LOCAL LAUNGEGE, AND NOT EN, THAT WILL MESS WITH RECOMENDATIONDS, GetHTML FIXES THAT
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                        string _d = DownloadString(url + "keywords", tempThred);
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                        string _lookFor = "data-item-keyword=\"";
+                        while (_d.Contains(_lookFor)) {
+                            keyWords.Add(FindHTML(_d, _lookFor, "\""));
+                            _d = RemoveOne(_d, _lookFor);
+                        }
+                        for (int i = 0; i < keyWords.Count; i++) {
+                            // print("Keyword: " + keyWords[i]);
+                        }
+                    }
+                    if (d != "" || !fetchData) {
                         // ------ THE TITLE ------
 
                         try {
                             // ----- GET -----
+                            if (fetchData) {
 
-                            int seasons = 0; // d.Count<string>("");
-                            for (int i = 1; i <= 100; i++) {
-                                if (d.Contains("episodes?season=" + i)) {
-                                    seasons = i;
+                                int seasons = 0; // d.Count<string>("");
+
+                                for (int i = 1; i <= 100; i++) {
+                                    if (d.Contains("episodes?season=" + i)) {
+                                        seasons = i;
+                                    }
                                 }
-                            }
-                            string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
-                            string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ", ""); // string descript = FindHTML(d, "\"description\": \"", "\"");
-                            if (descript == "") {
-                                descript = FindHTML(d, "\"description\": \"", "\"", decodeToNonHtml: true);
-                            }
-                            // print("Dscript: " + descript);
-                            string __d = RemoveOne(d, "<div class=\"poster\">");
-                            string hdPosterUrl = FindHTML(__d, "src=\"", "\"");
-                            string ogName = FindHTML(d, "\"name\": \"", "\"", decodeToNonHtml: true);
-                            string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
-                            string posterUrl = FindHTML(d, "\"image\": \"", "\"");
-                            string genres = FindHTML(d, "\"genre\": [", "]");
-                            string type = FindHTML(d, "@type\": \"", "\"");
-                            string _trailer = FindHTML(d, "\"trailer\": ", "uploadDate");
-                            string trailerUrl = "https://imdb.com" + FindHTML(_trailer, "\"embedUrl\": \"", "\"");
-                            string trailerImg = FindHTML(_trailer, "\"thumbnailUrl\": \"", "\"");
-                            string trailerName = FindHTML(_trailer, "\"name\": \"", "\"");
-                            string keyWord = FindHTML(d, "\"keywords\": \"", "\"");
-                            string duration = FindHTML(d, "<time datetime=\"PT", "\"").Replace("M", "min");
-                            string year = FindHTML(d, "datePublished\": \"", "-");
-
-                            //<span class="bp_sub_heading">66 episodes</span> //total episodes
-
-                            List<string> allGenres = new List<string>();
-                            int counter = 0;
-                            while (genres.Contains("\"") && counter < 20) {
-                                counter++;
-                                string genre = FindHTML(genres, "\"", "\"");
-                                allGenres.Add(genre);
-                                genres = genres.Replace("\"" + genre + "\"", "");
-                            }
-
-                            MovieType movieType = (!keyWords.Contains("anime") ? (type == "Movie" ? MovieType.Movie : MovieType.TVSeries) : (type == "Movie" ? MovieType.AnimeMovie : MovieType.Anime)); // looks ugly but works
-
-                            if (movieType == MovieType.TVSeries) { // JUST IN CASE
-                                if (d.Contains(">Japan</a>") && d.Contains(">Japanese</a>") && (d.Contains("Anime") || d.Contains(">Animation</a>,"))) {
-                                    movieType = MovieType.Anime;
+                                string result = FindHTML(d, "<div class=\"title_wrapper\">", "</a>            </div>");
+                                string descript = FindHTML(d, "<div class=\"summary_text\">", "<").Replace("\n", "").Replace("  ", " ").Replace("          ", ""); // string descript = FindHTML(d, "\"description\": \"", "\"");
+                                if (descript == "") {
+                                    descript = FindHTML(d, "\"description\": \"", "\"", decodeToNonHtml: true);
                                 }
+                                // print("Dscript: " + descript);
+                                string __d = RemoveOne(d, "<div class=\"poster\">");
+                                string hdPosterUrl = FindHTML(__d, "src=\"", "\"");
+                                string ogName = FindHTML(d, "\"name\": \"", "\"", decodeToNonHtml: true);
+                                string rating = FindHTML(d, "\"ratingValue\": \"", "\"");
+                                string posterUrl = FindHTML(d, "\"image\": \"", "\"");
+                                string genres = FindHTML(d, "\"genre\": [", "]");
+                                string type = FindHTML(d, "@type\": \"", "\"");
+                                string _trailer = FindHTML(d, "\"trailer\": ", "uploadDate");
+                                string trailerUrl = "https://imdb.com" + FindHTML(_trailer, "\"embedUrl\": \"", "\"");
+                                string trailerImg = FindHTML(_trailer, "\"thumbnailUrl\": \"", "\"");
+                                string trailerName = FindHTML(_trailer, "\"name\": \"", "\"");
+                                string keyWord = FindHTML(d, "\"keywords\": \"", "\"");
+                                string duration = FindHTML(d, "<time datetime=\"PT", "\"").Replace("M", "min");
+                                string year = FindHTML(d, "datePublished\": \"", "-");
+
+                                //<span class="bp_sub_heading">66 episodes</span> //total episodes
+
+                                List<string> allGenres = new List<string>();
+                                int counter = 0;
+                                while (genres.Contains("\"") && counter < 20) {
+                                    counter++;
+                                    string genre = FindHTML(genres, "\"", "\"");
+                                    allGenres.Add(genre);
+                                    genres = genres.Replace("\"" + genre + "\"", "");
+                                }
+
+                                MovieType movieType = (!keyWords.Contains("anime") ? (type == "Movie" ? MovieType.Movie : MovieType.TVSeries) : (type == "Movie" ? MovieType.AnimeMovie : MovieType.Anime)); // looks ugly but works
+
+                                if (movieType == MovieType.TVSeries) { // JUST IN CASE
+                                    if (d.Contains(">Japan</a>") && d.Contains(">Japanese</a>") && (d.Contains("Anime") || d.Contains(">Animation</a>,"))) {
+                                        movieType = MovieType.Anime;
+                                    }
+                                }
+
+                                // ----- SET -----
+                                activeMovie.title = new Title() {
+                                    name = REPLACE_IMDBNAME_WITH_POSTERNAME ? imdb.name : ogName,
+                                    posterUrl = posterUrl,
+                                    trailers = new List<Trailer>(),
+                                    rating = rating,
+                                    genres = allGenres,
+                                    id = imdb.url.Replace("https://imdb.com/title/", ""),
+                                    description = descript,
+                                    runtime = duration,
+                                    seasons = seasons,
+                                    MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>() },
+                                    movieType = movieType,
+                                    year = year,
+                                    ogName = ogName,
+                                    hdPosterUrl = hdPosterUrl,
+                                    watchSeriesHdMetaData = new List<WatchSeriesHdMetaData>(),
+
+                                };
+
+                                activeMovie.title.trailers.Add(new Trailer() { url = trailerUrl, posterUrl = trailerImg, name = trailerName });
+
+                            }
+                            try {
+
+                                if (autoSearchTrailer) { GetRealTrailerLinkFromImdb(activeMovie.title.trailers[0].url); }
+                            }
+                            catch (Exception) {
+                                print("TRAILER NOT FOUND");
                             }
 
-                            // ----- SET -----
-                            activeMovie.title = new Title() {
-                                name = REPLACE_IMDBNAME_WITH_POSTERNAME ? imdb.name : ogName,
-                                posterUrl = posterUrl,
-                                trailers = new List<Trailer>(),
-                                rating = rating,
-                                genres = allGenres,
-                                id = imdb.url.Replace("https://imdb.com/title/", ""),
-                                description = descript,
-                                runtime = duration,
-                                seasons = seasons,
-                                MALData = new MALData() { japName = "", seasonData = new List<MALSeasonData>() },
-                                movieType = movieType,
-                                year = year,
-                                ogName = ogName,
-                                hdPosterUrl = hdPosterUrl,
-                                watchSeriesHdMetaData = new List<WatchSeriesHdMetaData>(),
-
-                            };
-
-                            activeMovie.title.trailers.Add(new Trailer() { url = trailerUrl, posterUrl = trailerImg, name = trailerName });
-                            if (movieType == MovieType.Anime) {
+                            if (activeMovie.title.movieType == MovieType.Anime) {
                                 print("GEt mal data");
                                 GetMALData();
                             }
@@ -1583,36 +1615,39 @@ namespace CloudStreamForms
                                 FishWatchSeries();
                             }
 
-                            if (autoSearchTrailer) { GetRealTrailerLinkFromImdb(trailerUrl); }
                         }
                         catch (Exception) {
-
+                            print("ERROR :(((");
                         }
 
                         // ------ RECOMENDATIONS ------
+                        if (fetchData) {
+                            activeMovie.title.recomended = new List<Poster>();
+                            string lookFor = "<div class=\"rec_item\" data-info=\"\" data-spec=\"";
+                            for (int i = 0; i < 12; i++) {
+                                try {
+                                    string result = FindHTML(d, lookFor, "/> <br/>");
+                                    string id = FindHTML(result, "data-tconst=\"", "\"");
+                                    string name = FindHTML(result, "title=\"", "\"", decodeToNonHtml: true);
+                                    string posterUrl = FindHTML(result, "loadlate=\"", "\"");
 
-                        activeMovie.title.recomended = new List<Poster>();
-                        string lookFor = "<div class=\"rec_item\" data-info=\"\" data-spec=\"";
-                        for (int i = 0; i < 12; i++) {
-                            try {
-                                string result = FindHTML(d, lookFor, "/> <br/>");
-                                string id = FindHTML(result, "data-tconst=\"", "\"");
-                                string name = FindHTML(result, "title=\"", "\"", decodeToNonHtml: true);
-                                string posterUrl = FindHTML(result, "loadlate=\"", "\"");
+                                    d = RemoveOne(d, result);
+                                    Poster p = new Poster() { url = id, name = name, posterUrl = posterUrl, posterType = PosterType.Imdb };
 
-                                d = RemoveOne(d, result);
-                                Poster p = new Poster() { url = id, name = name, posterUrl = posterUrl, posterType = PosterType.Imdb };
+                                    // if (!activeMovie.title.recomended.Contains(p)) {
+                                    activeMovie.title.recomended.Add(p);
+                                    // }
 
-                                // if (!activeMovie.title.recomended.Contains(p)) {
-                                activeMovie.title.recomended.Add(p);
-                                // }
+                                }
+                                catch (Exception) {
 
+                                }
                             }
-                            catch (Exception) {
-
+                            if (cacheData) {
+                                print("SETKEY::" + __id);
+                                App.SetKey("CacheImdb", __id, activeMovie);
                             }
                         }
-
                         titleLoaded?.Invoke(null, activeMovie);
                     }
                 }

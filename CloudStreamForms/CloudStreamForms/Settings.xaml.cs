@@ -124,6 +124,10 @@ namespace CloudStreamForms
             get { return HasScrollBar ? ScrollBarVisibility.Default : ScrollBarVisibility.Never; }
         }
 
+        public static bool CacheImdb = true;
+        public static bool CacheImdbRecommendaton = true;
+        public static bool CacheMAL = true;
+
         public Settings()
         {
             InitializeComponent();

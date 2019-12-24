@@ -295,10 +295,10 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
 
                                                 </Grid>
                                             </Grid>
-
+<!--
                                             <ff:CachedImage PropertyChanging="ImageGetGradient" InputTransparent="True" ScaleX="300" TranslationY="2" HeightRequest="10" Rotation="180" VerticalOptions="End" BackgroundColor="Transparent">
 
-                                            </ff:CachedImage>
+                                            </ff:CachedImage>-->
                                             <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
 
                                                 <ImageButton  Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
