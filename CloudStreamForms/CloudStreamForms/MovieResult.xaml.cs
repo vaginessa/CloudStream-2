@@ -1473,28 +1473,34 @@ namespace CloudStreamForms
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {
+                        string s = episodeResult.mirrosUrls[i];
+                        Thread t = new Thread(() => {
+                            UserDialogs.Instance.ShowLoading("Checking link...", MaskType.Gradient);
+                            //UserDialogs.Instance.load
+                            double fileSize = Main.GetFileSize(s);
+                            UserDialogs.Instance.HideLoading();
+                            if (fileSize > 1) {
+                                string dpath = App.DownloadUrl(s, episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
+                                //  string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
+                                // string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
+                                string mppath = currentMovie.title.hdPosterUrl;
+                                string ppath = episodeResult.PosterUrl;
+                                string key = "_dpath=" + dpath + "|||_ppath=" + ppath + "|||_mppath=" + mppath + "|||_descript=" + episodeResult.Description + "|||_maindescript=" + currentMovie.title.description + "|||_epCounter=" + episodeResult.Id + "|||_epId=" + GetId(episodeResult) + "|||_movieId=" + currentMovie.title.id + "|||_title=" + episodeResult.Title + "|||_movieTitle=" + currentMovie.title.name + "|||=EndAll";
+                                print("DKEY: " + key);
+                                App.SetKey("Download", GetId(episodeResult), key);
+                                App.ShowToast("Download Started - " + fileSize + "MB");
+                                App.SetKey("DownloadSize", GetId(episodeResult), fileSize);
+                                SetColor(episodeResult);
+                                ForceUpdate();
+                            }
+                            else {
+                                EpisodeSettings(episodeResult);
+                                App.ShowToast("Download Failed");
+                                ForceUpdate();
+                            }
 
-                        double fileSize = Main.GetFileSize(episodeResult.mirrosUrls[i]);
-                        if (fileSize > 1) {
-
-                            string dpath = App.DownloadUrl(episodeResult.mirrosUrls[i], episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
-                            //  string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
-                            // string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
-                            string mppath = currentMovie.title.hdPosterUrl;
-                            string ppath = episodeResult.PosterUrl;
-                            string key = "_dpath=" + dpath + "|||_ppath=" + ppath + "|||_mppath=" + mppath + "|||_descript=" + episodeResult.Description + "|||_maindescript=" + currentMovie.title.description + "|||_epCounter=" + episodeResult.Id + "|||_epId=" + GetId(episodeResult) + "|||_movieId=" + currentMovie.title.id + "|||_title=" + episodeResult.Title + "|||_movieTitle=" + currentMovie.title.name + "|||=EndAll";
-                            print("DKEY: " + key);
-                            App.SetKey("Download", GetId(episodeResult), key);
-                            App.ShowToast("Download Started - " + fileSize + "MB");
-                            App.SetKey("DownloadSize", GetId(episodeResult), fileSize);
-                            SetColor(episodeResult);
-                            ForceUpdate();
-                        }
-                        else {
-                            EpisodeSettings(episodeResult);
-                            App.ShowToast("Download Failed");
-                            ForceUpdate();
-                        }
+                        }) { Name="DownloadThread" };
+                        t.Start();
                     }
                 }
             }

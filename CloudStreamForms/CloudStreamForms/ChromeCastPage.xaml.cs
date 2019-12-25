@@ -31,9 +31,14 @@ namespace CloudStreamForms
             LowVol.Source = GetImageSource("round_volume_down_white_48dp.png");
             MaxVol.Source = GetImageSource("round_volume_up_white_48dp.png");
             PlayList.Source = GetImageSource("round_playlist_play_white_48dp.png");
-            PopupNavigation.Instance.PushAsync(new CloudStreamForms.MyPopupPage());
 
          //   UserDialogs.Instance.TimePrompt(new TimePromptConfig() { CancelText = "Cancel", Title = "da", Use24HourClock = false, OkText = "OK", IsCancellable = true });
+
+        }
+
+        private void StopAll_Clicked(object sender, EventArgs e)
+        {
+            PopupNavigation.Instance.PushAsync(new CloudStreamForms.MyPopupPage());
 
         }
     }

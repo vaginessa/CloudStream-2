@@ -39,7 +39,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <ImageButton x:Name="StopAll" Grid.Column="0" BackgroundColor="Transparent" HeightRequest="{Binding BigIconSize}" WidthRequest="{Binding BigIconSize}"></ImageButton>
+                    <ImageButton x:Name="StopAll" Grid.Column="0" BackgroundColor="Transparent" HeightRequest="{Binding BigIconSize}" WidthRequest="{Binding BigIconSize}" Clicked="StopAll_Clicked"></ImageButton>
                     <ImageButton x:Name="PlayList" Grid.Column="1" BackgroundColor="Transparent"  HeightRequest="{Binding BigIconSize}" WidthRequest="{Binding BigIconSize}"></ImageButton>
                 </Grid>
             </StackLayout>
