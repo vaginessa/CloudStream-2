@@ -46,16 +46,24 @@
                                 <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
-                                <TextCell Text="Clear watch history"  Detail="This will clear all episodes/movies you have watched" Tapped="TextCell_Tapped" TextColor="#b3bdfa">
+                                <TextCell Text="Data BUFF:20:" TextColor="#FFFFFF" ></TextCell> 
+                            </TableSection>
+                    
+                            <TableSection>
+                                <TextCell Text="Clear watch history"  Detail="This will clear all episodes/movies you have watched" Tapped="TextCell_Tapped" TextColor="#394cc9">
+                                </TextCell>
+                            </TableSection>
+                         
+                            <TableSection>
+                                <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2" TextColor="#394cc9">
                                 </TextCell>
                             </TableSection>
                             <TableSection>
-                                <TextCell Text="Clear bookmarks"  Detail="This will remove all bookmarks" Tapped="TextCell_Tapped2" TextColor="#b3bdfa">
+                                <TextCell Text="Clear cached data"  Detail="This will remove all cached data" Tapped="TextCell_Tapped3" TextColor="#394cc9">
                                 </TextCell>
                             </TableSection>
                             <TableSection>
-                                <TextCell Text="Clear cached data"  Detail="This will remove all cached data" Tapped="TextCell_Tapped3" TextColor="#b3bdfa">
-                                </TextCell>
+                                <TextCell Text="Reset to default" TextColor="#394cc9"></TextCell>
                             </TableSection>
                         </TableRoot>
                     </TableView>
@@ -66,7 +74,7 @@
             </Grid>
 
             <Label Text="Loading Time" x:Name="LoadingTime" TranslationX="5"></Label>
-            <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider" ThumbColor="#b3bdfa"></Slider>
+            <Slider DragCompleted="Slider_DragCompleted" BackgroundColor="Transparent" x:Name="LoadingSlider" MinimumTrackColor="#303F9F" ThumbColor="#303F9F"></Slider>
             <Label Text="Build Version: " x:Name="BuildNumber" TranslationX="5"></Label>
             <Label Text="Github: https://github.com/LagradOst/CloudStream-2" TranslationX="5" ></Label>
             <Button Text="Update To..." x:Name="UpdateBtt" IsEnabled="False" IsVisible="False" BackgroundColor="#1976D2" HeightRequest="40"></Button>

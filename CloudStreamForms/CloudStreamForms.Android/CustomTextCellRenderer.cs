@@ -32,7 +32,20 @@ public class CustomTextCellRenderer : TextCellRenderer
 
         var cell = base.GetCellCore(item, convertView, parent, context);
         cell.SetBackgroundColor(new Android.Graphics.Color(20, 20, 20));
-       
+        var layout = (LinearLayout)((LinearLayout)cell).GetChildAt(1);
+        TextView t = (TextView)layout.GetChildAt(0);
+        if (t.Text.Contains("BUFF:")) {
+            string _size = FindHTML(t.Text, "BUFF:", ":");
+            float size = float.Parse(_size);
+            t.Text = t.Text.Replace("BUFF:" + _size + ":", "");
+            t.TextSize = size;
+            
+        }
+        /*
+        for (int i = 0; i < layout.ChildCount; i++) {
+            print("CHILDCOUNT:" + layout.GetChildAt(i).ToString() + "::" + i);
+        }*/
+        // var f =.ChildCount.GetChildAt(2);
         return cell;
     }
 

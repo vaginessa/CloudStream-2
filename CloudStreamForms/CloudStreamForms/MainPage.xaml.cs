@@ -35,10 +35,12 @@ namespace CloudStreamForms
     [DesignTimeVisible(false)]
     public partial class MainPage : Xamarin.Forms.TabbedPage
     {
-        public const string primaryColor = "#303F9F";
-        public const string primaryLightColor = "#829eff";
-        public const string defColor = "#595959";
-        public const string backgroundColor = "#111111";
+        public const string DARK_BLUE_COLOR = "#303F9F";
+        public const string LIGHT_BLUE_COLOR = "#829eff";
+        public const string LIGHT_BLACK_COLOR = "#595959";
+        public const string BLACK_COLOR = "#111111";
+        public const string ITEM_COLOR = "#617eff";
+        public const string LIGHT_DARK_BLUE_COLOR = "#1976D2";
 
         public static string intentData = "";
         public static MainPage mainPage;
@@ -60,7 +62,7 @@ namespace CloudStreamForms
             MainChrome.GetAllChromeDevices();
 
             List<string> names = new List<string>() { "Home", "Search", "Downloads", "Settings" };
-            List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "baseline_settings_applications_white_48dp_inverted.png" };
+            List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "baseline_settings_applications_white_48dp_inverted_big.png" };
             List<Page> pages = new List<Page>() { new Home(), new Search(), new Download(), new Settings(), };
 
             for (int i = 0; i < names.Count; i++) {
@@ -73,7 +75,7 @@ namespace CloudStreamForms
            // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
           //  Navigation.PushModalAsync(p, false);
 
-            PushPageFromUrlAndName("tt4869896", "Overlord");
+          //  PushPageFromUrlAndName("tt4869896", "Overlord");
         }
 
 

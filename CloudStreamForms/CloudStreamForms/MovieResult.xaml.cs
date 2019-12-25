@@ -213,7 +213,7 @@ namespace CloudStreamForms
             }
             StarBtt.Source = GetImageSource((keyExists ? "bookmarkedBtt.png" : "notBookmarkedBtt.png"));
             Device.BeginInvokeOnMainThread(() => {
-                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(keyExists ? primaryColor : defColor)) };
+                StarBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(keyExists ? DARK_BLUE_COLOR : LIGHT_BLACK_COLOR)) };
             });
 
         }
@@ -229,7 +229,7 @@ namespace CloudStreamForms
             }
 
             Device.BeginInvokeOnMainThread(() => {
-                SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? primaryColor : defColor)) };
+                SubtitleBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(res ? DARK_BLUE_COLOR : LIGHT_BLACK_COLOR)) };
             });
         }
 
@@ -486,8 +486,8 @@ namespace CloudStreamForms
         {
             string id = GetId(episodeResult);
             if (id != "") {
-                List<string> hexColors = new List<string>() { "#ffffff", primaryLightColor, "#e5e598" };
-                List<string> darkHexColors = new List<string>() { "#808080", primaryColor, "#d3c450" };
+                List<string> hexColors = new List<string>() { "#ffffff", LIGHT_BLUE_COLOR, "#e5e598" };
+                List<string> darkHexColors = new List<string>() { "#808080", DARK_BLUE_COLOR, "#d3c450" };
                 int color = 0;
                 if (App.KeyExists("ViewHistory", id)) {
                     color = 1;
@@ -1618,7 +1618,7 @@ namespace CloudStreamForms
         void ChangeViewToggle()
         {
             ViewToggle.Source = GetImageSource((toggleViewState ? "viewOffIcon.png" : "viewOnIcon.png"));
-            ViewToggle.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(toggleViewState ? primaryColor : defColor)) };
+            ViewToggle.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation(toggleViewState ? DARK_BLUE_COLOR : LIGHT_BLACK_COLOR)) };
         }
 
     }
