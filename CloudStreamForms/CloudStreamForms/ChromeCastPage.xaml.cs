@@ -27,6 +27,7 @@ namespace CloudStreamForms
         public ChromeCastPage()
         {
             InitializeComponent(); BindingContext = this;
+            //https://material.io/resources/icons/?style=baseline
             StopAll.Source = GetImageSource("round_stop_white_48dp.png");
             LowVol.Source = GetImageSource("round_volume_down_white_48dp.png");
             MaxVol.Source = GetImageSource("round_volume_up_white_48dp.png");

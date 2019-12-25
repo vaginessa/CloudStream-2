@@ -63,7 +63,7 @@ namespace CloudStreamForms
 
 
         List<Episode> currentEpisodes { set { currentMovie.episodes = value; } get { return currentMovie.episodes; } }
-        
+
         protected override bool OnBackButtonPressed()
         {
             if (lastMovie != null) {
@@ -76,14 +76,14 @@ namespace CloudStreamForms
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
             const bool animate = true;
-            if(animate) {
+            if (animate) {
                 return base.OnBackButtonPressed();
             }
             else {
                 Navigation.PopModalAsync(false);
                 return true;
             }
-           
+
         }
 
         void SetRows()
@@ -333,7 +333,7 @@ namespace CloudStreamForms
             Gradient.Source = GetGradient();
             IMDbBtt.Source = GetImageSource("imdbIcon.png");
             MALBtt.Source = GetImageSource("MALIcon.png");
-            ShareBtt.Source = GetImageSource("shareIcon.png");
+            ShareBtt.Source = GetImageSource("round_reply_white_48dp_inverted.png");
             StarBtt.Source = GetImageSource("notBookmarkedBtt.png");
             SubtitleBtt.Source = GetImageSource("round_subtitles_white_48dp.png");
 
@@ -354,6 +354,10 @@ namespace CloudStreamForms
 
             MainChrome.OnChromeImageChanged += (o, e) => {
                 ImgChromeCastBtt.Source = GetImageSource(e);
+                ImgChromeCastBtt.Transformations.Clear();
+                if (MainChrome.IsConnectedToChromeDevice) {
+                   // ImgChromeCastBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation("#303F9F")) };
+                }
             };
             MainChrome.OnChromeDevicesFound += (o, e) => {
                 SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
@@ -442,7 +446,7 @@ namespace CloudStreamForms
                 Navigation.PopModalAsync(false);
                 PushPageFromUrlAndName(currentMovie.title.id, currentMovie.title.name);
             };
-            ReloadAllBtt.Source = GetImageSource("round_replay_white_48dp.png");
+            ReloadAllBtt.Source = GetImageSource("round_refresh_white_48dp.png");
             // Grid.SetRow(RowDub, 0);
             //  Grid.SetRow(RowMal, 0);
 
@@ -1410,6 +1414,8 @@ namespace CloudStreamForms
              }*/
         }
 
+        // public string ChromeColor { set; get; }//{ get { return (MainChrome.IsPendingConnection || MainChrome.IsCastingVideo) ? "#303F9F" : "#ffffff"; } set { } }
+
         async void EpisodeSettings(EpisodeResult episodeResult)
         {
 
@@ -1499,7 +1505,7 @@ namespace CloudStreamForms
                                 ForceUpdate();
                             }
 
-                        }) { Name="DownloadThread" };
+                        }) { Name = "DownloadThread" };
                         t.Start();
                     }
                 }

@@ -60,7 +60,7 @@ namespace CloudStreamForms
             MainChrome.GetAllChromeDevices();
 
             List<string> names = new List<string>() { "Home", "Search", "Downloads", "Settings" };
-            List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "settingsIcon.png" };
+            List<string> icons = new List<string>() { "homeIcon.png", "searchIcon.png", "downloadIcon.png", "baseline_settings_applications_white_48dp_inverted.png" };
             List<Page> pages = new List<Page>() { new Home(), new Search(), new Download(), new Settings(), };
 
             for (int i = 0; i < names.Count; i++) {
@@ -70,10 +70,10 @@ namespace CloudStreamForms
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
-            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-            Navigation.PushModalAsync(p, false);
+           // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+          //  Navigation.PushModalAsync(p, false);
 
-            //PushPageFromUrlAndName("tt4869896", "Overlord");
+            PushPageFromUrlAndName("tt4869896", "Overlord");
         }
 
 
@@ -250,10 +250,12 @@ namespace CloudStreamForms
         public static string GetSourceFromInt(int inp = -1)
         {
             if (inp == -1) {
-                inp = 30;
+                inp = 4;
             }
-
-            return "ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(inp, 2) + "_mtrl.png";
+            if(inp == 0) {
+                return "round_cast_white_48dp2_0.png";
+            }
+            return "round_cast_white_48dp_blue_" + inp + ".png";//"ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(inp, 2) + "_mtrl.png";
         }
         public static string CurrentImageSource { get { return GetSourceFromInt(CurrentImage); } }
         public static async Task StartImageChanger()
@@ -262,22 +264,22 @@ namespace CloudStreamForms
                 int lastImage = int.Parse(CurrentImage.ToString());
                 if (IsPendingConnection) {
                     CurrentImage++;
-                    if (CurrentImage > 8) {
-                        CurrentImage = 3;
+                    if (CurrentImage > 3) {
+                        CurrentImage = 1;
                     }
                 }
                 else {
                     CurrentImage += IsConnectedToChromeDevice ? 1 : -1;
                 }
                 if (CurrentImage < 0) CurrentImage = 0;
-                if (CurrentImage > 30) CurrentImage = 30;
+                if (CurrentImage > 4) CurrentImage = 4;
                 if (!IsChromeDevicesOnNetwork) {
                     CurrentImage = 0;
                 }
                 if (lastImage != CurrentImage) {
                     OnChromeImageChanged.Invoke(null, CurrentImageSource);
                 }
-                await Task.Delay(30);
+                await Task.Delay(500);
             }
         }
         public static async void GetAllChromeDevices()

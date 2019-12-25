@@ -13,11 +13,14 @@ namespace CloudStreamForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MyPopupPage : Rg.Plugins.Popup.Pages.PopupPage
     {
+        public int IconSize { set; get; } = 30;
+        public int BigIconSize { set; get; } = 60;
+
         public MyPopupPage()
         {
             InitializeComponent();
             
-            LowVol.Source = App.GetImageSource("round_volume_down_white_48dp.png");
+            LowVol.Source = App.GetImageSource("round_volume_mute_white_48dp.png");
             MaxVol.Source = App.GetImageSource("round_volume_up_white_48dp.png");
         }
 
