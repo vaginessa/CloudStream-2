@@ -203,7 +203,17 @@ namespace CloudStreamForms
                     App.DownloadNewGithubUpdate(Main.githubUpdateTag);
                 }
             };
-
+            if (Device.RuntimePlatform != Device.Android) {
+                for (int i = 0; i < SettingsTable.Count; i++) {
+                    if (i >= SettingsTable.Count) break;
+                    if (SettingsTable[i][0] is TextCell) {
+                        if (((TextCell)(SettingsTable[i][0])).DetailColor == Color.Transparent) {
+                            SettingsTable.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+            }
         }
 
         void Apper()
@@ -275,6 +285,10 @@ namespace CloudStreamForms
         {
             ClearCache();
         }
+        private void TextCell_Tapped4(object sender, EventArgs e)
+        {
+            ResetToDef();
+        }
 
         async void ClearBookmarks()
         {
@@ -298,6 +312,14 @@ namespace CloudStreamForms
             if (action) {
                 App.RemoveFolder("CacheMAL");
                 App.RemoveFolder("CacheImdb");
+            }
+        }
+        async void ResetToDef()
+        {
+            bool action = await DisplayAlert("Reset settings to default", "Are you sure that you want to reset settings to default", "Yes", "Cancel");
+            if (action) {
+                App.RemoveFolder("Settings");
+                Apper();
             }
         }
     }

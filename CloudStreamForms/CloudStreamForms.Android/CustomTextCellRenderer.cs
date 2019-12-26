@@ -36,18 +36,17 @@ public class CustomTextCellRenderer : TextCellRenderer
         TextView t = (TextView)layout.GetChildAt(0);
         TextView t2 = (TextView)layout.GetChildAt(1);
 
-        List<string> attributes = new List<string>() { "FONTSIZE", "BOLD", "BLACK" };
+        List<string> attributes = new List<string>() { "FONTSIZE", "BOLD", "BLACK", "POSX","POSY" };
         bool applyCanges = false;
         string resTxt = t2.Text;
-        print(resTxt + "<<REX");
         List<bool> values = new List<bool>();
         List<float> ftts = new List<float>();
 
         for (int i = 0; i < attributes.Count; i++) {
             values.Add(false);
-            ftts.Add(-1);
-            if (t.Text.Contains(attributes[i] + ":")) {
-                string _val = FindHTML(t.Text, attributes[i] + ":", ":");
+            ftts.Add(1);
+            if (resTxt.Contains(attributes[i] + ":")) {
+                string _val = FindHTML(resTxt, attributes[i] + ":", ":");
                 float val = 0;
                 if (_val != "") {
                     val = float.Parse(_val);
@@ -58,8 +57,13 @@ public class CustomTextCellRenderer : TextCellRenderer
             }
         }
         t.Typeface = values[1] ? Typeface.DefaultBold : Typeface.Default;
-       // t.texts = values[0] ? ftts[0] : 1;
-     
+        t.TextSize = values[0] ? ftts[0] : 14;
+    
+        t.TranslationX = values[3] ? ftts[3] : 0;
+        t.TranslationY = values[4] ? ftts[4] : 0;
+        backColor = values[2] ? new Android.Graphics.Color(17, 17, 17) : new Android.Graphics.Color(20, 20, 20);
+        // t.texts = values[0] ? ftts[0] : 1;
+
         cell.SetBackgroundColor(backColor);
 
 

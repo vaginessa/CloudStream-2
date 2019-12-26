@@ -19,7 +19,7 @@
                     <TableView VerticalOptions="Start" x:Name="SettingsToggles">
                         <TableRoot x:Name="SettingsTable">
                             <TableSection>
-                                <TextCell x:Name="DataTxt2"  Detail="|FONTSIZE:2: BOLD:: BLACK::|" DetailColor="Transparent" Text="General" TextColor="#FFFFFF" ></TextCell>
+                                <TextCell x:Name="DataTxt2"  Detail="|FONTSIZE:17: BOLD:: BLACK:: POSY:30:|" DetailColor="Transparent" Text="General" TextColor="#FFFFFF" ></TextCell>
                             </TableSection>
                             <TableSection >
                                 <SwitchCell Text="Force black background (Restart recommended)" x:Name="BlackBgToggle" OnColor="{Binding MainColor}"></SwitchCell>
@@ -37,10 +37,13 @@
                                 <SwitchCell Text="Default anime dubbed" x:Name="DubToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
-                                <SwitchCell Text="Top 100 enabled" x:Name="TopToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                                <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
-                                <SwitchCell Text="Pause watch history" x:Name="ViewHistoryToggle" OnColor="{Binding MainColor}"></SwitchCell>
+                                <TextCell  Detail="|FONTSIZE:17: BOLD:: BLACK:: POSY:30:|" DetailColor="Transparent" Text="UI" TextColor="#FFFFFF" ></TextCell>
+                            </TableSection>
+                            <TableSection>
+                                <SwitchCell Text="Top 100 enabled" x:Name="TopToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
                                 <SwitchCell Text="Display movie description" x:Name="DecToggle" OnColor="{Binding MainColor}" ></SwitchCell>
@@ -49,7 +52,7 @@
                                 <SwitchCell Text="Display episode description" x:Name="EpsDecToggle" OnColor="{Binding MainColor}"></SwitchCell>
                             </TableSection>
                             <TableSection>
-                                <TextCell x:Name="DataTxt" Detail="|FONTSIZE:2: BOLD:: BLACK::|" DetailColor="Transparent" Text="Data" TextColor="#FFFFFF" ></TextCell>
+                                <TextCell x:Name="DataTxt" Detail="|FONTSIZE:17: BOLD:: BLACK:: POSY:30:|" DetailColor="Transparent" Text="Data" TextColor="#FFFFFF" ></TextCell>
                             </TableSection>
 
                             <TableSection>
@@ -65,7 +68,7 @@
                                 </TextCell>
                             </TableSection>
                             <TableSection>
-                                <TextCell Text="Reset to default" TextColor="#394cc9"></TextCell>
+                                <TextCell Text="Reset to default" TextColor="#394cc9" Tapped="TextCell_Tapped4"></TextCell>
                             </TableSection>
                         </TableRoot>
                     </TableView>
