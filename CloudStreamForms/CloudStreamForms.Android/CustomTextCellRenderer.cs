@@ -29,18 +29,40 @@ public class CustomTextCellRenderer : TextCellRenderer
 
     protected override Android.Views.View GetCellCore(Cell item, Android.Views.View convertView, Android.Views.ViewGroup parent, Android.Content.Context context)
     {
-
         var cell = base.GetCellCore(item, convertView, parent, context);
-        cell.SetBackgroundColor(new Android.Graphics.Color(20, 20, 20));
+        var backColor = new Android.Graphics.Color(20, 20, 20);
+
         var layout = (LinearLayout)((LinearLayout)cell).GetChildAt(1);
         TextView t = (TextView)layout.GetChildAt(0);
-        if (t.Text.Contains("BUFF:")) {
-            string _size = FindHTML(t.Text, "BUFF:", ":");
-            float size = float.Parse(_size);
-            t.Text = t.Text.Replace("BUFF:" + _size + ":", "");
-            t.TextSize = size;
-            
+        TextView t2 = (TextView)layout.GetChildAt(1);
+
+        List<string> attributes = new List<string>() { "FONTSIZE", "BOLD", "BLACK" };
+        bool applyCanges = false;
+        string resTxt = t2.Text;
+        print(resTxt + "<<REX");
+        List<bool> values = new List<bool>();
+        List<float> ftts = new List<float>();
+
+        for (int i = 0; i < attributes.Count; i++) {
+            values.Add(false);
+            ftts.Add(-1);
+            if (t.Text.Contains(attributes[i] + ":")) {
+                string _val = FindHTML(t.Text, attributes[i] + ":", ":");
+                float val = 0;
+                if (_val != "") {
+                    val = float.Parse(_val);
+                }
+                resTxt = resTxt.Replace(attributes[i] + ":" + _val + ":", "");
+                ftts[i] = val;
+                values[i] = true;
+            }
         }
+        t.Typeface = values[1] ? Typeface.DefaultBold : Typeface.Default;
+       // t.texts = values[0] ? ftts[0] : 1;
+     
+        cell.SetBackgroundColor(backColor);
+
+
         /*
         for (int i = 0; i < layout.ChildCount; i++) {
             print("CHILDCOUNT:" + layout.GetChildAt(i).ToString() + "::" + i);

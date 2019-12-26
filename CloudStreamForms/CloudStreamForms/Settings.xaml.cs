@@ -133,7 +133,9 @@ namespace CloudStreamForms
             }
         }
 
-        public static bool HasScrollBar { get {
+        public static bool HasScrollBar
+        {
+            get {
                 return Device.RuntimePlatform == Device.UWP;
             }
         }
@@ -225,6 +227,17 @@ namespace CloudStreamForms
                 else {
                     BlackBgToggle.On = BlackBg;
                 }
+                /*
+                if (Device.RuntimePlatform == Device.UWP) {
+                    DataTxt.Detail = DataTxt.Detail.Replace("|" + FindHTML(DataTxt.Text, "|", "|") + "|", "");
+                    DataTxt2.Detail = DataTxt2.Detail.Replace("|" + FindHTML(DataTxt2.Text, "|", "|") + "|", "");
+                }
+                else {
+                    DataTxt2.Detail = DataTxt2.Detail.Replace("|", "");
+                    DataTxt.Detail = DataTxt2.Detail.Replace("|", "");
+                }*/
+
+
             });
         }
 
@@ -233,11 +246,11 @@ namespace CloudStreamForms
             base.OnAppearing();
             Apper();
 
-   
+
             if (Device.RuntimePlatform == Device.Android) {
                 UpdateBtt.IsEnabled = Main.NewGithubUpdate;
                 UpdateBtt.IsVisible = Main.NewGithubUpdate;
-                UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag.Replace("v","") + " · " + githubUpdateText;
+                UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag.Replace("v", "") + " · " + githubUpdateText;
                 BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             }
 
@@ -265,14 +278,15 @@ namespace CloudStreamForms
 
         async void ClearBookmarks()
         {
-            bool action = await DisplayAlert("Clear bookmarks", "Are you sure that you want to remove all bookmarks" + " ("+ App.GetKeyCount("BookmarkData") + " items)", "Yes", "Cancel");
+            bool action = await DisplayAlert("Clear bookmarks", "Are you sure that you want to remove all bookmarks" + " (" + App.GetKeyCount("BookmarkData") + " items)", "Yes", "Cancel");
             if (action) {
                 App.RemoveFolder("BookmarkData");
             }
         }
 
         async void ClearHistory()
-        {            bool action = await DisplayAlert("Clear watch history", "Are you sure that you want to clear all watch history" + " (" + App.GetKeyCount("ViewHistory") + " items)", "Yes", "Cancel");
+        {
+            bool action = await DisplayAlert("Clear watch history", "Are you sure that you want to clear all watch history" + " (" + App.GetKeyCount("ViewHistory") + " items)", "Yes", "Cancel");
             if (action) {
                 App.RemoveFolder("ViewHistory");
             }
@@ -280,10 +294,10 @@ namespace CloudStreamForms
 
         async void ClearCache()
         {
-            bool action = await DisplayAlert("Clear cached data", "Are you sure that you want to clear all cached data" + " (" + (App.GetKeyCount("CacheMAL")+ App.GetKeyCount("CacheImdb")) + " items)", "Yes", "Cancel");
+            bool action = await DisplayAlert("Clear cached data", "Are you sure that you want to clear all cached data" + " (" + (App.GetKeyCount("CacheMAL") + App.GetKeyCount("CacheImdb")) + " items)", "Yes", "Cancel");
             if (action) {
                 App.RemoveFolder("CacheMAL");
-                App.RemoveFolder("CacheImdb"); 
+                App.RemoveFolder("CacheImdb");
             }
         }
     }
