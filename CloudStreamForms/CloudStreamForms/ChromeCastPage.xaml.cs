@@ -10,6 +10,7 @@ using Xamarin.Forms.Xaml;
 using static CloudStreamForms.Main;
 using static CloudStreamForms.App;
 using Rg.Plugins.Popup.Services;
+using static CloudStreamForms.MainChrome;
 
 namespace CloudStreamForms
 {
@@ -28,16 +29,86 @@ namespace CloudStreamForms
         public float ScaleAll { set; get; } = 1.4f;
         public float ScaleAllBig { set; get; } = 2f;
 
+        int currentSelected = 0;
+
+
+        void SelectMirror()
+        {
+            CastVideo(episodeResult.mirrosUrls[currentSelected], episodeResult.Mirros[currentSelected], CurrentTime);
+        }
+
         public ChromeCastPage()
         {
             InitializeComponent(); BindingContext = this;
             //https://material.io/resources/icons/?style=baseline
+            VideoSlider.DragStarted += (o, e) => {
+                draging = true;
+            };
+            VideoSlider.DragCompleted += (o, e) => {
+                MainChrome.SetChromeTime(VideoSlider.Value * CurrentCastingDuration);
+                draging = false;
+                UpdateTxt();
+            };
+            Pause.Clicked += (o, e) => {
+                SetPause(!IsPaused);
+                PauseAndPlay(!IsPaused);
+            };
+            FastForward.Clicked += (o, e) => {
+                SeekMedia(FastForwardTime);
+            };
+            BackForward.Clicked += (o, e) => {
+                SeekMedia(-BackForwardTime);
+            };
+
+            SkipForward.Clicked += (o, e) => {
+                currentSelected++;
+                if (currentSelected > episodeResult.Mirros.Count) { currentSelected = 0; }
+            };
+            SkipBack.Clicked += (o, e) => {
+                currentSelected--;
+                if (currentSelected < 0) { currentSelected = episodeResult.Mirros.Count - 1; }
+            };
+
+            PlayList.Clicked += async (o, e) => {
+                string a = await DisplayActionSheet("Select Mirror", "Cancel", null, episodeResult.Mirros.ToArray());
+
+                for (int i = 0; i < episodeResult.Mirros.Count; i++) {
+                    if (a == episodeResult.Mirros[i]) {
+                        currentSelected = i;
+                        SelectMirror();
+                        return;
+                    }
+                }
+            };
             /*
             LowVol.Source = GetImageSource("round_volume_down_white_48dp.png");
             MaxVol.Source = GetImageSource("round_volume_up_white_48dp.png");*/
 
-         //   UserDialogs.Instance.TimePrompt(new TimePromptConfig() { CancelText = "Cancel", Title = "da", Use24HourClock = false, OkText = "OK", IsCancellable = true });
+            //   UserDialogs.Instance.TimePrompt(new TimePromptConfig() { CancelText = "Cancel", Title = "da", Use24HourClock = false, OkText = "OK", IsCancellable = true });
 
+        }
+
+        bool draging = false;
+        public async void ConstUpdate()
+        {
+            while (true) {
+                await Task.Delay(1000);
+                UpdateTxt();
+            }
+        }
+
+        public void UpdateTxt()
+        {
+            StartTxt.Text = ConvertTimeToString(CurrentTime);
+            EndTxt.Text = ConvertTimeToString(CurrentCastingDuration - CurrentTime);
+            if (!draging) {
+                VideoSlider.Value = CurrentTime / CurrentCastingDuration;
+            }
+        }
+
+        void SetPause(bool paused)
+        {
+            Pause.Source = paused ? GetImageSource("round_play_arrow_white_48dp.png") : GetImageSource("round_pause_white_48dp.png");
         }
 
         protected override void OnAppearing()
@@ -49,8 +120,8 @@ namespace CloudStreamForms
             FastForward.Source = GetImageSource("round_replay_white_48dp_mirror.png");
             SkipBack.Source = GetImageSource("round_skip_previous_white_48dp.png");
             SkipForward.Source = GetImageSource("round_skip_next_white_48dp.png");
-            Pause.Source = GetImageSource("round_pause_white_48dp.png");
             Audio.Source = GetImageSource("round_volume_up_white_48dp.png");
+            SetPause(IsPaused);
         }
 
         private void AudioClicked(object sender, EventArgs e)
