@@ -41,6 +41,8 @@
     <None Remove="Resource\playBtt.png" />
     <None Remove="Resource\play_png.png" />
     <None Remove="Resource\round_add_white_48dp.png" />
+    <None Remove="Resource\round_audiotrack_white_48dp.png" />
+    <None Remove="Resource\round_build_white_48dp.png" />
     <None Remove="Resource\round_cast_white_48dp2_0.png" />
     <None Remove="Resource\round_cast_white_48dp2_1.png" />
     <None Remove="Resource\round_cast_white_48dp2_2.png" />
@@ -53,7 +55,10 @@
     <None Remove="Resource\round_cast_white_48dp_blue_4.png" />
     <None Remove="Resource\round_check_white_48dp.png" />
     <None Remove="Resource\round_clear_white_48dp.png" />
+    <None Remove="Resource\round_favorite_border_white_48dp.png" />
+    <None Remove="Resource\round_favorite_white_48dp.png" />
     <None Remove="Resource\round_fiber_new_white_48dp.png" />
+    <None Remove="Resource\round_get_app_white_48dp.png" />
     <None Remove="Resource\round_menu_white_48dp.png" />
     <None Remove="Resource\round_more_vert_white_48dp.png" />
     <None Remove="Resource\round_movie_white_48dp.png" />
@@ -98,6 +103,8 @@
     <EmbeddedResource Include="Resource\notBookmarkedBtt.png" />
     <EmbeddedResource Include="Resource\play_png.png" />
     <EmbeddedResource Include="Resource\round_add_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_audiotrack_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_build_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_cast_white_48dp2_4.png" />
     <EmbeddedResource Include="Resource\round_cast_white_48dp2_0.png" />
     <EmbeddedResource Include="Resource\round_cast_white_48dp2_1.png" />
@@ -110,7 +117,10 @@
     <EmbeddedResource Include="Resource\round_cast_white_48dp_blue_4.png" />
     <EmbeddedResource Include="Resource\round_check_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_clear_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_favorite_border_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_favorite_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_fiber_new_white_48dp.png" />
+    <EmbeddedResource Include="Resource\round_get_app_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_menu_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_more_vert_white_48dp.png" />
     <EmbeddedResource Include="Resource\round_movie_white_48dp.png" />

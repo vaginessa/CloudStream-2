@@ -215,12 +215,14 @@ namespace CloudStreamForms
                 }
             }
         }
-
+        const double MAX_LOADING_TIME = 30000;
+        const double MIN_LOADING_TIME = 1000;
+        const int ROUND_LOADING_DECIMALES = 2;
         void Apper()
         {
             Device.BeginInvokeOnMainThread(() => {
-                LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
-                LoadingSlider.Value = ((LoadingMiliSec - 1000.0) / 9000.0);
+                SetSliderTime();
+                LoadingSlider.Value = ((LoadingMiliSec - MIN_LOADING_TIME) / (MAX_LOADING_TIME-MIN_LOADING_TIME));
                 SubtitesToggle.On = SubtitlesEnabled;
                 DubToggle.On = DefaultDub;
                 ViewHistoryToggle.On = !ViewHistory;
@@ -269,8 +271,17 @@ namespace CloudStreamForms
 
         private void Slider_DragCompleted(object sender, EventArgs e)
         {
-            LoadingMiliSec = (int)Math.Round(((Slider)sender).Value * 9000) + 1000;
-            LoadingTime.Text = "Loading Time: " + LoadingMiliSec + "ms";
+            LoadingMiliSec = (int)(Math.Round((Math.Round(((Slider)sender).Value * (MAX_LOADING_TIME-MIN_LOADING_TIME)) + MIN_LOADING_TIME)/Math.Pow(10, ROUND_LOADING_DECIMALES))* Math.Pow(10, ROUND_LOADING_DECIMALES));
+            SetSliderTime();
+        }
+
+        void SetSliderTime()
+        {
+            string s = Math.Round(LoadingMiliSec / 1000.0, 1).ToString();
+            if (!s.Contains(".")) {
+                s += ".0";
+            }
+            LoadingTime.Text = "Loading Time: " + s + "s";
         }
 
         private void TextCell_Tapped(object sender, EventArgs e)

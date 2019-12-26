@@ -72,10 +72,10 @@ namespace CloudStreamForms
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
-           // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-          //  Navigation.PushModalAsync(p, false);
+            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            Navigation.PushModalAsync(p, false);
 
-          //  PushPageFromUrlAndName("tt4869896", "Overlord");
+            //  PushPageFromUrlAndName("tt4869896", "Overlord");
         }
 
 
@@ -254,7 +254,7 @@ namespace CloudStreamForms
             if (inp == -1) {
                 inp = 4;
             }
-            if(inp == 0) {
+            if (inp == 0) {
                 return "round_cast_white_48dp2_0.png";
             }
             return "round_cast_white_48dp_blue_" + inp + ".png";//"ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(inp, 2) + "_mtrl.png";

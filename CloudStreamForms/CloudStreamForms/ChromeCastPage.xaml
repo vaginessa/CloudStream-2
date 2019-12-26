@@ -9,18 +9,19 @@
              x:Class="CloudStreamForms.ChromeCastPage">
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout HorizontalOptions="Fill" >
-                <Label x:Name="NameLabel" FontSize="Title" Text="{Binding TitleName}" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0" TextColor="White" ></Label>
+            <StackLayout  >
+                <Label x:Name="NameLabel" FontSize="Title" Text="{Binding TitleName}" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,-5" TextColor="White" ></Label>
                 <Label x:Name="EpsodeName" Text="{Binding DescriptName}"  HorizontalOptions="Center" TextColor="Gray" Margin="0"></Label>
 
-                <ff:CachedImage HeightRequest="188" WidthRequest="125" Source="{Binding PosterUrl}" InputTransparent="True" Margin="40">
+                <ff:CachedImage HeightRequest="225" WidthRequest="150" Source="{Binding PosterUrl}" InputTransparent="True" Margin="20">
 
                     <ff:CachedImage.Transformations>
-                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="0.67" >
+                        <ffTransformations:RoundedTransformation BorderSize="4" BorderHexColor="#303F9F" CropWidthRatio="0.67" Radius="6">
 
                         </ffTransformations:RoundedTransformation>
                     </ff:CachedImage.Transformations>
                 </ff:CachedImage>
+                <!--
                 <Grid HorizontalOptions="Fill" ColumnSpacing="0" >
                     <Grid.ColumnDefinitions >
                         <ColumnDefinition Width="Auto" />
@@ -30,18 +31,54 @@
                     <ImageButton x:Name="LowVol" Margin="5,-5,-5,-5" Grid.Column="0" BackgroundColor="Transparent" HorizontalOptions="Start"  HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
                     <Slider x:Name="VolSolider" Grid.Column="1" MinimumTrackColor="#303F9F" ThumbColor="#303F9F" HorizontalOptions="Fill"></Slider>
                     <ImageButton Margin="-5,-5,5,-5" x:Name="MaxVol" Grid.Column="2" BackgroundColor="Transparent" HorizontalOptions="End" HeightRequest="{Binding IconSize}" WidthRequest="{Binding IconSize}"></ImageButton>
-                </Grid>
-                <Grid HorizontalOptions="Fill" ColumnSpacing="4" >
-                    <Grid.ColumnDefinitions >
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <ImageButton x:Name="StopAll" Grid.Column="0" BackgroundColor="Transparent" HeightRequest="{Binding BigIconSize}" WidthRequest="{Binding BigIconSize}" Clicked="StopAll_Clicked"></ImageButton>
-                    <ImageButton x:Name="PlayList" Grid.Column="1" BackgroundColor="Transparent"  HeightRequest="{Binding BigIconSize}" WidthRequest="{Binding BigIconSize}"></ImageButton>
-                </Grid>
+                </Grid>-->
+             
+                <BoxView VerticalOptions="FillAndExpand" ></BoxView>
+                <StackLayout TranslationY="-40" >
+                    <Grid HorizontalOptions="Center" ColumnSpacing="30" Margin="10" TranslationY="-20">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ImageButton x:Name="PlayList" Grid.Column="0" BackgroundColor="Transparent"  Scale="{Binding ScaleAll}"  ></ImageButton>
+                        <ImageButton x:Name="StopAll" Grid.Column="1" BackgroundColor="Transparent" Scale="{Binding ScaleAllBig}"  Margin="10"  ></ImageButton>
+                        <ImageButton x:Name="Audio" Grid.Column="2" BackgroundColor="Transparent"  Scale="{Binding ScaleAll}"  Clicked="AudioClicked"></ImageButton>
+                    </Grid>
+                    <Grid HorizontalOptions="Center" ColumnSpacing="20" >
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ImageButton x:Name="SkipBack" Grid.Column="0" BackgroundColor="Transparent" Scale="{Binding ScaleAll}" ></ImageButton>
+                        <ImageButton x:Name="BackForward" Grid.Column="1" BackgroundColor="Transparent"  Scale="{Binding ScaleAll}" ></ImageButton>
+                        <Label Text="{Binding BackForwardTime}" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center" TranslationY="2" TextColor="White" ></Label>
+                        <ImageButton x:Name="Pause" Grid.Column="2" BackgroundColor="Transparent" Clicked="Pause_Clicked" Scale="{Binding ScaleAllBig}" Margin="10" ></ImageButton>
+                        <ImageButton x:Name="FastForward" Grid.Column="3" BackgroundColor="Transparent" Scale="{Binding ScaleAll}"  ></ImageButton>
+                        <Label Text="{Binding FastForwardTime}" Grid.Column="3" VerticalOptions="Center" HorizontalOptions="Center" TranslationY="2" TextColor="White"  ></Label>
+                        <ImageButton x:Name="SkipForward" Grid.Column="4" BackgroundColor="Transparent" Scale="{Binding ScaleAll}" ></ImageButton>
+                    </Grid>
+
+                    <Grid HorizontalOptions="Fill" ColumnSpacing="0" Padding="10,0" Margin="0">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" x:Name="StartTxt" Text="11:13" HorizontalOptions="Start"></Label>
+                        <Label Grid.Row="0" Grid.Column="2" x:Name="EndTxt" Text="54:27" HorizontalOptions="End"></Label>
+                    </Grid>
+                    <Slider x:Name="VideoSlider" Grid.Column="1" MinimumTrackColor="#303F9F" ThumbColor="#303F9F" HorizontalOptions="Fill" Margin="0,0,0,10"></Slider>
+
+
+                </StackLayout>
+               
+                
+               
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
