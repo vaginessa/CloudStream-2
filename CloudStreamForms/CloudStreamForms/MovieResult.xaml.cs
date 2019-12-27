@@ -253,16 +253,15 @@ namespace CloudStreamForms
 
         private void ChromeCastBtt_Clicked(object sender, EventArgs e)
         {
-
             WaitChangeChromeCast();
         }
 
         private void OpenChromecastView(object sender, EventArgs e)
         {
-            // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-            //Navigation.PushModalAsync(p, false);
+             Page p = new ChromeCastPage() { episodeResult = chromeResult };
+            Navigation.PushModalAsync(p, false);
         }
-
+        EpisodeResult chromeResult;
         async void WaitChangeChromeCast()
         {
             List<string> names = MainChrome.GetChromeDevicesNames();
@@ -315,15 +314,16 @@ namespace CloudStreamForms
 
         void SetIsCasting(bool e)
         {
-            e = false;
             ChromeRow.IsVisible = e;
             ChromeRow.IsEnabled = e;
             Grid.SetRow(SecChromeRow, e ? 5 : 4);
         }
+
         public static ImageSource GetGradient()
         {
             return GetImageSource(BlackBg ? "gradient.png" : "gradientGray.png");
         }
+
         public MovieResult()
         {
             InitializeComponent();
@@ -415,27 +415,6 @@ namespace CloudStreamForms
 
             BindingContext = epView;
 
-            // listView.HeightRequest = 100;
-            // starPng.Source = 
-            //MGRID.Children.Add(listView);
-            //Grid.SetRow(listView, 6);
-            //  EpisodeView = listView;
-            /*
-            this.Content = new ScrollView {
-                Content = new StackLayout() {
-                    Children =
-                    {
-                        XGRID,
-                    MGRID,
-                   // episodeView,
-                   SLay,
-                    RText,
-                    MScroll,
-                    }
-                }
-            };
-            */
-            //  Grid.SetRow(RowSeason, 0);
             episodeView.ItemAppearing += EpisodeView_ItemAppearing;
             SizeChanged += MainPage_SizeChanged;
             episodeView.VerticalScrollBarVisibility = Settings.ScrollBarVisibility;
@@ -447,25 +426,9 @@ namespace CloudStreamForms
                 PushPageFromUrlAndName(currentMovie.title.id, currentMovie.title.name);
             };
             ReloadAllBtt.Source = GetImageSource("round_refresh_white_48dp.png");
-            // Grid.SetRow(RowDub, 0);
-            //  Grid.SetRow(RowMal, 0);
-
-            // episodeView.HeightRequest = 0;
-
-            //episodeView.HeightRequest = 10000;
-            // print(mainPoster.name + "|" + mainPoster.url + "|" + mainPoster.year);
             GetImdbTitle(mainPoster);
             currentMovie.title.id = mainPoster.url.Replace("https://imdb.com/title/", "");
             ChangeStar();
-            //  episodeView.HeightRequest = 0;
-            //  AbsoluteLayout.SetLayoutFlags(episodeView, AbsoluteLayoutFlags.PositionProportional);
-            //   AbsoluteLayout.SetLayoutBounds(episodeView, new Rectangle(0f, 0f, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
-
-
-
-
-
-
         }
 
         private void MovieResult_yesmovieFishingDone(object sender, Movie e)
@@ -1455,12 +1418,17 @@ namespace CloudStreamForms
             action = await DisplayActionSheet(episodeResult.Title, "Cancel", null, actions.ToArray());
 
             if (action == "Chromecast") {
+                print("STAARTYCHROMECAST");
+                chromeResult = episodeResult;
+                MainChrome.CastVideo(episodeResult.mirrosUrls[0], episodeResult.Mirros[0]);
+                print("CASTOS");
+                /*
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (episodeResult.Mirros[i] == download) {
                         MainChrome.CastVideo(episodeResult.mirrosUrls[i], episodeResult.Mirros[i]);
                     }
-                }
+                }*/
             }
 
             if (action == "Play") {

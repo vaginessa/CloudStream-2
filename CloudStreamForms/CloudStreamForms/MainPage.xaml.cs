@@ -72,118 +72,14 @@ namespace CloudStreamForms
             }
             On<Xamarin.Forms.PlatformConfiguration.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
-            Page p = new ChromeCastPage();// { mainPoster = mainPoster };
-            Navigation.PushModalAsync(p, false);
+            // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
+            // Navigation.PushModalAsync(p, false);
 
             //  PushPageFromUrlAndName("tt4869896", "Overlord");
+            PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
 
-
-
-
-
         // -------------------------------- END --------------------------------
-
-        /*
-       public struct Vector2
-       {
-           public int x;
-           public int y;
-           public Vector2(int X, int Y)
-           {
-               x = X;
-               y = Y;
-           }
-
-       }
-
-
-       //public const int POSTER_WITH = 90;
-       //public const int POSTER_HIGHT = 135;
-
-       //public static int PosterAtScreenWith { get { return GetPostersWithAtCurrentScreen(); } }
-       //  public static int PosterAtScreenHight { get { return GetPostersHightAtCurrentScreen(); } }
-       private void MainPage_SizeChanged(object sender, EventArgs e)
-       {
-
-           /*
-           if (imageButtons.Count == 0 || !initialized) return;
-
-           if (Device.OS == TargetPlatform.Windows) {
-               GRID.RowSpacing = -POSTER_HIGHT - 5;
-           }
-           for (int i = 0; i < imageButtons.Count; i++) {
-               try {
-                   Grid.SetColumn(imageButtons[i], i % PosterAtScreenWith);
-                   Grid.SetRow(imageButtons[i], (int)(i / PosterAtScreenWith));
-               }
-               catch (Exception) {
-                   throw;
-               }
-
-           }
-
-
-       }
-
-       public static Vector2 GetRez()
-       {
-           int intHeight = (int)DeviceDisplay.MainDisplayInfo.Height;
-           int intWidth = (int)DeviceDisplay.MainDisplayInfo.Width;
-
-           if (Device.OS == TargetPlatform.Android) {
-               bool reverse = intHeight < intWidth;
-
-               int rows = reverse ? 5 : 3;
-               float f = (float)(POSTER_WITH * rows) / (float)intWidth;
-               intWidth = POSTER_WITH * rows;
-               intHeight = (int)(intHeight * f);
-           }
-           else if (Device.OS == TargetPlatform.Windows) {
-               intHeight = (int)Application.Current.MainPage.Height;
-               intWidth = (int)Application.Current.MainPage.Width;
-           }
-           //intHeight = (int)Application.Current.MainPage.Height;
-           //intWidth = (int)Application.Current.MainPage.Width;
-
-           /*
-#if __ANDROID__
-        intHeight = (int)(App.Current.Resources["DisplayMetrics"].HeightPixels / App.Current.Resources["DisplayMetrics"].Density);
-        intWidth = (int)(App.Current.Resources["DisplayMetrics"].WidthPixels / App.Current.Resources["DisplayMetrics"].Density);
-#else
-#if __IOS___
-        intHeight = UIScreen.MainScreen.Bounds.Height; 
-        intWidth = UIScreen.MainScreen.Bounds.Width;
-#else
-#if WINDOWS_PHONE_APP
-        intHeight = Window.Current.Bounds.Height; 
-        intWidth = Window.Current.Bounds.Width;
-#else
-                intHeight = (int)Application.Current.MainPage.Height;
-                intWidth = (int)Application.Current.MainPage.Width;
-#endif
-#endif
-#endif
-
-           return new Vector2(intWidth, intHeight);
-       }
-
-       private static int GetPostersWithAtCurrentScreen()
-       {
-
-
-           return (int)((double)GetRez().x / (double)POSTER_WITH);
-
-       }
-       private static int GetPostersHightAtCurrentScreen()
-       {
-           //print(Application.Current.MainPage.Width + "|" + POSTER_WITH);
-
-           // return (int)(Application.Current.MainPage.Height / (double)POSTER_HIGHT);
-           return (int)((double)GetRez().y / (double)POSTER_HIGHT);
-
-       }*/
-
     }
 
     public static class MainChrome
@@ -204,6 +100,7 @@ namespace CloudStreamForms
                 return false;
             }
         }
+
         public static bool IsConnectedToChromeDevice { set; get; }
         public static bool IsPendingConnection { set; get; }
         public static bool IsCastingVideo { set { _isCastingVideo = value; OnVideoCastingChanged?.Invoke(null, value); } get { return _isCastingVideo; } }
@@ -211,6 +108,7 @@ namespace CloudStreamForms
         public static bool IsPaused { set; get; }
         public static bool IsPlaying { set; get; }
         public static double CurrentCastingDuration { get; set; }
+
         public static IEnumerable<IReceiver> allChromeDevices;
         public static IMediaChannel CurrentChannel;
         public static MediaStatus CurrentChromeMedia;
@@ -218,6 +116,7 @@ namespace CloudStreamForms
         public static IReceiver chromeRecivever;
         static DateTime castUpdatedNow;
         static double castLastUpdate;
+
         public static double CurrentTime
         {
             get {
@@ -232,23 +131,28 @@ namespace CloudStreamForms
                 }
             }
         }
+
         private static bool IsStopped
         {
             get {
                 return CurrentChannel.Status == null || !string.IsNullOrEmpty(CurrentChannel.Status.FirstOrDefault()?.IdleReason);
             }
         }
+
         static int CurrentImage = 0;
+
         public static string MultiplyString(string s, int times)
         {
             return String.Concat(Enumerable.Repeat(s, times));
         }
+
         public static string ConvertScoreToArcadeScore(object inp, int maxLetters = 8, string multiString = "0")
         {
             string inpS = inp.ToString();
             inpS = MultiplyString(multiString, maxLetters - inpS.Length) + inpS;
             return inpS;
         }
+
         public static string GetSourceFromInt(int inp = -1)
         {
             if (inp == -1) {
@@ -259,7 +163,9 @@ namespace CloudStreamForms
             }
             return "round_cast_white_48dp_blue_" + inp + ".png";//"ic_media_route_connected_dark_" + ConvertScoreToArcadeScore(inp, 2) + "_mtrl.png";
         }
+
         public static string CurrentImageSource { get { return GetSourceFromInt(CurrentImage); } }
+
         public static async Task StartImageChanger()
         {
             while (true) {
@@ -284,6 +190,7 @@ namespace CloudStreamForms
                 await Task.Delay(500);
             }
         }
+
         public static async void GetAllChromeDevices()
         {
             print("SCANNING");
@@ -294,6 +201,7 @@ namespace CloudStreamForms
                 OnChromeDevicesFound?.Invoke(null, null);
             }
         }
+
         public static List<string> GetChromeDevicesNames()
         {
             if (allChromeDevices == null) {
@@ -305,6 +213,7 @@ namespace CloudStreamForms
             }
             return allNames;
         }
+
         private static void ChromeChannel_StatusChanged(object sender, EventArgs e)
         {
             MediaStatus mm = CurrentChannel.Status.FirstOrDefault();
@@ -316,6 +225,7 @@ namespace CloudStreamForms
             castUpdatedNow = DateTime.Now;
             castLastUpdate = mm.CurrentTime;
         }
+
         // Subtitle Url https://static.movies123.pro/files/tracks/JhUzWRukqeuUdRrPCe0R3lUJ1SmknAVSv670Ep0cXipm1JfMgNWa379VKKAz8nvFMq2ksu7bN5tCY5tXXKS4Lrr1tLkkipdLJNArNzVSu2g.srt
         public static async void CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
         {
@@ -367,18 +277,22 @@ namespace CloudStreamForms
 
             }
             catch (System.Exception) {
+                print("ERROR");
                 await Task.CompletedTask;
             }
         }
+
         public static void SetChromeTime(double time)
         {
             print("Seek To: " + time);
             CurrentChannel.SeekAsync(time);
         }
+
         public static void SeekMedia(double sec)
         {
             SetChromeTime(CurrentTime + sec);
         }
+
         public static void PauseAndPlay(bool paused)
         {
             if (paused) {
@@ -388,6 +302,7 @@ namespace CloudStreamForms
                 CurrentChannel.PlayAsync();
             }
         }
+
         public static async void StopCast()
         {
             try {
@@ -407,6 +322,7 @@ namespace CloudStreamForms
             IsCastingVideo = false;
             Console.WriteLine("STOP CASTING!");
         }
+
         public static async void ConnectToChromeDevice(string name)
         {
             if (name == "Disconnect") {
@@ -439,6 +355,7 @@ namespace CloudStreamForms
             }
             //}
         }
+
         private static async Task SetVolumeAsync(float level) // 0 = 0%, 1 = 100%
         {
             if (IsCastingVideo) {
@@ -448,7 +365,9 @@ namespace CloudStreamForms
                 await Task.CompletedTask;
             }
         }
+
         private static async Task SendChannelCommandAsync<TChannel>(bool condition, Func<TChannel, Task> action, Func<TChannel, Task> otherwise) where TChannel : IChannel => await InvokeAsync(condition ? action : otherwise);
+
         private static async Task InvokeAsync<TChannel>(Func<TChannel, Task> action) where TChannel : IChannel
         {
             if (action != null) {
@@ -459,10 +378,6 @@ namespace CloudStreamForms
 
     public static class Main
     {
-
-
-
-
         // -------------------------------- END CHROMECAST --------------------------------
 
 
@@ -1112,6 +1027,30 @@ namespace CloudStreamForms
         {
             return System.Net.WebUtility.HtmlDecode(inp);
         }
+
+        public static void GetWatchTV(int season, int episode, int normalEpisode)
+        {
+            TempThred tempThred = new TempThred();
+            tempThred.typeId = 1; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    string url = "https://www.tvseries.video/series/" + ToDown(activeMovie.title.name, replaceSpace: "-") + "/" + "season-" + season + "-episode-" + episode;
+
+                    string d = DownloadString(url);
+                    string vidId = FindHTML(d, " data-vid=\"", "\"");
+                    if (vidId != "") {
+                        d = DownloadString("https://www.tvseries.video" + vidId);
+                        AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                    }
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "FishWatch";
+            tempThred.Thread.Start();
+        }
+
         public static void GetMALData(bool cacheData = true)
         {
             bool fetchData = true;
@@ -1849,21 +1788,24 @@ namespace CloudStreamForms
                         string title = FindHTML(d, "title=\"", "\"");
                         string _d = DownloadString("http://watchserieshd.tv" + href);
                         if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                        string imdbScore = FindHTML(_d, "IMDB: ", " ");
-                        string released = FindHTML(_d, "Released: ", " ").Substring(0, 4);
-                        int season = -1;
-                        for (int i = 0; i < 100; i++) {
-                            if (title.Contains(" - Season " + i)) {
-                                season = i;
+                        try {
+                            string imdbScore = FindHTML(_d, "IMDB: ", " ");
+                            string released = FindHTML(_d, "Released: ", " ").Substring(0, 4);
+                            int season = -1;
+                            for (int i = 0; i < 100; i++) {
+                                if (title.Contains(" - Season " + i)) {
+                                    season = i;
+                                }
                             }
+                            string removedTitle = title.Replace(" - Season " + season, "").Replace(" ", "");
+
+                            print(imdbScore + "|" + released + "|" + href + "|" + title + "|" + removedTitle);
+
+                            fishWatches.Add(new FishWatch() { imdbScore = imdbScore, released = released, removedTitle = removedTitle, season = season, title = title, href = href });
                         }
-                        string removedTitle = title.Replace(" - Season " + season, "").Replace(" ", "");
+                        catch (Exception) {
 
-                        print(imdbScore + "|" + released + "|" + href + "|" + title + "|" + removedTitle);
-
-                        fishWatches.Add(new FishWatch() { imdbScore = imdbScore, released = released, removedTitle = removedTitle, season = season, title = title, href = href });
-
+                        }
 
 
                         // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
@@ -2328,6 +2270,19 @@ namespace CloudStreamForms
 
                 }
             }
+            string __d = d.ToString();
+            string lookFor = "https://redirector.googlevideo.com/";
+            int prio = 10;
+            while (__d.Contains(lookFor)) {
+                prio++;
+                __d = "|:" + RemoveOne(__d, lookFor);
+                string all = FindHTML(__d, "|", "}");
+                string url = FindHTML(all, ":", "\'");
+                string label = FindHTML(all, "label: \'", "\'").Replace(" P","p");
+                AddPotentialLink(normalEpisode, "h" + url, "GoogleVideo " + label, prio);
+
+            }
+
 
             string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");
             if (fembed == "") {
@@ -2337,21 +2292,30 @@ namespace CloudStreamForms
                 GetFembed(fembed, tempThred, normalEpisode);
             }
 
-
+            string nameId = "Vidstreaming";
             string vid = FindHTML(d, "data-video=\"//vidstreaming.io/streaming.php?", "\"");
+            string beforeId = "https://vidstreaming.io/download?id=";
             if (vid == "") {
                 vid = FindHTML(d, "//vidstreaming.io/streaming.php?", "\"");
             }
             if (vid == "") {
                 vid = FindHTML(d, "//vidnode.net/load.php?id=", "\"");
             }
+
+            if (vid == "") {
+                vid = FindHTML(d, "//vidcloud9.com/download?id=", "\"");
+                if (vid != "") {
+                    beforeId = "https://vidcloud9.com/download?id=";
+                    nameId = "VidCloud";
+                }
+            }
             print(">>STREAM::" + vid);
             if (vid != "") {
-                string dLink = "https://vidstreaming.io/download?id=" + vid.Replace("id=", "");
+                string dLink = beforeId + vid.Replace("id=", "");
                 string _d = DownloadString(dLink, tempThred);
                 if (!GetThredActive(tempThred)) { return; };
 
-                GetVidNode(_d, normalEpisode);
+                GetVidNode(_d, normalEpisode, nameId);
 
                 /* // OLD CODE, ONLY 403 ERROR DOSEN'T WORK ANYMORE
                 vid = "http://vidstreaming.io/streaming.php?" + vid;
@@ -2492,6 +2456,7 @@ namespace CloudStreamForms
                         }
                         if (activeMovie.title.movieType == MovieType.TVSeries) {
                             GetTMDB(episode, season, normalEpisode);
+                            GetWatchTV(season, episode, normalEpisode);
                         }
 
                         if (activeMovie.title.yesmoviessSeasonDatas != null) {
@@ -2590,7 +2555,7 @@ namespace CloudStreamForms
 
         }
 
-        static void GetVidNode(string _d, int normalEpisode)
+        static void GetVidNode(string _d, int normalEpisode, string urlName = "Vidstreaming")
         {
             string linkContext = FindHTML(_d, "<h6>Link download</h6>", " </div>");
             print(linkContext + " :LX");
@@ -2601,7 +2566,7 @@ namespace CloudStreamForms
             while (linkContext.Contains(lookFor)) {
                 string link = FindHTML(linkContext, lookFor, "\"");
                 string _nameContext = FindHTML(linkContext, link, "</a></div>") + "</a></div>";
-                string name = "Vidstreaming (" + FindHTML(_nameContext, "            (", "</a></div>");
+                string name = urlName + " (" + FindHTML(_nameContext, "            (", "</a></div>");
                 link = link.Replace("&amp;", "&");
 
                 print("LINK: " + link + "|" + name);
@@ -3143,11 +3108,27 @@ namespace CloudStreamForms
         {
             if (!LinkListContainsString(activeMovie.episodes[_episode].links, _url)) {
                 if (CheckIfURLIsValid(_url)) {
+                    print("ADD LINK:" + _episode + "|" + _name + "|" + _priority + "|" + _url);
                     Episode ep = activeMovie.episodes[_episode];
                     if (ep.links == null) {
                         activeMovie.episodes[_episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                     }
-                    var link = new Link() { priority = _priority, url = _url, name = _name };
+                    bool done = false;
+                    int count = 1;
+                    string realName = _name;
+                    while (!done && !realName.Contains("[MIRRORCOUNTER]")) {
+                        count++;
+                        done = true;
+                        for (int i = 0; i < ep.links.Count; i++) {
+                            if (ep.links[i].name == realName) {
+                                realName = _name + " (" + count + ")";
+                                done = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    var link = new Link() { priority = _priority, url = _url, name = realName };
                     activeMovie.episodes[_episode].links.Add(link); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                     linkAdded?.Invoke(null, link);
                     return true;

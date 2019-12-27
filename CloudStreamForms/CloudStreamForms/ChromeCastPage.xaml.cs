@@ -21,7 +21,7 @@ namespace CloudStreamForms
 
         public string TitleName { set; get; } = "Iron Man";
         public string DescriptName { set; get; } = "Episode 1. Hello World!";
-        public string PosterUrl { set; get; } = "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX1820_CR0,0,1820,2680_AL_.jpg";
+        public string PosterUrl { set; get; } =   "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX1820_CR0,0,1820,2680_AL_.jpg";
         public int IconSize { set; get; } = 48;
         public int BigIconSize { set; get; } = 60;
         public int FastForwardTime { set; get; } = 30;
@@ -39,7 +39,13 @@ namespace CloudStreamForms
 
         public ChromeCastPage()
         {
+
             InitializeComponent(); BindingContext = this;
+            
+            TitleName = episodeResult.Title;
+            PosterUrl = episodeResult.PosterUrl;
+            DescriptName = episodeResult.Mirros[currentSelected];
+
             //https://material.io/resources/icons/?style=baseline
             VideoSlider.DragStarted += (o, e) => {
                 draging = true;
@@ -80,6 +86,7 @@ namespace CloudStreamForms
                     }
                 }
             };
+            ConstUpdate();
             /*
             LowVol.Source = GetImageSource("round_volume_down_white_48dp.png");
             MaxVol.Source = GetImageSource("round_volume_up_white_48dp.png");*/
