@@ -141,7 +141,7 @@
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <Grid Grid.Row="0"  Grid.Column="0" >
-                                                            <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
+                                                            <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" FontAttributes="Bold" FontSize="13"/>
                                                         </Grid>
                                                         <Grid Grid.Row="1"  Grid.Column="0" >
                                                             <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />

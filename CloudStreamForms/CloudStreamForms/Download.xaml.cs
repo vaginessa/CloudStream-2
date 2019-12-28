@@ -145,7 +145,6 @@ namespace CloudStreamForms
             Device.BeginInvokeOnMainThread(() => episodeView.HeightRequest = epView.MyEpisodeResultCollection.Count * episodeView.RowHeight + 20);
         }
 
-
         void UpdateDownloads()
         {
             List<string> keys = App.GetKeys<string>("Download");
@@ -202,7 +201,9 @@ namespace CloudStreamForms
                         }
                     }
                     bool isYouTube = keys[i].Contains("isYouTube=" + true);
-                   
+                    
+                    if(downloadDone) { stuckDownload = false; }
+
                     AddEpisode(new EpisodeResult() {
                         Description = episodeDescript,
                         PosterUrl = posterUrl,
@@ -212,7 +213,7 @@ namespace CloudStreamForms
                         MainTextColor = stuckDownload ? "#D10E3C" : "#FFFFFF",
                         ExtraColor = stuckDownload ? "#D10E3C" : "#303F9F",
                         MainDarkTextColor = stuckDownload ? "#7D0824" : "#808080",
-                        
+
                         DownloadNotDone = !downloadDone,
                         Mirros = new List<string>() { "Download" },
                         mirrosUrls = new List<string>() { moviePath },
@@ -375,6 +376,17 @@ namespace CloudStreamForms
         {
             EpisodeResult episodeResult = ((EpisodeResult)((ImageButton)sender).BindingContext);
             PlayEpisode(episodeResult);
+        }
+
+
+        private void Grid_BindingContextChanged(object sender, EventArgs e)
+        {
+            var c = ((FFImageLoading.Forms.CachedImage)((Grid)sender).Children[1]);
+
+            c.Transformations.Clear();
+            var ep = ((EpisodeResult)c.BindingContext);
+            c.Transformations = new List<FFImageLoading.Work.ITransformation>() { new FFImageLoading.Transformations.RoundedTransformation() { BorderHexColor = ep.ExtraColor, BorderSize = 10,CropWidthRatio=1.5 } };
+
         }
     }
 

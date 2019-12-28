@@ -23,7 +23,11 @@ namespace CloudStreamForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MovieResult : ContentPage
     {
+        public int SmallFontSize { get; set; } = 11;
+        public int WithSize { get; set; } = 50;
 
+
+        
         public Poster mainPoster;
         public string trailerUrl = "";
         List<Button> recBtts = new List<Button>();
@@ -412,7 +416,10 @@ namespace CloudStreamForms
             // Gradient.Opacity = BlackBg ? 1 : 0.5;
 
             MALBtt.IsVisible = false;
+            MALBtt.IsEnabled = false;
             MALTxt.IsVisible = false;
+            MALTxt.IsEnabled = false;
+
             epView = new MainEpisodeView();
             SetHeight();
 
@@ -778,13 +785,12 @@ namespace CloudStreamForms
                     int selIndex = App.GetKey<int>("SeasonIndex", activeMovie.title.id, 0);
                     try {
                         SeasonPicker.SelectedIndex = Math.Min(selIndex, SeasonPicker.Items.Count - 1);
-
                     }
                     catch (Exception) {
                         SeasonPicker.SelectedIndex = 0; // JUST IN CASE
                     }
 
-                    currentSeason = 1;
+                    currentSeason = SeasonPicker.SelectedIndex+1;
                     GetImdbEpisodes(currentSeason);
                 }
                 else {
@@ -1004,8 +1010,12 @@ namespace CloudStreamForms
 
                 DubPicker.IsVisible = DubPicker.Items.Count > 0;
                 print(DubPicker.IsVisible + "ENABLED");
-                MALBtt.IsVisible = CurrentMalLink != "";
-                MALTxt.IsVisible = MALBtt.IsVisible;
+                bool enabled = CurrentMalLink != "";
+                MALBtt.IsVisible = enabled;
+                MALBtt.IsEnabled = enabled;
+                MALTxt.IsVisible = enabled;
+                MALTxt.IsEnabled = enabled;
+                
                 SetRows();
 
             });

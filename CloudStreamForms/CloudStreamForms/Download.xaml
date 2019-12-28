@@ -113,14 +113,14 @@
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}">
+                                            <Grid Grid.Row="0"  Grid.Column="0"  WidthRequest="126" TranslationY="{Binding TranslateYOffset}" BindingContextChanged="Grid_BindingContextChanged">
 
                                                 <ImageButton Clicked="ImageButton_Clicked" BackgroundColor="Transparent" WidthRequest="126"></ImageButton>
 
-                                                <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
+                                                <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True"   >
 
                                                     <ff:CachedImage.Transformations>
-                                                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
+                                                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5"  >
 
                                                         </ffTransformations:RoundedTransformation>
                                                     </ff:CachedImage.Transformations>
@@ -147,14 +147,11 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <Grid Grid.Row="0"  Grid.Column="0" >
-                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
+                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" FontAttributes="Bold" FontSize="13"/>
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
                                                         <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
                                                     </Grid>
-
-
-
                                                 </Grid>
                                             </Grid>
 

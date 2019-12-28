@@ -83,7 +83,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                          
                         </ff:CachedImage>
                         <ImageButton x:Name="ChromeCastBtt" BackgroundColor="Transparent" Clicked="ChromeCastBtt_Clicked"  WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start"></ImageButton>
-                        <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" Margin="10,10,10,10" TranslationY="-20" TextColor="White" ></Label>
+                        <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" Margin="10,10,10,10" TranslationY="-10" TextColor="White" ></Label>
                     </Grid>
 
                     <Grid Grid.Row="2"  Grid.Column="0">
@@ -102,12 +102,12 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     </Grid>
 
 
-                    <Grid Grid.Row="5"  Grid.Column="0" x:Name="SecChromeRow">
+                    <Grid Grid.Row="5"  Grid.Column="0" x:Name="SecChromeRow" Margin="4,0,5,0">
                         <Grid HorizontalOptions="Start" HeightRequest="60" TranslationX="0"  x:Name="QuickMenu" Margin="5">
                             <Grid>
                                 <Grid Grid.Row="0"  Grid.Column="0">
                                     <!--595959-->
-                                    <ff:CachedImage x:Name="StarBtt" HeightRequest="50"  BackgroundColor="Transparent" >
+                                    <ff:CachedImage x:Name="StarBtt" HeightRequest="50"  BackgroundColor="Transparent"  WidthRequest="50">
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#201E20" ></ffTransformations:TintTransformation>
 
@@ -116,11 +116,11 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton BackgroundColor="Transparent" Clicked="StarBttClicked"></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="0">
-                                    <Label Text="Bookmark" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                    <Label Text="Bookmark" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
 
                                 <Grid Grid.Row="0"  Grid.Column="1">
-                                    <ff:CachedImage x:Name="SubtitleBtt" HeightRequest="40"  BackgroundColor="Transparent" >
+                                    <ff:CachedImage x:Name="SubtitleBtt" HeightRequest="40"  BackgroundColor="Transparent"  WidthRequest="50">
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#595959" ></ffTransformations:TintTransformation>
 
@@ -129,12 +129,12 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton BackgroundColor="Transparent" Clicked="SubtitleBttClicked" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="1">
-                                    <Label Text="Subtitles"  HorizontalOptions="Center" TextColor="Gray"></Label>
+                                    <Label Text="Subtitles"  HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
 
                                 <Grid Grid.Row="0"  Grid.Column="2">
 
-                                    <ff:CachedImage x:Name="ViewToggle" InputTransparent="True" BackgroundColor="Transparent" >
+                                    <ff:CachedImage x:Name="ViewToggle" InputTransparent="True" BackgroundColor="Transparent"  WidthRequest="50">
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#595959" ></ffTransformations:TintTransformation>
 
@@ -143,11 +143,11 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton BackgroundColor="Transparent" Clicked="ViewToggle_Clicked" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="2">
-                                    <Label Text="Viewstate" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                    <Label Text="Viewstate" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"> </Label>
                                 </Grid>
                                 <Grid Grid.Row="0"  Grid.Column="3">
 
-                                    <ff:CachedImage x:Name="ShareBtt"  HeightRequest="40"  BackgroundColor="Transparent" Scale="1.2">
+                                    <ff:CachedImage x:Name="ShareBtt"  HeightRequest="40"  BackgroundColor="Transparent" Scale="1.2"  WidthRequest="50">
                                         <!--Scale="0.8"-->
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#595959" ></ffTransformations:TintTransformation>
@@ -157,11 +157,11 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton BackgroundColor="Transparent" Clicked="ShareBttClicked" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="3">
-                                    <Label Text="Share" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                    <Label Text="Share" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
 
                                 <Grid Grid.Row="0"  Grid.Column="4">
-                                    <ff:CachedImage x:Name="IMDbBtt" HeightRequest="40"  BackgroundColor="Transparent" Scale="0.8" >
+                                    <ff:CachedImage x:Name="IMDbBtt" HeightRequest="40"  BackgroundColor="Transparent" Scale="0.8" WidthRequest="50" >
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#595959" ></ffTransformations:TintTransformation>
 
@@ -170,11 +170,11 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton  Clicked="IMDb_Clicked" BackgroundColor="Transparent" HeightRequest="30" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="4">
-                                    <Label Text="IMDb" HorizontalOptions="Center" TextColor="Gray"></Label>
+                                    <Label Text="IMDb" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
 
                                 <Grid Grid.Row="0"  Grid.Column="5">
-                                    <ff:CachedImage x:Name="MALBtt" HeightRequest="30"  BackgroundColor="Transparent" TranslationY="2" TranslationX="7" Scale="0.8">
+                                    <ff:CachedImage x:Name="MALBtt" HeightRequest="30"  BackgroundColor="Transparent" TranslationY="2" TranslationX="7" Scale="0.8" WidthRequest="50">
                                         <ff:CachedImage.Transformations>
                                             <ffTransformations:TintTransformation HexColor="#595959" ></ffTransformations:TintTransformation>
 
@@ -183,7 +183,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton Clicked="MAL_Clicked"   BackgroundColor="Transparent" HeightRequest="30" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="5">
-                                    <Label Text="MAL" HorizontalOptions="Center"  x:Name="MALTxt"  TextColor="Gray" TranslationX="10" ></Label>
+                                    <Label Text="MAL" HorizontalOptions="Center"  x:Name="MALTxt"  TextColor="Gray" TranslationX="7" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
                             </Grid>
 
@@ -290,7 +290,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <Grid Grid.Row="0"  Grid.Column="0" >
-                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" />
+                                                        <Label Text="{Binding Title}" TextColor="{Binding MainTextColor}" FontAttributes="Bold" FontSize="13"/>
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
                                                         <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
