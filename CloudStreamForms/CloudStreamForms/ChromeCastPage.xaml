@@ -10,10 +10,10 @@
     <ContentPage.Content>
         <ScrollView>
             <StackLayout  >
-                <Label x:Name="NameLabel" FontSize="Title" Text="{Binding TitleName}" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,-5" TextColor="White" ></Label>
+                <Label x:Name="NameLabel" FontSize="Title"  FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,-5" TextColor="White" ></Label>
                 <Label x:Name="EpsodeName"  HorizontalOptions="Center" TextColor="Gray" Margin="0"></Label>
 
-                <ff:CachedImage HeightRequest="225" WidthRequest="150" Source="{Binding PosterUrl}" InputTransparent="True" Margin="20">
+                <ff:CachedImage x:Name="Poster" HeightRequest="225" WidthRequest="150"  InputTransparent="True" Margin="20">
 
                     <ff:CachedImage.Transformations>
                         <ffTransformations:RoundedTransformation BorderSize="4" BorderHexColor="#303F9F" CropWidthRatio="0.67" Radius="6">
@@ -21,6 +21,18 @@
                         </ffTransformations:RoundedTransformation>
                     </ff:CachedImage.Transformations>
                 </ff:CachedImage>
+
+                <Label x:Name="EpTitleLabel" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,-5" TextColor="White" ></Label>
+                <Label x:Name="EpTitleDescript" FontSize="Default" TextColor="Gray" FontAttributes="Italic" HorizontalOptions="Center" Margin="20,10"  ></Label>
+                <!--
+                <ff:CachedImage  x:Name="EpisodePoster" HorizontalOptions="Start" WidthRequest="100" InputTransparent="True" Margin="20">
+
+                    <ff:CachedImage.Transformations>
+                        <ffTransformations:RoundedTransformation BorderSize="4" BorderHexColor="#303F9F" CropWidthRatio="1.5" Radius="6">
+
+                        </ffTransformations:RoundedTransformation>
+                    </ff:CachedImage.Transformations>
+                </ff:CachedImage>-->
                 <!--
                 <Grid HorizontalOptions="Fill" ColumnSpacing="0" >
                     <Grid.ColumnDefinitions >
@@ -35,7 +47,7 @@
              
                 <BoxView VerticalOptions="FillAndExpand" ></BoxView>
                 <StackLayout TranslationY="-40" >
-                    <Grid HorizontalOptions="Center" ColumnSpacing="30" Margin="10" TranslationY="-20">
+                    <Grid HorizontalOptions="Center" ColumnSpacing="30" Margin="10" TranslationY="-10">
                         <Grid.ColumnDefinitions >
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />

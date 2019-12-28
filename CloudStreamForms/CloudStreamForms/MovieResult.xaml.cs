@@ -258,15 +258,16 @@ namespace CloudStreamForms
 
         private void OpenChromecastView(object sender, EventArgs e)
         {
-            if(sender != null) {
+            if (sender != null) {
                 ChromeCastPage.isActive = false;
             }
             if (!ChromeCastPage.isActive) {
-                Page p = new ChromeCastPage() { episodeResult = chromeResult };
+                Page p = new ChromeCastPage() { episodeResult = chromeResult, chromeMovieResult = chromeMovieResult };
                 Navigation.PushModalAsync(p, false);
             }
         }
         public static EpisodeResult chromeResult;
+        public static Movie chromeMovieResult;
         async void WaitChangeChromeCast()
         {
             List<string> names = MainChrome.GetChromeDevicesNames();
@@ -1432,6 +1433,7 @@ namespace CloudStreamForms
             if (action == "Chromecast") {
                 print("STAARTYCHROMECAST");
                 chromeResult = episodeResult;
+                chromeMovieResult = currentMovie;
                 bool succ = false;
                 int count = -1;
                 episodeView.SelectedItem = null;

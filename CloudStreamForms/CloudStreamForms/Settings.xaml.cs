@@ -25,6 +25,15 @@ namespace CloudStreamForms
                 return App.GetKey("Settings", nameof(LoadingMiliSec), 5000);
             }
         }
+        public static int LoadingChromeSec
+        {
+            set {
+                App.SetKey("Settings", nameof(LoadingChromeSec), value);
+            }
+            get {
+                return App.GetKey("Settings", nameof(LoadingChromeSec), 30);
+            }
+        }
 
         public static bool DefaultDub
         {
@@ -217,12 +226,18 @@ namespace CloudStreamForms
         }
         const double MAX_LOADING_TIME = 30000;
         const double MIN_LOADING_TIME = 1000;
+        const double MIN_LOADING_CHROME = 5;
+        const double MAX_LOADING_CHROME = 60;
+
         const int ROUND_LOADING_DECIMALES = 2;
+        const int ROUND_LOADING_CHROME_DECIMALES = 0;
         void Apper()
         {
             Device.BeginInvokeOnMainThread(() => {
                 SetSliderTime();
+                SetSliderChromeTime();
                 LoadingSlider.Value = ((LoadingMiliSec - MIN_LOADING_TIME) / (MAX_LOADING_TIME-MIN_LOADING_TIME));
+                CastSlider.Value = ((LoadingChromeSec - MIN_LOADING_CHROME) / (MAX_LOADING_CHROME-MIN_LOADING_CHROME));
                 SubtitesToggle.On = SubtitlesEnabled;
                 DubToggle.On = DefaultDub;
                 ViewHistoryToggle.On = !ViewHistory;
@@ -274,6 +289,11 @@ namespace CloudStreamForms
             LoadingMiliSec = (int)(Math.Round((Math.Round(((Slider)sender).Value * (MAX_LOADING_TIME-MIN_LOADING_TIME)) + MIN_LOADING_TIME)/Math.Pow(10, ROUND_LOADING_DECIMALES))* Math.Pow(10, ROUND_LOADING_DECIMALES));
             SetSliderTime();
         }
+        private void Slider_DragCompleted2(object sender, EventArgs e)
+        {
+            LoadingChromeSec = (int)(Math.Round((Math.Round(((Slider)sender).Value * (MAX_LOADING_CHROME - MIN_LOADING_CHROME)) + MIN_LOADING_CHROME) / Math.Pow(10, ROUND_LOADING_CHROME_DECIMALES)) * Math.Pow(10, ROUND_LOADING_CHROME_DECIMALES));
+            SetSliderChromeTime();
+        }
 
         void SetSliderTime()
         {
@@ -282,6 +302,11 @@ namespace CloudStreamForms
                 s += ".0";
             }
             LoadingTime.Text = "Loading Time: " + s + "s";
+        }
+
+        void SetSliderChromeTime()
+        {
+            CastTime.Text = "Chromecast skip time: " + LoadingChromeSec + "s";
         }
 
         private void TextCell_Tapped(object sender, EventArgs e)

@@ -76,7 +76,7 @@ namespace CloudStreamForms
             // Navigation.PushModalAsync(p, false);
 
             //  PushPageFromUrlAndName("tt4869896", "Overlord");
-            PushPageFromUrlAndName("tt0371746", "Iron Man");
+           // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
 
         // -------------------------------- END --------------------------------
@@ -3146,13 +3146,13 @@ namespace CloudStreamForms
                         done = true;
                         for (int i = 0; i < ep.links.Count; i++) {
                             if (ep.links[i].name == realName) {
-                                realName = _name + " (" + count + ")";
+                                realName = _name + " (Mirror " + count + ")";
                                 done = false;
                                 break;
                             }
                         }
                     }
-
+                    realName = realName.Replace("  ", " ");
                     var link = new Link() { priority = _priority, url = _url, name = realName };
                     activeMovie.episodes[_episode].links.Add(link); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                     linkAdded?.Invoke(null, link);

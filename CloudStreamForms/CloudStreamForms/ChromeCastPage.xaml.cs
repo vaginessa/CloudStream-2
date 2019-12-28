@@ -18,14 +18,25 @@ namespace CloudStreamForms
     public partial class ChromeCastPage : ContentPage
     {
         public EpisodeResult episodeResult;
+        public Movie chromeMovieResult;
 
-        public string TitleName { set; get; } = "Iron Man";
+        public string TitleName { set { NameLabel.Text = value; } }
         public string DescriptName { set { EpsodeName.Text = value; } }
-        public string PosterUrl { set; get; } = "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX1820_CR0,0,1820,2680_AL_.jpg";
+        public string EpisodeTitleName { set { EpTitleLabel.Text = value; } } 
+        public string EpisodePosterUrl { set {/* EpisodePoster.Source = value; */} } 
+        public string EpisodeDescription { set { EpTitleDescript.Text = value; /* EpisodePoster.Source = value; */} } 
+
+        public string PosterUrl { set { Poster.Source = value; } }
         public int IconSize { set; get; } = 48;
         public int BigIconSize { set; get; } = 60;
-        public int FastForwardTime { set; get; } = 30;
-        public int BackForwardTime { set; get; } = 30;
+        public int FastForwardTime
+        {
+            get { return Settings.LoadingChromeSec; }
+        }
+        public int BackForwardTime
+        {
+            get { return Settings.LoadingChromeSec; }
+        }
         public float ScaleAll { set; get; } = 1.4f;
         public float ScaleAllBig { set; get; } = 2f;
 
@@ -81,10 +92,16 @@ namespace CloudStreamForms
         {
             isActive = true;
             episodeResult = MovieResult.chromeResult;
+            chromeMovieResult = MovieResult.chromeMovieResult;
+
             InitializeComponent();
             BindingContext = this;
-            TitleName = episodeResult.Title;
-            PosterUrl = episodeResult.PosterUrl;
+            TitleName = chromeMovieResult.title.name;
+            EpisodeTitleName = episodeResult.Title;
+            PosterUrl = chromeMovieResult.title.hdPosterUrl;
+            EpisodePosterUrl = episodeResult.PosterUrl;
+            EpisodeDescription = episodeResult.Description;
+
             try {
                 DescriptName = episodeResult.Mirros[currentSelected];
             }
@@ -126,7 +143,7 @@ namespace CloudStreamForms
 
             BackForward.Clicked += async (o, e) => {
                 SeekMedia(-BackForwardTime);
-                BackForward.Rotation = 0; 
+                BackForward.Rotation = 0;
                 if (rotateAllWay) {
                     await BackForward.RotateTo(-360, 200, Easing.SinOut);
                 }
