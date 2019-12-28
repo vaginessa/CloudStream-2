@@ -89,6 +89,7 @@ namespace CloudStreamForms
         public static event EventHandler OnConnected;
         public static event EventHandler OnChromeDevicesFound;
         public static event EventHandler<string> OnChromeImageChanged;
+        public static event EventHandler<bool> OnPauseChanged;
 
         public static bool IsChromeDevicesOnNetwork
         {
@@ -105,6 +106,7 @@ namespace CloudStreamForms
         public static bool IsPendingConnection { set; get; }
         public static bool IsCastingVideo { set { _isCastingVideo = value; OnVideoCastingChanged?.Invoke(null, value); } get { return _isCastingVideo; } }
         private static bool _isCastingVideo;
+        static bool _IsPaused = false;
         public static bool IsPaused { set; get; }
         public static bool IsPlaying { set; get; }
         public static double CurrentCastingDuration { get; set; }
@@ -117,20 +119,36 @@ namespace CloudStreamForms
         static DateTime castUpdatedNow;
         static double castLastUpdate;
 
+        private static float _Volume = 1;
+        public static float Volume
+        {
+            set {
+                SetVolumeAsync(value); _Volume = value;
+            }
+            get { return _Volume; }
+        }
+
         public static double CurrentTime
         {
             get {
                 try {
                     // double test = CurrentChannel.Status.First().CurrentTime; // WILL CAUSE CRASH IF STOPPED BY EXTRARNAL
-                    TimeSpan t = DateTime.Now.Subtract(castUpdatedNow);
-                    double currentTime = castLastUpdate + t.TotalSeconds;
-                    return currentTime;
+                    if (IsPaused) {
+                        return PausedTime;
+                    }
+                    else {
+                        TimeSpan t = DateTime.Now.Subtract(castUpdatedNow);
+                        double currentTime = castLastUpdate + t.TotalSeconds;
+                        return currentTime;
+                    }
                 }
                 catch (System.Exception) {
                     return CurrentCastingDuration; // CAST STOPPED FROM EXTERNAL
                 }
             }
         }
+
+        public static double PausedTime { set; get; } = 0;
 
         private static bool IsStopped
         {
@@ -217,7 +235,13 @@ namespace CloudStreamForms
         private static void ChromeChannel_StatusChanged(object sender, EventArgs e)
         {
             MediaStatus mm = CurrentChannel.Status.FirstOrDefault();
+            PausedTime = CurrentTime;
+
             IsPaused = (mm.PlayerState == "PAUSED");
+            if(_IsPaused != IsPaused) {
+                _IsPaused = IsPaused;
+                OnPauseChanged?.Invoke(null, IsPaused);
+            }
             IsPlaying = (mm.PlayerState == "PLAYING");
 
             print(mm.PlayerState);
@@ -227,7 +251,7 @@ namespace CloudStreamForms
         }
 
         // Subtitle Url https://static.movies123.pro/files/tracks/JhUzWRukqeuUdRrPCe0R3lUJ1SmknAVSv670Ep0cXipm1JfMgNWa379VKKAz8nvFMq2ksu7bN5tCY5tXXKS4Lrr1tLkkipdLJNArNzVSu2g.srt
-        public static async void CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
+        public static async Task<bool> CastVideo(string url, string title, double setTime = -1, string subtitleUrl = "", string subtitleName = "")
         {
             try {
                 if (setTime == -2) {
@@ -274,11 +298,12 @@ namespace CloudStreamForms
                 castLastUpdate = 0;
                 IsCastingVideo = true;
                 print("!4");
-
+                return true;
             }
             catch (System.Exception) {
                 print("ERROR");
                 await Task.CompletedTask;
+                return false;
             }
         }
 
@@ -320,7 +345,7 @@ namespace CloudStreamForms
             OnDisconnected?.Invoke(null, null);
             IsConnectedToChromeDevice = false;
             IsCastingVideo = false;
-            Console.WriteLine("STOP CASTING!");
+            print("STOP CASTING!");
         }
 
         public static async void ConnectToChromeDevice(string name)
@@ -2278,7 +2303,7 @@ namespace CloudStreamForms
                 __d = "|:" + RemoveOne(__d, lookFor);
                 string all = FindHTML(__d, "|", "}");
                 string url = FindHTML(all, ":", "\'");
-                string label = FindHTML(all, "label: \'", "\'").Replace(" P","p");
+                string label = FindHTML(all, "label: \'", "\'").Replace(" P", "p");
                 AddPotentialLink(normalEpisode, "h" + url, "GoogleVideo " + label, prio);
 
             }

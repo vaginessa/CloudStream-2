@@ -258,10 +258,15 @@ namespace CloudStreamForms
 
         private void OpenChromecastView(object sender, EventArgs e)
         {
-             Page p = new ChromeCastPage() { episodeResult = chromeResult };
-            Navigation.PushModalAsync(p, false);
+            if(sender != null) {
+                ChromeCastPage.isActive = false;
+            }
+            if (!ChromeCastPage.isActive) {
+                Page p = new ChromeCastPage() { episodeResult = chromeResult };
+                Navigation.PushModalAsync(p, false);
+            }
         }
-        EpisodeResult chromeResult;
+        public static EpisodeResult chromeResult;
         async void WaitChangeChromeCast()
         {
             List<string> names = MainChrome.GetChromeDevicesNames();
@@ -349,16 +354,17 @@ namespace CloudStreamForms
                 OffBar.Source = App.GetImageSource("gradient.png"); OffBar.HeightRequest = 3; OffBar.HorizontalOptions = LayoutOptions.Fill; OffBar.ScaleX = 100; OffBar.Opacity = 0.3; OffBar.TranslationY = 9;
             }
 
-            ChromeCastQQ.Source = GetImageSource(MainChrome.GetSourceFromInt());
+            ChromeCastQQ.Source = GetImageSource("round_cast_white_48dp2_4.png");//MainChrome.GetSourceFromInt());
             SetIsCasting(MainChrome.IsCastingVideo);
 
             MainChrome.OnChromeImageChanged += (o, e) => {
                 ImgChromeCastBtt.Source = GetImageSource(e);
                 ImgChromeCastBtt.Transformations.Clear();
                 if (MainChrome.IsConnectedToChromeDevice) {
-                   // ImgChromeCastBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation("#303F9F")) };
+                    // ImgChromeCastBtt.Transformations = new List<FFImageLoading.Work.ITransformation>() { (new FFImageLoading.Transformations.TintTransformation("#303F9F")) };
                 }
             };
+
             MainChrome.OnChromeDevicesFound += (o, e) => {
                 SetChromeCast(MainChrome.IsChromeDevicesOnNetwork);
             };
@@ -1197,6 +1203,8 @@ namespace CloudStreamForms
                     if (autoPlay) { PlayEpisode(episodeResult); }
                 }
                 else {
+                    episodeView.SelectedItem = null;
+
                     App.ShowToast(errorEpisodeToast);
                 }
                 //PlayEpisode(episodeResult);
@@ -1250,13 +1258,15 @@ namespace CloudStreamForms
                     //   print("MAINOS");
 
                     if (episodeResult == null) {
-                        print("NULLEP");
+                        print("NULLEP"); episodeView.SelectedItem = null;
+
                         App.ShowToast(errorEpisodeToast);
 
                     }
                     else {
                         if (episodeResult.mirrosUrls == null) {
                             print("NULLE2");
+                            episodeView.SelectedItem = null;
 
                             App.ShowToast(errorEpisodeToast);
 
@@ -1272,6 +1282,7 @@ namespace CloudStreamForms
                             }
                             else {
                                 print("NULL3P3");
+                                episodeView.SelectedItem = null;
 
                                 App.ShowToast(errorEpisodeToast);
                             }
@@ -1396,7 +1407,8 @@ namespace CloudStreamForms
                 await Task.Delay(LoadingMiliSec + 40);
             }
             if (!episodeResult.LoadedLinks) {
-                App.ShowToast(errorEpisodeToast);
+                App.ShowToast(errorEpisodeToast); episodeView.SelectedItem = null;
+
                 return;
             }
 
@@ -1420,7 +1432,22 @@ namespace CloudStreamForms
             if (action == "Chromecast") {
                 print("STAARTYCHROMECAST");
                 chromeResult = episodeResult;
-                MainChrome.CastVideo(episodeResult.mirrosUrls[0], episodeResult.Mirros[0]);
+                bool succ = false;
+                int count = -1;
+                episodeView.SelectedItem = null;
+
+                while (!succ) {
+                    count++;
+
+                    if (count >= episodeResult.Mirros.Count) {
+                        succ = true;
+                    }
+                    else {
+                        succ = await MainChrome.CastVideo(episodeResult.mirrosUrls[count], episodeResult.Mirros[count]);
+                    }
+                }
+                ChromeCastPage.currentSelected = count;
+
                 print("CASTOS");
                 /*
                 string download = await DisplayActionSheet("Download", "Cancel", null, episodeResult.Mirros.ToArray());
@@ -1488,6 +1515,7 @@ namespace CloudStreamForms
                 await Task.Delay(LoadingMiliSec + 40);
 
                 if (!episodeResult.LoadedLinks) {
+                    episodeView.SelectedItem = null;
                     App.ShowToast(errorEpisodeToast);
                     return;
                 }

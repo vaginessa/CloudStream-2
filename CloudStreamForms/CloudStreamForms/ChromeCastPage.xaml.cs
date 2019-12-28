@@ -20,8 +20,8 @@ namespace CloudStreamForms
         public EpisodeResult episodeResult;
 
         public string TitleName { set; get; } = "Iron Man";
-        public string DescriptName { set; get; } = "Episode 1. Hello World!";
-        public string PosterUrl { set; get; } =   "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX1820_CR0,0,1820,2680_AL_.jpg";
+        public string DescriptName { set { EpsodeName.Text = value; } }
+        public string PosterUrl { set; get; } = "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_UX1820_CR0,0,1820,2680_AL_.jpg";
         public int IconSize { set; get; } = 48;
         public int BigIconSize { set; get; } = 60;
         public int FastForwardTime { set; get; } = 30;
@@ -29,54 +29,138 @@ namespace CloudStreamForms
         public float ScaleAll { set; get; } = 1.4f;
         public float ScaleAllBig { set; get; } = 2f;
 
-        int currentSelected = 0;
+        public static int currentSelected = 0;
 
-
-        void SelectMirror()
+        async void SelectMirror()
         {
-            CastVideo(episodeResult.mirrosUrls[currentSelected], episodeResult.Mirros[currentSelected], CurrentTime);
+            bool succ = false;
+            currentSelected--;
+            while (!succ) {
+                currentSelected++;
+
+                if (currentSelected >= episodeResult.Mirros.Count) {
+                    succ = true;
+                }
+                else {
+                    try {
+                        DescriptName = episodeResult.Mirros[currentSelected];
+                    }
+                    catch (Exception) {
+
+                    }
+
+                    succ = await MainChrome.CastVideo(episodeResult.mirrosUrls[currentSelected], episodeResult.Mirros[currentSelected]);
+
+                }
+            }
+            try {
+                DescriptName = episodeResult.Mirros[currentSelected];
+            }
+            catch (Exception) {
+
+            }
+
+            // CastVideo(episodeResult.mirrosUrls[currentSelected], episodeResult.Mirros[currentSelected], CurrentTime);
         }
+
+        void OnStop()
+        {
+            Navigation.PopModalAsync();
+            isActive = false;
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            isActive = false;
+            return base.OnBackButtonPressed();
+        }
+
+        public static bool isActive = false;
 
         public ChromeCastPage()
         {
-
-            InitializeComponent(); BindingContext = this;
-            
+            isActive = true;
+            episodeResult = MovieResult.chromeResult;
+            InitializeComponent();
+            BindingContext = this;
             TitleName = episodeResult.Title;
             PosterUrl = episodeResult.PosterUrl;
-            DescriptName = episodeResult.Mirros[currentSelected];
+            try {
+                DescriptName = episodeResult.Mirros[currentSelected];
+            }
+            catch (Exception) {
+
+            }
+
+            MainChrome.OnDisconnected += (o, e) => {
+                OnStop();
+            };
+
+            MainChrome.OnPauseChanged += (o, e) => {
+                SetPause(e);
+            };
 
             //https://material.io/resources/icons/?style=baseline
             VideoSlider.DragStarted += (o, e) => {
                 draging = true;
             };
+
             VideoSlider.DragCompleted += (o, e) => {
                 MainChrome.SetChromeTime(VideoSlider.Value * CurrentCastingDuration);
                 draging = false;
                 UpdateTxt();
             };
-            Pause.Clicked += (o, e) => {
-                SetPause(!IsPaused);
-                PauseAndPlay(!IsPaused);
-            };
-            FastForward.Clicked += (o, e) => {
+            const bool rotateAllWay = true;
+            const int rotate = 45;
+            FastForward.Clicked += async (o, e) => {
                 SeekMedia(FastForwardTime);
-            };
-            BackForward.Clicked += (o, e) => {
-                SeekMedia(-BackForwardTime);
+                FastForward.Rotation = 0;
+                if (rotateAllWay) {
+                    await FastForward.RotateTo(360, 200, Easing.SinOut);
+                }
+                else {
+                    await FastForward.RotateTo(rotate, 50, Easing.SinOut);
+                    await FastForward.RotateTo(0, 50, Easing.SinOut);
+                }
             };
 
-            SkipForward.Clicked += (o, e) => {
+            BackForward.Clicked += async (o, e) => {
+                SeekMedia(-BackForwardTime);
+                BackForward.Rotation = 0; 
+                if (rotateAllWay) {
+                    await BackForward.RotateTo(-360, 200, Easing.SinOut);
+                }
+                else {
+                    await BackForward.RotateTo(-rotate, 50, Easing.SinOut);
+                    await BackForward.RotateTo(0, 50, Easing.SinOut);
+                }
+            };
+
+            StopAll.Clicked += (o, e) => {
+                MainChrome.StopCast();
+                OnStop();
+            };
+
+            SkipForward.Clicked += async (o, e) => {
                 currentSelected++;
                 if (currentSelected > episodeResult.Mirros.Count) { currentSelected = 0; }
+                SelectMirror();
+                await SkipForward.TranslateTo(6, 0, 50, Easing.SinOut);
+                await SkipForward.TranslateTo(0, 0, 50, Easing.SinOut);
             };
-            SkipBack.Clicked += (o, e) => {
+
+            SkipBack.Clicked += async (o, e) => {
                 currentSelected--;
                 if (currentSelected < 0) { currentSelected = episodeResult.Mirros.Count - 1; }
+                SelectMirror();
+                await SkipBack.TranslateTo(-6, 0, 50, Easing.SinOut);
+                await SkipBack.TranslateTo(0, 0, 50, Easing.SinOut);
             };
 
             PlayList.Clicked += async (o, e) => {
+                //ListScale();
                 string a = await DisplayActionSheet("Select Mirror", "Cancel", null, episodeResult.Mirros.ToArray());
+                //ListScale();
 
                 for (int i = 0; i < episodeResult.Mirros.Count; i++) {
                     if (a == episodeResult.Mirros[i]) {
@@ -87,6 +171,9 @@ namespace CloudStreamForms
                 }
             };
             ConstUpdate();
+
+            MainChrome.Volume = (MainChrome.Volume);
+
             /*
             LowVol.Source = GetImageSource("round_volume_down_white_48dp.png");
             MaxVol.Source = GetImageSource("round_volume_up_white_48dp.png");*/
@@ -108,6 +195,9 @@ namespace CloudStreamForms
         {
             StartTxt.Text = ConvertTimeToString(CurrentTime);
             EndTxt.Text = ConvertTimeToString(CurrentCastingDuration - CurrentTime);
+            if (CurrentCastingDuration - CurrentTime < -1) {
+                OnStop();
+            }
             if (!draging) {
                 VideoSlider.Value = CurrentTime / CurrentCastingDuration;
             }
@@ -139,7 +229,21 @@ namespace CloudStreamForms
 
         private void Pause_Clicked(object sender, EventArgs e)
         {
-
+            SetPause(!IsPaused);
+            PauseAndPlay(!IsPaused);
+            PauseScale();
+        }
+        async void PauseScale()
+        {
+            Pause.Scale = 2.0;
+            await Pause.ScaleTo(2.4, 50, Easing.SinOut);
+            await Pause.ScaleTo(2, 50, Easing.SinOut);
+        }
+        async void ListScale()
+        {
+            PlayList.Scale = 1.4;
+            await PlayList.ScaleTo(2, 50, Easing.SinOut);
+            await PlayList.ScaleTo(1.4, 50, Easing.SinOut);
         }
     }
 }

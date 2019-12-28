@@ -22,6 +22,10 @@ namespace CloudStreamForms
             
             LowVol.Source = App.GetImageSource("round_volume_mute_white_48dp.png");
             MaxVol.Source = App.GetImageSource("round_volume_up_white_48dp.png");
+            VolSolider.Value = (double)MainChrome.Volume;
+            VolSolider.ValueChanged +=  (o, e) => {
+                 MainChrome.Volume = ((float)e.NewValue);
+            };
         }
 
         protected override void OnAppearing()

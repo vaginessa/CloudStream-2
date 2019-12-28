@@ -94,7 +94,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                     <Grid Grid.Row="3"  Grid.Column="0">
                         <Label x:Name="DescriptionLabel" Text="" HorizontalOptions="Fill" VerticalOptions="Start" Margin="10,0,10,0" MinimumHeightRequest="0" TranslationY="-20" TextColor="Gray"></Label>
                     </Grid>
-                    <Grid Grid.Row="4"  Grid.Column="0" x:Name="ChromeRow" >
+                    <Grid Grid.Row="4"  Grid.Column="0" x:Name="ChromeRow" Margin="0,-16,0,0">
                         <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Start" >
                             <Image HeightRequest="30" x:Name="ChromeCastQQ" BackgroundColor="Transparent" InputTransparent="True"></Image>
                             <Button Text="Open Chromecast" BackgroundColor="Transparent" Clicked="OpenChromecastView" ></Button>
