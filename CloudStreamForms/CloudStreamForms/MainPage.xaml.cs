@@ -9,7 +9,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 //using Android.Util;
 //using Android.Content;
 using Xamarin.Essentials;
@@ -53,7 +53,45 @@ namespace CloudStreamForms
             public Button button;
         }
 
+        public static bool NewGithubUpdate
+        {
+            get {
+                if (githubUpdateTag == "") { return false; }
+                else { return ("v" + App.GetBuildNumber() != githubUpdateTag); }
 
+            }
+        }
+
+        public static string githubUpdateTag = "";
+        public static string githubUpdateText = "";
+
+        public static void CheckGitHubUpdate()
+        {
+            if (Device.RuntimePlatform == Device.Android) { // ONLY ANDROID CAN UPDATE
+                TempThred tempThred = new TempThred();
+                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                tempThred.Thread = new System.Threading.Thread(() => {
+                    try {
+                        string d = DownloadString("https://github.com/LagradOst/CloudStream-2/releases", tempThred);
+                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+
+                        string look = "/LagradOst/CloudStream-2/releases/tag/";
+                        //   float bigf = -1;
+                        //     string bigUpdTxt = "";
+                        // while (d.Contains(look)) {
+                        githubUpdateTag = FindHTML(d, look, "\"");
+                        githubUpdateText = FindHTML(d, look + githubUpdateTag + "\">", "<");
+                        print("UPDATE SEARCHED: " + githubUpdateTag + "|" + githubUpdateText);
+                    }
+                    finally {
+                        JoinThred(tempThred);
+                    }
+                });
+                tempThred.Thread.Name = "GitHub Update Thread";
+                tempThred.Thread.Start();
+
+            }
+        }
         public MainPage()
         {
             InitializeComponent(); mainPage = this;
@@ -78,7 +116,54 @@ namespace CloudStreamForms
             //  PushPageFromUrlAndName("tt4869896", "Overlord");
             // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
+        public static void PushPageFromUrlAndName(string url, string name)
+        {
+            try {
+                Poster _p = new Poster() { url = url, name = name };
+                Search.PushPage(_p, MainPage.mainPage.Navigation);
+            }
+            catch (Exception) {
 
+            }
+        }
+
+        public static async Task PushPageFromUrlAndName(string intentData)
+        {
+            string url = FindHTML(intentData, "cloudstreamforms:", "Name=");
+            string name = FindHTML(intentData, "Name=", "=EndAll");
+            //Task.Delay(10000);
+            if (name != "" && url != "") {
+                PushPageFromUrlAndName(url, System.Web.HttpUtility.UrlDecode(name));
+            }
+        }        /// <summary>
+                 /// Creates color with corrected brightness.
+                 /// </summary>
+                 /// <param name="color">Color to correct.</param>
+                 /// <param name="correctionFactor">The brightness correction factor. Must be between -1 and 1. 
+                 /// Negative values produce darker colors.</param>
+                 /// <returns>
+                 /// Corrected <see cref="Color"/> structure.
+                 /// </returns>
+        public static Color ChangeColorBrightness(Color color, float correctionFactor)
+        {
+            float red = (float)color.R;
+            float green = (float)color.G;
+            float blue = (float)color.B;
+
+            if (correctionFactor < 0) {
+                correctionFactor = 1 + correctionFactor;
+                red *= correctionFactor;
+                green *= correctionFactor;
+                blue *= correctionFactor;
+            }
+            else {
+                red = (255 - red) * correctionFactor + red;
+                green = (255 - green) * correctionFactor + green;
+                blue = (255 - blue) * correctionFactor + blue;
+            }
+
+            return Color.FromRgba((int)red, (int)green, (int)blue, color.A);
+        }
         // -------------------------------- END --------------------------------
     }
 
@@ -400,164 +485,13 @@ namespace CloudStreamForms
             }
         }
     }
+    // -------------------------------- END CHROMECAST --------------------------------
 
-    public static class Main
+    public static class CloudStreamCore
     {
-        // -------------------------------- END CHROMECAST --------------------------------
 
-
-        public struct IMDbTopList
-        {
-            public string name;
-            public string id;
-            public string img;
-            public string runtime;
-            public string rating;
-            public string genres;
-            public string descript;
-            public int place;
-            public List<int> contansGenres;
-        }
-        private static Random rng = new Random();
-
-        public static void Shuffle<T>(this IList<T> list)
-        {
-            int n = list.Count;
-            while (n > 1) {
-                n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-        }
-
-        public static List<IMDbTopList> FetchRecomended(List<string> inp, bool shuffle = true, int max = 10)
-        {
-            List<IMDbTopList> topLists = new List<IMDbTopList>();
-
-            Shuffle(inp);
-            if (inp.Count > max) {
-                inp.RemoveRange(max, inp.Count - max);
-            }
-
-            for (int q = 0; q < inp.Count; q++) {
-                string url = "https://www.imdb.com/title/" + inp[q];
-
-                //string d =;
-                string _d = GetHTML(url);
-                string lookFor = "<div class=\"rec_item\"";
-                while (_d.Contains(lookFor)) {
-                    _d = RemoveOne(_d, lookFor);
-                    string tt = FindHTML(_d, " data-tconst=\"", "\"");
-                    string name = FindHTML(_d, "alt=\"", "\"", decodeToNonHtml: true);
-                    string img = FindHTML(_d, "loadlate=\"", "\"");
-                    string d = RemoveOne(_d, "<a href=\"/title/" + tt + "/vote?v=X;k", -200);
-                    string __d = FindHTML(_d, "<div class=\"rec-title\">\n       <a href=\"/title/" + tt, "<div class=\"rec-rating\">");
-                    List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
-                    List<int> contansGenres = new List<int>();
-                    for (int i = 0; i < genresNames.Count; i++) {
-                        if (__d.Contains(genresNames[i])) {
-                            contansGenres.Add(i);
-                        }
-                    }
-                    string value = FindHTML(d, "<span class=\"value\">", "<");
-                    string descript = FindHTML(d, "<div class=\"rec-outline\">\n    <p>\n    ", "<");
-                    if (!value.Contains(".")) {
-                        value += ".0";
-                    }
-
-                    bool add = true;
-                    for (int z = 0; z < topLists.Count; z++) {
-                        if (topLists[z].id == tt) {
-
-                            add = false;
-                        };
-                    }
-
-                    if (add) {
-                        topLists.Add(new IMDbTopList() { name = name, descript = descript, contansGenres = contansGenres, id = tt, img = img, place = -1, rating = value, runtime = "", genres = "" });
-                    }
-                    else {
-                    }
-                }
-            }
-
-            if (shuffle) {
-                Shuffle<IMDbTopList>(topLists);
-            }
-
-            return topLists;
-        }
-
-        public static List<IMDbTopList> FetchTop100(List<string> order, int start = 1, int count = 250)
-        {
-            IMDbTopList[] topLists = new IMDbTopList[count];
-            //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
-            //List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
-            string orders = "";
-            for (int i = 0; i < order.Count; i++) {
-                if (i != 0) {
-                    orders += ",";
-                }
-                orders += order[i];
-            }
-            //https://www.imdb.com/search/title/?genres=adventure&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=5aab685f-35eb-40f3-95f7-c53f09d542c3&pf_rd_r=VV0XPKMS8FXZ6D8MM0VP&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_2
-            //https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=51&ref_=adv_nxt
-            string trueUrl = "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count;
-            print("TRUEURL:" + trueUrl);
-            string d = GetHTML(trueUrl, true);
-            print("FALSEURL:" + trueUrl);
-
-            string lookFor = "class=\"loadlate\"";
-            int place = start - 1;
-            int counter = 0;
-            while (d.Contains(lookFor)) {
-                place++;
-                d = RemoveOne(d, lookFor);
-
-                string img = FindHTML(d, "loadlate=\"", "\"");
-                string id = FindHTML(d, "data-tconst=\"", "\"");
-                string runtime = FindHTML(d, "<span class=\"runtime\">", "<");
-                string name = FindHTML(d, "ref_=adv_li_tt\"\n>", "<");
-                string rating = FindHTML(d, "</span>\n        <strong>", "<");
-                string _genres = FindHTML(d, "<span class=\"genre\">\n", "<").Replace("  ", "");
-                string descript = FindHTML(d, "<p class=\"text-muted\">\n    ", "<").Replace("  ", "");
-                topLists[counter] = (new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
-                counter++;
-            }
-            print("------------------------------------ DONE! ------------------------------------");
-            return topLists.ToList();
-        }
-
-
-
-        public static void PushPageFromUrlAndName(string url, string name)
-        {
-            try {
-                Poster _p = new Poster() { url = url, name = name };
-                Search.PushPage(_p, MainPage.mainPage.Navigation);
-            }
-            catch (Exception) {
-
-            }
-
-        }
-
-        public static async Task PushPageFromUrlAndName(string intentData)
-        {
-            string url = FindHTML(intentData, "cloudstreamforms:", "Name=");
-            string name = FindHTML(intentData, "Name=", "=EndAll");
-            //Task.Delay(10000);
-            if (name != "" && url != "") {
-                PushPageFromUrlAndName(url, System.Web.HttpUtility.UrlDecode(name));
-            }
-        }
-
-
-        // -------------------- CONSTS --------------------
-
-
+        // ========================================================= CONSTS =========================================================
+        #region CONSTS
         public const bool MOVIES_ENABLED = true;
         public const bool TVSERIES_ENABLED = true;
         public const bool ANIME_ENABLED = true;
@@ -585,98 +519,11 @@ namespace CloudStreamForms
         public const bool REPLACE_IMDBNAME_WITH_POSTERNAME = true;
         public static double posterRezMulti = 1.0;
         public const string GOMOURL = "gomo.to";
+        #endregion
 
-        // -------------------- ALL METHODS --------------------
+        // ========================================================= THREDS =========================================================
 
-        //public static string pathVLC = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
-
-        public static void OpenBrowser(string url)
-        {
-            App.OpenBrowser(url);
-        }
-
-
-        /// <summary>
-        /// Get a shareble url of the current movie
-        /// </summary>
-        /// <param name="extra"></param>
-        /// <param name="redirectingName"></param>
-        /// <returns></returns>
-        public static string ShareMovieCode(string extra, string redirectingName = "Redirecting to CloudStream 2")
-        {
-            const string baseUrl = "CloudStreamForms";
-            //Because I don't want to host my own servers I "Save" a js code on a free js hosting site. This code will automaticly give a responseurl that will redirect to the CloudStream app.
-            string code = ("var x = document.createElement('body');\n var s = document.createElement(\"script\");\n s.innerHTML = \"window.location.href = '" + baseUrl + ":" + extra + "';\";\n var h = document.createElement(\"H1\");\n var div = document.createElement(\"div\");\n div.style.width = \"100%\";\n div.style.height = \"100%\";\n div.align = \"center\";\n div.style.padding = \"130px 0\";\n div.style.margin = \"auto\";\n div.innerHTML = \"" + redirectingName + "\";\n h.append(div);\n x.append(h);\n x.append(s);\n parent.document.body = x;").Replace("%", "%25");
-            // Create a request using a URL that can receive a post. 
-            WebRequest request = WebRequest.Create("https://js.do/mod_perl/js.pl");
-            // Set the Method property of the request to POST.
-            request.Method = "POST";
-            // Create POST data and convert it to a byte array.
-            string postData = "action=save_code&js_code=" + code + "&js_title=&js_permalink=&js_id=&is_update=false";
-            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-            // Set the ContentType property of the WebRequest.
-            request.ContentType = "application/x-www-form-urlencoded";
-            // Set the ContentLength property of the WebRequest.
-            request.ContentLength = byteArray.Length;
-            // Get the request stream.
-            Stream dataStream = request.GetRequestStream();
-            // Write the data to the request stream.
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            // Close the Stream object.
-            dataStream.Close();
-            // Get the response.
-            WebResponse response = request.GetResponse();
-            // Display the status.
-            // Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            // Get the stream containing content returned by the server.
-            dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = reader.ReadToEnd();
-            // Display the content.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-            string rLink = "https://js.do/code/" + FindHTML(responseFromServer, "js_permalink\":\"", "\"");
-            return rLink;
-            // Clean up the streams.
-        }
-
-        /// <summary>
-        /// Creates color with corrected brightness.
-        /// </summary>
-        /// <param name="color">Color to correct.</param>
-        /// <param name="correctionFactor">The brightness correction factor. Must be between -1 and 1. 
-        /// Negative values produce darker colors.</param>
-        /// <returns>
-        /// Corrected <see cref="Color"/> structure.
-        /// </returns>
-        public static Color ChangeColorBrightness(Color color, float correctionFactor)
-        {
-            float red = (float)color.R;
-            float green = (float)color.G;
-            float blue = (float)color.B;
-
-            if (correctionFactor < 0) {
-                correctionFactor = 1 + correctionFactor;
-                red *= correctionFactor;
-                green *= correctionFactor;
-                blue *= correctionFactor;
-            }
-            else {
-                red = (255 - red) * correctionFactor + red;
-                green = (255 - green) * correctionFactor + green;
-                blue = (255 - blue) * correctionFactor + blue;
-            }
-
-            return Color.FromRgba((int)red, (int)green, (int)blue, color.A);
-        }
-
-
-        // -------------------- THREDS --------------------
-
-
+        #region Threads
         public static List<int> activeThredIds = new List<int>();
         public static List<TempThred> tempThreds = new List<TempThred>();
         public static int thredNumber = 0; // UNIQUE THRED NUMBER FOR EATCH THREAD CREATED WHEN TEMPTHREDS THRED IS SET
@@ -710,6 +557,7 @@ namespace CloudStreamForms
                 activeThredIds.Remove(tempThred.ThredId);
                 tempThreds.Remove(tempThred);
                 // print(tempThred.Thread.Name);
+                /*
                 try {
 
                     if (DeviceInfo.Platform == DevicePlatform.UWP) {
@@ -724,7 +572,7 @@ namespace CloudStreamForms
 
                 }
                 catch (Exception) {
-                }
+                }*/
 
 
             }
@@ -777,6 +625,13 @@ namespace CloudStreamForms
                 //  tempThreds = _tempThreds;
             }
         }
+        #endregion
+
+        // ========================================================= DATA =========================================================
+
+        #region Data
+        public enum MovieType { Movie, TVSeries, Anime, AnimeMovie }
+        public enum PosterType { Imdb, Raw }
 
         public struct TempThred
         {
@@ -805,16 +660,33 @@ namespace CloudStreamForms
             }
         }
 
-        // -------------------- MOVIES --------------------
-
-        public enum MovieType { Movie, TVSeries, Anime, AnimeMovie }
-        public enum PosterType { Imdb, Raw }
+        public struct IMDbTopList
+        {
+            public string name;
+            public string id;
+            public string img;
+            public string runtime;
+            public string rating;
+            public string genres;
+            public string descript;
+            public int place;
+            public List<int> contansGenres;
+        }
 
         public struct Trailer
         {
             public string name;
             public string url;
             public string posterUrl;
+        }
+        public struct FishWatch
+        {
+            public string imdbScore;
+            public string title;
+            public string removedTitle;
+            public int season;
+            public string released;
+            public string href;
         }
 
         public struct Movies123
@@ -961,12 +833,11 @@ namespace CloudStreamForms
             public List<Subtitle> subtitles;
             public List<Episode> episodes;
         }
+        #endregion
 
-        // -------------------- END --------------------
+        // ========================================================= EVENTS =========================================================
 
-
-        // -------------------- SEARCH --------------------
-
+        #region Events
         public static List<Poster> activeSearchResults = new List<Poster>();
         public static Movie activeMovie = new Movie();
         public static string activeTrailer = "";
@@ -984,9 +855,167 @@ namespace CloudStreamForms
         public static event EventHandler<Movie> watchSeriesFishingDone;
         //public static event EventHandler<Movie> yesmovieFishingDone;
 
+        private static Random rng = new Random();
+        #endregion
 
-        // public static int tempInt = 0;
-        public static int linksDone = 0;
+        // ========================================================= ALL METHODS =========================================================
+
+        /// <summary>
+        /// Get a shareble url of the current movie
+        /// </summary>
+        /// <param name="extra"></param>
+        /// <param name="redirectingName"></param>
+        /// <returns></returns>
+        public static string ShareMovieCode(string extra, string redirectingName = "Redirecting to CloudStream 2")
+        {
+            const string baseUrl = "CloudStreamForms";
+            //Because I don't want to host my own servers I "Save" a js code on a free js hosting site. This code will automaticly give a responseurl that will redirect to the CloudStream app.
+            string code = ("var x = document.createElement('body');\n var s = document.createElement(\"script\");\n s.innerHTML = \"window.location.href = '" + baseUrl + ":" + extra + "';\";\n var h = document.createElement(\"H1\");\n var div = document.createElement(\"div\");\n div.style.width = \"100%\";\n div.style.height = \"100%\";\n div.align = \"center\";\n div.style.padding = \"130px 0\";\n div.style.margin = \"auto\";\n div.innerHTML = \"" + redirectingName + "\";\n h.append(div);\n x.append(h);\n x.append(s);\n parent.document.body = x;").Replace("%", "%25");
+            // Create a request using a URL that can receive a post. 
+            WebRequest request = WebRequest.Create("https://js.do/mod_perl/js.pl");
+            // Set the Method property of the request to POST.
+            request.Method = "POST";
+            // Create POST data and convert it to a byte array.
+            string postData = "action=save_code&js_code=" + code + "&js_title=&js_permalink=&js_id=&is_update=false";
+            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+            // Set the ContentType property of the WebRequest.
+            request.ContentType = "application/x-www-form-urlencoded";
+            // Set the ContentLength property of the WebRequest.
+            request.ContentLength = byteArray.Length;
+            // Get the request stream.
+            Stream dataStream = request.GetRequestStream();
+            // Write the data to the request stream.
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            // Close the Stream object.
+            dataStream.Close();
+            // Get the response.
+            WebResponse response = request.GetResponse();
+            // Display the status.
+            // Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            // Get the stream containing content returned by the server.
+            dataStream = response.GetResponseStream();
+            // Open the stream using a StreamReader for easy access.
+            StreamReader reader = new StreamReader(dataStream);
+            // Read the content.
+            string responseFromServer = reader.ReadToEnd();
+            // Display the content.
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+            string rLink = "https://js.do/code/" + FindHTML(responseFromServer, "js_permalink\":\"", "\"");
+            return rLink;
+            // Clean up the streams.
+        }
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1) {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
+        public static List<IMDbTopList> FetchRecomended(List<string> inp, bool shuffle = true, int max = 10)
+        {
+            List<IMDbTopList> topLists = new List<IMDbTopList>();
+
+            Shuffle(inp);
+            if (inp.Count > max) {
+                inp.RemoveRange(max, inp.Count - max);
+            }
+
+            for (int q = 0; q < inp.Count; q++) {
+                string url = "https://www.imdb.com/title/" + inp[q];
+
+                //string d =;
+                string _d = GetHTML(url);
+                string lookFor = "<div class=\"rec_item\"";
+                while (_d.Contains(lookFor)) {
+                    _d = RemoveOne(_d, lookFor);
+                    string tt = FindHTML(_d, " data-tconst=\"", "\"");
+                    string name = FindHTML(_d, "alt=\"", "\"", decodeToNonHtml: true);
+                    string img = FindHTML(_d, "loadlate=\"", "\"");
+                    string d = RemoveOne(_d, "<a href=\"/title/" + tt + "/vote?v=X;k", -200);
+                    string __d = FindHTML(_d, "<div class=\"rec-title\">\n       <a href=\"/title/" + tt, "<div class=\"rec-rating\">");
+                    List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+                    List<int> contansGenres = new List<int>();
+                    for (int i = 0; i < genresNames.Count; i++) {
+                        if (__d.Contains(genresNames[i])) {
+                            contansGenres.Add(i);
+                        }
+                    }
+                    string value = FindHTML(d, "<span class=\"value\">", "<");
+                    string descript = FindHTML(d, "<div class=\"rec-outline\">\n    <p>\n    ", "<");
+                    if (!value.Contains(".")) {
+                        value += ".0";
+                    }
+
+                    bool add = true;
+                    for (int z = 0; z < topLists.Count; z++) {
+                        if (topLists[z].id == tt) {
+
+                            add = false;
+                        };
+                    }
+
+                    if (add) {
+                        topLists.Add(new IMDbTopList() { name = name, descript = descript, contansGenres = contansGenres, id = tt, img = img, place = -1, rating = value, runtime = "", genres = "" });
+                    }
+                    else {
+                    }
+                }
+            }
+
+            if (shuffle) {
+                Shuffle<IMDbTopList>(topLists);
+            }
+
+            return topLists;
+        }
+
+        public static List<IMDbTopList> FetchTop100(List<string> order, int start = 1, int count = 250)
+        {
+            IMDbTopList[] topLists = new IMDbTopList[count];
+            //List<string> genres = new List<string>() { "action", "adventure", "animation", "biography", "comedy", "crime", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western" };
+            //List<string> genresNames = new List<string>() { "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western" };
+            string orders = "";
+            for (int i = 0; i < order.Count; i++) {
+                if (i != 0) {
+                    orders += ",";
+                }
+                orders += order[i];
+            }
+            //https://www.imdb.com/search/title/?genres=adventure&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=5aab685f-35eb-40f3-95f7-c53f09d542c3&pf_rd_r=VV0XPKMS8FXZ6D8MM0VP&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_2
+            //https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=51&ref_=adv_nxt
+            string trueUrl = "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=" + orders + "&sort=user_rating,desc&start=" + start + "&ref_=adv_nxt&count=" + count;
+            print("TRUEURL:" + trueUrl);
+            string d = GetHTML(trueUrl, true);
+            print("FALSEURL:" + trueUrl);
+
+            string lookFor = "class=\"loadlate\"";
+            int place = start - 1;
+            int counter = 0;
+            while (d.Contains(lookFor)) {
+                place++;
+                d = RemoveOne(d, lookFor);
+
+                string img = FindHTML(d, "loadlate=\"", "\"");
+                string id = FindHTML(d, "data-tconst=\"", "\"");
+                string runtime = FindHTML(d, "<span class=\"runtime\">", "<");
+                string name = FindHTML(d, "ref_=adv_li_tt\"\n>", "<");
+                string rating = FindHTML(d, "</span>\n        <strong>", "<");
+                string _genres = FindHTML(d, "<span class=\"genre\">\n", "<").Replace("  ", "");
+                string descript = FindHTML(d, "<p class=\"text-muted\">\n    ", "<").Replace("  ", "");
+                topLists[counter] = (new IMDbTopList() { descript = descript, genres = _genres, id = id, img = img, name = name, place = place, rating = rating, runtime = runtime });
+                counter++;
+            }
+            print("------------------------------------ DONE! ------------------------------------");
+            return topLists.ToList();
+        }
 
         public static void QuickSearch(string text, bool purgeCurrentSearchThread = true, bool onlySearch = true)
         {
@@ -1046,7 +1075,6 @@ namespace CloudStreamForms
             tempThred.Thread.Name = "QuickSearch";
             tempThred.Thread.Start();
         }
-
 
         public static string RemoveHtmlChars(string inp)
         {
@@ -1302,89 +1330,6 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
         }
 
-        /*   WebClient client = new WebClient();
-                    string d = "";
-                    try {
-                        d = client.DownloadString("https://www3.gogoanime.io/category/" + fwordLink[titleID]);
-
-                    }
-                    catch (System.Exception) {
-
-                    }
-                    if (d != "") {
-                        string id = FindHTML(d, "<input type=\"hidden\" value=\"", "\"");
-                        d = client.DownloadString("https://ajax.apimovie.xyz/ajax/load-list-episode?ep_start=0&ep_end=100000&id=" + id + "&default_ep=0");
-                        //print(d);
-                        // Console.ReadLine();
-                        string fS = "<li><a href=\" ";
-                        List<string> _links = new List<string>();
-                        while (d.Contains(fS)) {
-                            string _link = FindHTML(d, fS, "\"");
-                            _links.Add(_link);
-                            d = d.Substring(d.IndexOf(fS) + 1, d.Length - 1 - d.IndexOf(fS));
-                        }
-                        if (onlyEps) {
-                            addToTitleEps = _links.Count;
-                        }
-                        else {
-                            for (int i = 0; i < _links.Count; i++) {
-                                string title = ToTitle(_links[i]);
-
-                                d = client.DownloadString("https://www3.gogoanime.io" + _links[i]);
-                                string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
-                                if (mp4 == "https://www.mp4upload.com/embed-") {
-                                    mp4 = FindHTML(d, "data-video=\"//vidstreaming.io/streaming.php?", "\"");
-                                    if (mp4 != "") {
-                                        mp4 = "http://vidstreaming.io/streaming.php?" + mp4;
-                                        d = client.DownloadString(mp4);
-                                        string mxLink = FindHTML(d, "sources:[{file: \'", "\'");
-                                        print("Backup: " + title + " | Browser: " + mp4 + " | RAW (NO ADS): " + mxLink);
-                                        if (!activeLinks.Contains(mxLink)) {
-                                            print("---------------------------------" + cThred + " | " + thredNumber + "--------------------------------------------");
-
-                                            if (cThred != thredNumber) return;
-                                            if (!mxLink.StartsWith("Error")) {
-                                                activeLinks.Add(mxLink);
-                                                activeLinksNames.Add(title);
-                                                progress = (int)System.Math.Round((100f * i) / _links.Count);
-                                                ax_Links.ax_links.ChangeBar(progress);
-                                            }
-                                            else {
-                                                print("vidstreaming mx link starts w error");
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        print(title + " | Error :(");
-                                    }
-                                }
-                                else {
-
-                                    try {
-                                        d = client.DownloadString(mp4);
-                                        string mxLink = Getmp4uploadByFile(d);
-                                        print(title + " | BrowserMp4: " + mp4 + " | DownloadMp4: " + mxLink);
-                                        if (!activeLinks.Contains(mxLink)) {
-                                            print("---------------------------------" + cThred + " | " + thredNumber + "--------------------------------------------");
-
-                                            if (cThred != thredNumber) return;
-                                            activeLinks.Add(mxLink);
-                                            activeLinksNames.Add(title);
-                                            progress = (int)System.Math.Round((100f * i) / _links.Count);
-                                            ax_Links.ax_links.ChangeBar(progress);
-                                        }
-                                    }
-                                    catch (System.Exception) {
-                                        print(title + " | BrowserMp4: " + mp4);
-
-                                    }
-                                }
-
-                            }
-                        }
-                    }*/
-
-
         public static string ToLowerAndReplace(string inp)
         {
             return inp.ToLower().Replace("-", " ").Replace("`", "\'");
@@ -1569,7 +1514,6 @@ namespace CloudStreamForms
             tempThred.Thread.Name = "Imdb Recomended";
             tempThred.Thread.Start();
         }
-
 
         public static void MonitorFunc(Action a, int sleepTime = 100)
         {
@@ -1776,15 +1720,6 @@ namespace CloudStreamForms
         }
 
 
-        public struct FishWatch
-        {
-            public string imdbScore;
-            public string title;
-            public string removedTitle;
-            public int season;
-            public string released;
-            public string href;
-        }
 
         static void FishWatchSeries()
         {
@@ -2033,14 +1968,9 @@ namespace CloudStreamForms
                             }
                             activeMovie.title.yesmoviessSeasonDatas.Add(new YesmoviessSeasonData() { url = movieUrl, id = seasonData });
                         }
-                        //print(ToDown(activeMovie.title.name, replaceSpace: "") + ";;" + ToDown(realtitle, replaceSpace: ""));
-                        //print(activeMovie.title.year.Substring(0, 4) + "<<>>" + year);
-                        //print(i1 + ";;" + i2);
                         print("DATA:" + imdbData + "|" + movieUrl + "|" + realtitle + "|" + title + "|" + seasonData + "|" + url + "|" + i1 + "|" + i2);
                     }
-
                     yesmovieFishingDone?.Invoke(null, activeMovie);
-                    // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -2333,32 +2263,19 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "GetLiveMovies123Links";
             tempThred.Thread.Start();
-
         }
 
         static void AddEpisodesFromMirrors(TempThred tempThred, string d, int normalEpisode)
         {
             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
-            print(mp4);
             if (mp4 != "https://www.mp4upload.com/embed-") {
                 try {
                     string _d = DownloadString(mp4, tempThred);
                     if (!GetThredActive(tempThred)) { return; };
                     string mxLink = Getmp4UploadByFile(_d);
-                    print(mxLink);
-                    /*
-                    if (CheckIfURLIsValid(mxLink)) {
-                        Episode ep = activeMovie.episodes[normalEpisode];
-                        if (ep.links == null) {
-                            activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                        }
-                        activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = 9, url = mxLink, name = "Mp4Upload" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                        linkAdded?.Invoke(null, 1);
-                    }*/
                     AddPotentialLink(normalEpisode, mxLink, "Mp4Upload", 9);
                 }
                 catch (System.Exception) {
-                    print("BrowserMp4: " + mp4);
                 }
             }
             string __d = d.ToString();
@@ -2372,9 +2289,7 @@ namespace CloudStreamForms
                 string label = FindHTML(all, "label: \'", "\'").Replace(" P", "p");
                 AddPotentialLink(normalEpisode, "h" + url, "GoogleVideo " + label, prio);
             }
-
             bool fembedAdded = LookForFembedInString(tempThred, normalEpisode, d);
-
 
             string nameId = "Vidstreaming";
             string vid = FindHTML(d, "data-video=\"//vidstreaming.io/streaming.php?", "\"");
@@ -2440,6 +2355,7 @@ namespace CloudStreamForms
                 print("Error :(");
             }
         }
+
         public static void GetEpisodeLink(int episode = -1, int season = 1, bool purgeCurrentLinkThread = true, bool onlyEpsCount = false, bool isDub = true)
         {
             if (activeMovie.episodes == null) {
@@ -2538,13 +2454,9 @@ namespace CloudStreamForms
                             string d = DownloadString(dstring, tempThred);
 
                             AddEpisodesFromMirrors(tempThred, d, normalEpisode);
-
-
-
                         }
                     }
                     if (movieSearch) { // use https://movies123.pro/
-
 
                         // --------- SETTINGS ---------
 
@@ -2655,14 +2567,11 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "Get Links";
             tempThred.Thread.Start();
-
-
         }
 
         static void GetVidNode(string _d, int normalEpisode, string urlName = "Vidstreaming")
         {
             string linkContext = FindHTML(_d, "<h6>Link download</h6>", " </div>");
-            print(linkContext + " :LX");
             string lookFor = "href=\"";
             string rem = "<div class=<\"dowload\"><a";
             linkContext = RemoveOne(linkContext, rem);
@@ -2686,13 +2595,10 @@ namespace CloudStreamForms
                     activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = name }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                     linkAdded?.Invoke(null, 1);*/
                     AddPotentialLink(normalEpisode, link, name, prio);
-
                 }
-
                 linkContext = RemoveOne(linkContext, lookFor);
             }
         }
-
 
         public static void GetFembed(string fembed, TempThred tempThred, int normalEpisode, string urlType = "https://www.fembed.com", string referer = "www.fembed.com")
         {
@@ -2712,63 +2618,13 @@ namespace CloudStreamForms
                         print(label + "|" + link);
                         if (CheckIfURLIsValid(link)) {
                             prio++;
-                            /*
-                            Episode ep = activeMovie.episodes[normalEpisode];
-                            if (ep.links == null) {
-                                activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                            }
-                            activeMovie.episodes[normalEpisode].links.Add(new Link() { priority = prio, url = link, name = "XStream " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                            linkAdded?.Invoke(null, 1);*/
                             AddPotentialLink(normalEpisode, link, "XStream " + label, prio);
                         }
-
                         _d = RemoveOne(_d, _labelFind);
                     }
-
                 }
             }
         }
-
-        public static bool NewGithubUpdate
-        {
-            get {
-                if (githubUpdateTag == "") { return false; }
-                else { return ("v" + App.GetBuildNumber() != githubUpdateTag); }
-
-            }
-        }
-
-        public static string githubUpdateTag = "";
-        public static string githubUpdateText = "";
-
-        public static void CheckGitHubUpdate()
-        {
-            if (Device.RuntimePlatform == Device.Android) { // ONLY ANDROID CAN UPDATE
-                TempThred tempThred = new TempThred();
-                tempThred.typeId = 4; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-                tempThred.Thread = new System.Threading.Thread(() => {
-                    try {
-                        string d = DownloadString("https://github.com/LagradOst/CloudStream-2/releases", tempThred);
-                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                        string look = "/LagradOst/CloudStream-2/releases/tag/";
-                        //   float bigf = -1;
-                        //     string bigUpdTxt = "";
-                        // while (d.Contains(look)) {
-                        githubUpdateTag = FindHTML(d, look, "\"");
-                        githubUpdateText = FindHTML(d, look + githubUpdateTag + "\">", "<");
-                        print("UPDATE SEARCHED: " + githubUpdateTag + "|" + githubUpdateText);
-                    }
-                    finally {
-                        JoinThred(tempThred);
-                    }
-                });
-                tempThred.Thread.Name = "GitHub Update Thread";
-                tempThred.Thread.Start();
-
-            }
-        }
-
 
         //https://www.freefullmovies.zone/movies/watch.Iron-Man-3-2013.movie.html
         //(LOW QUILITY) see https://1watchfree.me/free-avengers-infinity-war-online-movie-001/ ; get  //upfiles.pro/embed-mde1uxevydps.html ip =FIND[[[ <img src="http:// ,,,, / ]]] id = FIND [[[ mp4| ,,, |sources ]]] for more providers ||| full url = https:// ip / id /v.mp4
@@ -2786,16 +2642,9 @@ namespace CloudStreamForms
                     if (link != "") {
                         double dSize = GetFileSize(link);
                         if (dSize > 100) { // TO REMOVE TRAILERS
-                            /*
-                            Episode ep = activeMovie.episodes[episode];
-                            if (ep.links == null) {
-                                activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                            }
-                            activeMovie.episodes[episode].links.Add(new Link() { url = link, priority = 5, name = "HD FullMovies" });*/
                             AddPotentialLink(episode, link, "HD FullMovies", 10);
                         }
                     }
-
                 }
                 finally {
                     JoinThred(tempThred);
@@ -2803,12 +2652,11 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "FullMovies";
             tempThred.Thread.Start();
-
         }
+
         static void GetMovieTv(int episode, string d, TempThred tempThred) // https://1movietv.com/1movietv-streaming-api/ 
         {
             if (d != "") {
-
                 string find = FindHTML(d, "src=\"https://myvidis.top/v/", "\"");
                 int prio = 0;
                 if (find != "") {
@@ -2826,23 +2674,15 @@ namespace CloudStreamForms
                             print(label + "|" + link);
                             if (CheckIfURLIsValid(link)) {
                                 prio++;
-                                /*
-                                Episode ep = activeMovie.episodes[episode];
-                                if (ep.links == null) {
-                                    activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                                }
-                                activeMovie.episodes[episode].links.Add(new Link() { priority = prio, url = link, name = "MovieTv " + label }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                linkAdded?.Invoke(null, 1);*/
                                 AddPotentialLink(episode, link, "MovieTv " + label, prio);
                             }
-
                             _d = RemoveOne(_d, _labelFind);
                         }
-
                     }
                 }
             }
         }
+
         static void AddFastMovieLink2(int episode) // https://1movietv.com/1movietv-streaming-api/
         {
             TempThred tempThred = new TempThred();
@@ -2851,9 +2691,6 @@ namespace CloudStreamForms
                 try {
                     string d = DownloadString("https://1movietv.com/playstream/" + activeMovie.title.id, tempThred);
                     GetMovieTv(episode, d, tempThred);
-                    //if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-
                 }
                 finally {
                     JoinThred(tempThred);
@@ -2861,8 +2698,8 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "Movietv";
             tempThred.Thread.Start();
-
         }
+
         static void GetTMDB(int episode, int season, int normalEpisode)// https://1movietv.com/1movietv-streaming-api/
         {
             TempThred tempThred = new TempThred();
@@ -2886,7 +2723,6 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "Movietv";
             tempThred.Thread.Start();
-
         }
 
         public static double GetFileSize(string url)
@@ -2927,23 +2763,10 @@ namespace CloudStreamForms
             }
         }
 
-
         public static bool GetSettings(MovieType type = MovieType.Movie)
         {
             return true;
         }
-
-
-
-        public static Episode SetEpisodeProgress(int progress, Episode ep)
-        {
-            return new Episode() { date = ep.date, description = ep.description, links = ep.links, maxProgress = ep.maxProgress, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
-        }
-        public static Episode SetEpisodeProgress(Episode ep)
-        {
-            return new Episode() { date = ep.date, description = ep.description, links = ep.links, maxProgress = ep.maxProgress, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating };
-        }
-
 
         public static void AddToActiveSearchResults(Poster p)
         {
@@ -2998,13 +2821,10 @@ namespace CloudStreamForms
 
         static void YesMovies(int normalEpisode, string url) // MIRROR https://cmovies.tv/ 
         {
-            print("URL: " + url);
-
             TempThred tempThred = new TempThred();
             tempThred.typeId = 6; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
-
                     int episode = normalEpisode + 1;
                     string d = DownloadString(url.Replace("watching.html", "") + "watching.html");
 
@@ -3033,7 +2853,6 @@ namespace CloudStreamForms
                     d = DownloadString(link);
 
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
 
                     string secondLink = FindHTML(d, "https://vidnode.net/download?id=", "\"");
                     print("FIRST: " + secondLink);
@@ -3156,7 +2975,6 @@ namespace CloudStreamForms
             catch (Exception) {
                 return "";
             }
-
         }
 
         /// <summary>
@@ -3248,7 +3066,6 @@ namespace CloudStreamForms
 
         public static int UnixTime { get { return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds; } }
 
-
         /// <summary>
         /// GET LOWHD MIRROR SERVER USED BY MOVIES123 AND PLACE THEM IN ACTIVEMOVIE
         /// </summary>
@@ -3277,31 +3094,11 @@ namespace CloudStreamForms
                             newM = newM.Replace("\\", "");
                             print("::>" + newM);
                             AddPotentialLink(episode, newM, "Mirror [MIRRORCOUNTER]", 0);
-                            /*
-                            if (!LinkListContainsString(activeMovie.episodes[episode].links, newM)) {
-                                print("ENTERED>>");
-                                if (!GetThredActive(minorTempThred)) { return; }; // ---- THREAD CANCELLED ----
-
-                                if (CheckIfURLIsValid(newM)) {
-                                    print("CHECKED>>");
-
-                                    Episode ep = activeMovie.episodes[episode];
-                                    if (ep.links == null) {
-                                        activeMovie.episodes[episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
-                                    }
-                                    activeMovie.episodes[episode].links.Add(new Link() { priority = 0, url = newM, name = "Mirror [MIRRORCOUNTER]" }); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
-                                    linkAdded?.Invoke(null, 1);
-
-                                }
-                            }*/
                         }
                         jsn = jsn.Substring(4, jsn.Length - 4);
                     }
-                    // if (!GetThredActive(minorTempThred)) { minorTempThred.Progress = minorTempThred.Progress; return; }; // COPY UPDATE PROGRESS
-
                 }
                 finally {
-                    // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]); // ADDS ONE TO PROGRESS OF LINKS
                     JoinThred(minorTempThred);
                 }
             });
@@ -3399,7 +3196,6 @@ namespace CloudStreamForms
 
             }
             return mxLink;
-
         }
 
         static string ReadDataMovie(string all, string inp)
@@ -3412,8 +3208,8 @@ namespace CloudStreamForms
             catch (Exception) {
                 return "";
             }
-
         }
+
         public static string FindReverseHTML(string all, string first, string end, int offset = 0)
         {
             int x = all.IndexOf(first);
@@ -3493,7 +3289,6 @@ namespace CloudStreamForms
                 }
             }
             catch (System.Exception) { }
-
             return "";
         }
 
@@ -3513,23 +3308,21 @@ namespace CloudStreamForms
                 try {
                     try {
                         string d = "";
-                        // print(".." + url);
-                        // Tries 5 times to connect
-                        //for (int i = 0; i < 5; i++) {
                         if (d == "") {
                             try {
                                 d = DownloadString(url, tempThred, false, 2); if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                             }
                             catch (System.Exception) {
                                 debug("Error gogo");
-                                //  Thread.Sleep(1000);
                             }
                         }
+
                         if (d == "") {
                             print("GetHTML SAVE");
                             d = GetHTML(url);
                             if (!GetThredActive(tempThred)) { return; };
                         }
+
                         if (d == "") {
                             d = HTMLGet(url, "https://" + GOMOURL);
                             if (d != "") {
@@ -3537,9 +3330,6 @@ namespace CloudStreamForms
                             }
                             if (!GetThredActive(tempThred)) { return; };
                         }
-                        //}
-
-
 
                         if (d != "") { // If not failed to connect
                             debug("Passed gogo download site");
@@ -3605,7 +3395,6 @@ namespace CloudStreamForms
                                             if (result != "") {
 
                                                 // --------------- GOT RESULT!!!!! ---------------
-
 
                                                 WebClient client = new WebClient();
                                                 //XbHP6duxDnD~1558891507~83.186.0.0~c5i0DlNs
@@ -3792,17 +3581,6 @@ namespace CloudStreamForms
                                                         }
 
                                                         if (valid) {
-                                                            /*
-                                                            if (!LinkListContainsString(activeMovie.episodes[episode].links, url)) {
-                                                                //  print(activeMovie.episodes[episode].Progress);
-
-                                                                activeMovie.episodes[episode].links.Add(new Link() { url = url, priority = 7, name = "HD Onlystream" });
-                                                                linkAdded?.Invoke(null, 1);
-
-                                                            }
-                                                            else {
-                                                                debug("FAILED, CONTAINS");
-                                                            }*/
                                                             AddPotentialLink(episode, url, "HD Onlystream", 17);
                                                         }
                                                         else {
@@ -3825,12 +3603,10 @@ namespace CloudStreamForms
                                                     debug("HD Only Link error (Read api)");
                                                     debug("");
                                                 }
-                                                //activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode]);
-                                                //print(activeMovie.episodes[episode].Progress);
+
                                                 done = true;
                                             }
                                             else {
-                                                //  activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + HD_MIRROR_COUNT, activeMovie.episodes[episode]);
                                                 done = true;
                                                 debug("DA FAILED");
                                             }
@@ -3848,15 +3624,12 @@ namespace CloudStreamForms
                             }), webRequest);
                         }
                         else {
-                            // activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
-
                             debug("Dident get gogo");
                         }
 
                     }
                     catch (System.Exception) {
                         debug("Error");
-                        //activeMovie.episodes[episode] = SetEpisodeProgress(activeMovie.episodes[episode].Progress + 4, activeMovie.episodes[episode]);
                     }
                 }
                 finally {
@@ -3875,10 +3648,6 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "GomoSteam";
             tempThred.Thread.Start();
-
-
-
-
         }
 
         public static string PostRequest(string myUri, string referer = "", string _requestBody = "", TempThred? _tempThred = null)
@@ -3952,7 +3721,6 @@ namespace CloudStreamForms
                 return "";
             }
         }
-
 
         /// <summary>
         /// Returns the true mx url of Viduplayer
@@ -4061,8 +3829,6 @@ namespace CloudStreamForms
             }
 
             try {
-
-
                 // ANDROID DOWNLOADSTRING
 
                 bool done = false;
@@ -4092,10 +3858,7 @@ namespace CloudStreamForms
                             }
                         }
                     }
-                    catch (Exception) {
-
-                    }
-
+                    catch (Exception) { }
 
                     if (done) {
                         //print(_s);
@@ -4106,16 +3869,12 @@ namespace CloudStreamForms
                 client.CancelAsync();
                 return _s;
 
-
                 // return client.DownloadString(url);
             }
             catch (Exception) {
                 return "";
             }
         }
-
-
-
 
         /// <summary>
         /// Makes first letter of all capital
@@ -4126,6 +3885,7 @@ namespace CloudStreamForms
         {
             return System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(title.Replace("/", "").Replace("-", " "));
         }
+
         /// <summary>
         /// Used in while true loops to remove last used string
         /// </summary>
@@ -4138,6 +3898,7 @@ namespace CloudStreamForms
             int indexOfRem = d.IndexOf(rem);
             return d.Substring(indexOfRem + offset, d.Length - indexOfRem - offset);
         }
+
         /// <summary>
         /// Used to find string in string, for example 123>Hello<132123, hello can be found using FindHTML(d,">","<");
         /// </summary>

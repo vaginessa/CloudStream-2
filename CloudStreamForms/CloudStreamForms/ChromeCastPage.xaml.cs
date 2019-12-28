@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 using static CloudStreamForms.App;
 using Rg.Plugins.Popup.Services;
 using static CloudStreamForms.MainChrome;

@@ -132,11 +132,11 @@ namespace CloudStreamForms
         {
             string path = GetKeyPath(folder, name);
             if (Current.Properties.ContainsKey(path)) {
-                Main.print("CONTAINS KEY");
+                CloudStreamCore.print("CONTAINS KEY");
                 Current.Properties[path] = value;
             }
             else {
-                Main.print("ADD KEY");
+                CloudStreamCore.print("ADD KEY");
 
                 Current.Properties.Add(path, value);
             }
@@ -256,13 +256,13 @@ namespace CloudStreamForms
 
         public static void OpenBrowser(string url)
         {
-            Main.print("Trying to open: " + url);
-            if (Main.CheckIfURLIsValid(url)) {
+            CloudStreamCore.print("Trying to open: " + url);
+            if (CloudStreamCore.CheckIfURLIsValid(url)) {
                 try {
                     Launcher.OpenAsync(new Uri(url));
                 }
                 catch (Exception) {
-                    Main.print("BROWSER LOADED ERROR, SHOULD NEVER HAPPEND!!");
+                    CloudStreamCore.print("BROWSER LOADED ERROR, SHOULD NEVER HAPPEND!!");
                 }
             }
         }

@@ -16,7 +16,7 @@ using Xamarin.Forms;
 using System.Threading.Tasks;
 using System.Net;
 using System.Text.RegularExpressions;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 using Android.Provider;
 using Acr.UserDialogs;
 using static CloudStreamForms.App;
@@ -66,7 +66,7 @@ namespace CloudStreamForms.Droid
 
             if (Intent.DataString != null) {
                 if (Intent.DataString != "") {
-                    Main.PushPageFromUrlAndName(Intent.DataString);
+                    MainPage.PushPageFromUrlAndName(Intent.DataString);
                 }
             }
             RequestPermission(this);
@@ -291,7 +291,7 @@ namespace CloudStreamForms.Droid
 
             Java.IO.File file = new Java.IO.File(basePath, name);
             Java.IO.File _file = new Java.IO.File(basePath);
-            Main.print("PATH: " + basePath + "/" + name);
+            CloudStreamCore.print("PATH: " + basePath + "/" + name);
             _file.Mkdirs();
             file.CreateNewFile();
             Java.IO.FileWriter writer = new Java.IO.FileWriter(file);
@@ -306,7 +306,7 @@ namespace CloudStreamForms.Droid
         public static async Task OpenPathsAsVideo(List<string> path, List<string> name, string subtitleLoc)
         {
             string absolutePath = Android.OS.Environment.ExternalStorageDirectory + "/" + Android.OS.Environment.DirectoryDownloads;
-            Main.print("AVS: " + absolutePath);
+            CloudStreamCore.print("AVS: " + absolutePath);
 
             bool subtitlesEnabled = subtitleLoc != "";
             string writeData = CloudStreamForms.App.ConvertPathAndNameToM3U8(path, name, subtitlesEnabled, "content://" + absolutePath + "/");
@@ -406,12 +406,12 @@ namespace CloudStreamForms.Droid
             try {
 
                 string basePath = GetPath(mainPath, extraPath);
-                Main.print(basePath);
+                CloudStreamCore.print(basePath);
                 Java.IO.File _file = new Java.IO.File(basePath);
 
                 _file.Mkdirs();
                 basePath += "/" + CensorFilename(fileName);
-                Main.print(basePath);
+                CloudStreamCore.print(basePath);
                 //webClient.DownloadFile(url, basePath);
                 using (WebClient wc = new WebClient()) {
                     wc.DownloadProgressChanged += (o, e) => {

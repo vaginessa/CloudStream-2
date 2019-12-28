@@ -8,7 +8,8 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Reflection;
 using System.Net;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
+using static CloudStreamForms.MainPage;
 
 namespace CloudStreamForms
 {
@@ -209,7 +210,7 @@ namespace CloudStreamForms
 
             UpdateBtt.Clicked += (o, e) => {
                 if (NewGithubUpdate) {
-                    App.DownloadNewGithubUpdate(Main.githubUpdateTag);
+                    App.DownloadNewGithubUpdate(githubUpdateTag);
                 }
             };
             if (Device.RuntimePlatform != Device.Android) {
@@ -275,8 +276,8 @@ namespace CloudStreamForms
 
 
             if (Device.RuntimePlatform == Device.Android) {
-                UpdateBtt.IsEnabled = Main.NewGithubUpdate;
-                UpdateBtt.IsVisible = Main.NewGithubUpdate;
+                UpdateBtt.IsEnabled = NewGithubUpdate;
+                UpdateBtt.IsVisible = NewGithubUpdate;
                 UpdateBtt.Text = "Update " + App.GetBuildNumber() + " to " + githubUpdateTag.Replace("v", "") + " · " + githubUpdateText;
                 BackgroundColor = Color.FromHex(Settings.MainBackgroundColor);
             }

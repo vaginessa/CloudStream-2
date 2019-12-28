@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 using static CloudStreamForms.MainPage;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
@@ -306,7 +306,7 @@ namespace CloudStreamForms
             }
             if (action == "Open Source") {
                 if (episodeResult.extraInfo.Contains("isYouTube=" + true)) {
-                    OpenBrowser(FindHTML(episodeResult.extraInfo, "_movieId=", "|||"));
+                    App.OpenBrowser(FindHTML(episodeResult.extraInfo, "_movieId=", "|||"));
                 }
                 else {
 

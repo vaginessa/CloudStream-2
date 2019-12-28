@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using CloudStreamForms.Models;
@@ -160,7 +160,7 @@ namespace CloudStreamForms
             string a = await DisplayActionSheet("Copy", "Cancel", null, actions.ToArray());
             string copyTxt = "";
             if (a == "CloudStream Link") {
-                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
+                string _s = CloudStreamCore.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
                 if (_s != "") {
                     copyTxt = _s;
                 }
@@ -183,7 +183,7 @@ namespace CloudStreamForms
             else if (a == "Everything") {
                 copyTxt = currentMovie.title.name + " | " + RatingLabel.Text + "\n" + currentMovie.title.description;
 
-                string _s = Main.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
+                string _s = CloudStreamCore.ShareMovieCode(currentMovie.title.id + "Name=" + currentMovie.title.name + "=EndAll");
                 if (_s != "") {
                     copyTxt = copyTxt + "\nCloudStream: " + _s;
                 }
@@ -1111,12 +1111,12 @@ namespace CloudStreamForms
         private void IMDb_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            Main.OpenBrowser("https://www.imdb.com/title/" + mainPoster.url);
+            App.OpenBrowser("https://www.imdb.com/title/" + mainPoster.url);
         }
         private void MAL_Clicked(object sender, EventArgs e)
         {
             if (!SameAsActiveMovie()) return;
-            Main.OpenBrowser(CurrentMalLink);
+            App.OpenBrowser(CurrentMalLink);
         }
 
 
@@ -1490,7 +1490,7 @@ namespace CloudStreamForms
                         Thread t = new Thread(() => {
                             UserDialogs.Instance.ShowLoading("Checking link...", MaskType.Gradient);
                             //UserDialogs.Instance.load
-                            double fileSize = Main.GetFileSize(s);
+                            double fileSize = CloudStreamCore.GetFileSize(s);
                             UserDialogs.Instance.HideLoading();
                             if (fileSize > 1) {
                                 string dpath = App.DownloadUrl(s, episodeResult.Title + ".mp4", true, "/" + GetPathFromType(),"Download complete!",true,episodeResult.Title);

@@ -56,7 +56,7 @@ namespace CloudStreamForms.UWP
 
                 Xamarin.Forms.Forms.Init(e);
                 ((Style)this.Resources["TabbedPageStyle"]).Setters[0] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[0];
-               // ((Style)this.Resources["TabbedPageStyle"]).Setters[2] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[1];
+                // ((Style)this.Resources["TabbedPageStyle"]).Setters[2] = ((Style)this.Resources["TabbedPageStyle2"]).Setters[1];
 
                 FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
                 Rg.Plugins.Popup.Popup.Init();
@@ -131,10 +131,8 @@ namespace CloudStreamForms.UWP
 
                 var url = eventArgs.Uri.AbsoluteUri;
                 if (url != null) {
-
                     if (url != "") {
-
-                        Main.PushPageFromUrlAndName(url);
+                        CloudStreamForms.MainPage.PushPageFromUrlAndName(url);
                     }
                 }
                 try {

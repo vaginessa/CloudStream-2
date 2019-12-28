@@ -17,7 +17,7 @@ using CloudStreamForms.Droid;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using static Java.Util.ResourceBundle;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 
 [assembly: ExportRenderer(typeof(TextCell), typeof(CustomTextCellRenderer))]
 public class CustomTextCellRenderer : TextCellRenderer

@@ -2,7 +2,7 @@
 using Android.Widget;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 
 [assembly: ExportRenderer(typeof(TableView), typeof(CustomTableViewRenderer))]
 public class CustomTableViewRenderer : TableViewRenderer

@@ -15,7 +15,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
-using static CloudStreamForms.Main;
+using static CloudStreamForms.CloudStreamCore;
 using _App = CloudStreamForms.App;
 
 namespace CloudStreamForms.UWP
@@ -177,7 +177,7 @@ namespace CloudStreamForms.UWP
         public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "", bool isNotification = false, string body = "")
         {
 
-            Main.print(fileName);
+            CloudStreamCore.print(fileName);
 
             string basePath = GetPath(fileName);
 
