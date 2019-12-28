@@ -29,12 +29,12 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 
 **SCREENSHOTS:**
 <p align="center">
-    <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232851334037504/Screenshot_20191222_095908_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268939/Screenshot_20191222_095916_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232898205253642/Screenshot_20191222_100116_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232897622507530/Screenshot_20191222_100122_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-     <img src="https://cdn.discordapp.com/attachments/542070959067103232/658232899174268938/Screenshot_20191222_100024_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
-       <img src="https://cdn.discordapp.com/attachments/542070959067103232/658234839211704330/Screenshot_20191222_101009_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616664114790410/Screenshot_20191228_234253_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616663443570688/Screenshot_20191228_234500_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616662696853527/Screenshot_20191228_234518_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616663443570690/Screenshot_20191228_234354_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616661883420695/Screenshot_20191228_235333_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616662696853525/Screenshot_20191228_235201_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">
 </p>
 
 ***How it works:***
