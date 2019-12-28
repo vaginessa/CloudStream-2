@@ -76,7 +76,7 @@ namespace CloudStreamForms
             // Navigation.PushModalAsync(p, false);
 
             //  PushPageFromUrlAndName("tt4869896", "Overlord");
-           // PushPageFromUrlAndName("tt0371746", "Iron Man");
+            // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
 
         // -------------------------------- END --------------------------------
@@ -238,7 +238,7 @@ namespace CloudStreamForms
             PausedTime = CurrentTime;
 
             IsPaused = (mm.PlayerState == "PAUSED");
-            if(_IsPaused != IsPaused) {
+            if (_IsPaused != IsPaused) {
                 _IsPaused = IsPaused;
                 OnPauseChanged?.Invoke(null, IsPaused);
             }
@@ -2269,6 +2269,73 @@ namespace CloudStreamForms
             tempThred.Thread.Start();
         }
 
+        static bool LookForFembedInString(TempThred tempThred, int normalEpisode, string d)
+        {
+            string source = "https://www.fembed.com";
+            string _ref = "www.fembed.com";
+
+            string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");
+            if (fembed == "") {
+                fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
+                if (fembed != "") {
+                    source = "https://gcloud.live";
+                    _ref = "www.gcloud.live";
+                }
+            }
+            if (fembed != "") {
+                GetFembed(fembed, tempThred, normalEpisode, source, _ref);
+            }
+            return fembed != "";
+        }
+
+        static void GetLiveMovies123Links(int normalEpisode, int episode, int season, bool isMovie)
+        {
+            TempThred tempThred = new TempThred();
+
+            tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+            tempThred.Thread = new System.Threading.Thread(() => {
+                try {
+                    string _title = ToDown(activeMovie.title.name, replaceSpace: "-");
+
+                    string _url = (isMovie ? "https://movies123.live/movies/" + _title : "https://movies123.live/episodes/" + _title + "-season-" + season + "-episode-" + episode);
+                    print("___URL::" + _url);
+
+                    string d = DownloadString(_url);
+                    if (!GetThredActive(tempThred)) { return; };
+                    string release = FindHTML(d, "Release:</strong> ", "<");
+                    print("RELESE:::" + release + "::" + activeMovie.title.ogYear + "::");
+                    bool succ = true;
+                    if (release != activeMovie.title.ogYear) {
+                        succ = false;
+                        if (isMovie) {
+                            d = DownloadString(_url + "-1");
+                            succ = true;
+                        }
+                    }
+                    if (succ) {
+                        string live = FindHTML(d, "getlink(\'", "\'");
+                        print("LIVE::" + live);
+                        if (live != "") {
+                            string url = "https://movies123.live/ajax/get-link.php?id=" + live + "&type=" + (isMovie ? "movie" : "tv") + "&link=sw&" + (isMovie ? "season=undefined&episode=undefined" : ("season=" + season + "&episode=" + episode));
+                            print("MegaURL:" + url);
+                            d = DownloadString(url); if (!GetThredActive(tempThred)) { return; };
+
+                            string shortURL = FindHTML(d, "iframe src=\\\"", "\"").Replace("\\/", "/");
+                            d = DownloadString(shortURL); if (!GetThredActive(tempThred)) { return; };
+
+                            AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                        }
+                    }
+                }
+                finally {
+                    JoinThred(tempThred);
+                }
+            });
+            tempThred.Thread.Name = "GetLiveMovies123Links";
+            tempThred.Thread.Start();
+
+        }
+
         static void AddEpisodesFromMirrors(TempThred tempThred, string d, int normalEpisode)
         {
             string mp4 = "https://www.mp4upload.com/embed-" + FindHTML(d, "data-video=\"https://www.mp4upload.com/embed-", "\"");
@@ -2292,7 +2359,6 @@ namespace CloudStreamForms
                 }
                 catch (System.Exception) {
                     print("BrowserMp4: " + mp4);
-
                 }
             }
             string __d = d.ToString();
@@ -2305,17 +2371,10 @@ namespace CloudStreamForms
                 string url = FindHTML(all, ":", "\'");
                 string label = FindHTML(all, "label: \'", "\'").Replace(" P", "p");
                 AddPotentialLink(normalEpisode, "h" + url, "GoogleVideo " + label, prio);
-
             }
 
+            bool fembedAdded = LookForFembedInString(tempThred, normalEpisode, d);
 
-            string fembed = FindHTML(d, "data-video=\"https://www.fembed.com/v/", "\"");
-            if (fembed == "") {
-                fembed = FindHTML(d, "data-video=\"https://gcloud.live/v/", "\"");
-            }
-            if (fembed != "") {
-                GetFembed(fembed, tempThred, normalEpisode);
-            }
 
             string nameId = "Vidstreaming";
             string vid = FindHTML(d, "data-video=\"//vidstreaming.io/streaming.php?", "\"");
@@ -2325,10 +2384,22 @@ namespace CloudStreamForms
             }
             if (vid == "") {
                 vid = FindHTML(d, "//vidnode.net/load.php?id=", "\"");
+                if (vid != "") {
+                    beforeId = "https://vidnode.net/download?id=";
+                    nameId = "VidNode";
+                }
+            }
+            if (vid == "") {
+                vid = FindHTML(d, "//vidnode.net/streaming.php?id=", "\"");
+                if (vid != "") {
+                    beforeId = "https://vidnode.net/download?id=";
+                    nameId = "VidNode";
+                }
             }
 
             if (vid == "") {
                 vid = FindHTML(d, "//vidcloud9.com/download?id=", "\"");
+
                 if (vid != "") {
                     beforeId = "https://vidcloud9.com/download?id=";
                     nameId = "VidCloud";
@@ -2338,9 +2409,16 @@ namespace CloudStreamForms
             if (vid != "") {
                 string dLink = beforeId + vid.Replace("id=", "");
                 string _d = DownloadString(dLink, tempThred);
+
+                //https://gcloud.live/v/ky5g0h3zqylzmq4#caption=https://xcdnfile.com/sub/iron-man-hd-720p/iron-man-hd-720p.vtt
+
                 if (!GetThredActive(tempThred)) { return; };
 
                 GetVidNode(_d, normalEpisode, nameId);
+                if (!fembedAdded) {
+                    string ___d = DownloadString(dLink.Replace("download", "streaming"), tempThred);
+                    LookForFembedInString(tempThred, normalEpisode, ___d);
+                }
 
                 /* // OLD CODE, ONLY 403 ERROR DOSEN'T WORK ANYMORE
                 vid = "http://vidstreaming.io/streaming.php?" + vid;
@@ -2483,6 +2561,7 @@ namespace CloudStreamForms
                             GetTMDB(episode, season, normalEpisode);
                             GetWatchTV(season, episode, normalEpisode);
                         }
+                        GetLiveMovies123Links(normalEpisode, episode, season, activeMovie.title.movieType == MovieType.Movie);
 
                         if (activeMovie.title.yesmoviessSeasonDatas != null) {
                             for (int i = 0; i < activeMovie.title.yesmoviessSeasonDatas.Count; i++) {
@@ -2615,11 +2694,11 @@ namespace CloudStreamForms
         }
 
 
-        public static void GetFembed(string fembed, TempThred tempThred, int normalEpisode)
+        public static void GetFembed(string fembed, TempThred tempThred, int normalEpisode, string urlType = "https://www.fembed.com", string referer = "www.fembed.com")
         {
             if (fembed != "") {
                 int prio = 5;
-                string _d = PostRequest("https://www.fembed.com/api/source/" + fembed, "https://www.fembed.com/v/" + fembed, "r=&d=www.fembed.com", tempThred);
+                string _d = PostRequest(urlType + "/api/source/" + fembed, urlType + "/v/" + fembed, "r=&d=" + referer, tempThred);
                 if (_d != "") {
                     string lookFor = "\"file\":\"";
                     string _labelFind = "\"label\":\"";
@@ -2944,24 +3023,15 @@ namespace CloudStreamForms
 
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
 
-                    string fembed = FindHTML(d, "https://gcloud.live/v/", "\"");
 
-                    if (fembed != "") {
-                        fembed = FindHTML(d, "https://www.fembed.com/v/", "\"");
-                    }
                     string secondLink = FindHTML(d, "https://vidnode.net/download?id=", "\"");
-                    print("SECOND: " + fembed);
                     print("FIRST: " + secondLink);
                     if (secondLink != "") {
                         d = DownloadString("https://vidnode.net/download?id=" + secondLink);
                         if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                         GetVidNode(d, normalEpisode);
-
                     }
-                    if (fembed != "") {
-                        GetFembed(fembed, tempThred, normalEpisode);
-                    }
-
+                    LookForFembedInString(tempThred, normalEpisode, d);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -3131,6 +3201,8 @@ namespace CloudStreamForms
 
         public static bool AddPotentialLink(int _episode, string _url, string _name, int _priority)
         {
+            _name = _name.Replace("  ", " ");
+            _url = _url.Replace(" ", "%20");
             if (!LinkListContainsString(activeMovie.episodes[_episode].links, _url)) {
                 if (CheckIfURLIsValid(_url)) {
                     print("ADD LINK:" + _episode + "|" + _name + "|" + _priority + "|" + _url);
@@ -3138,6 +3210,7 @@ namespace CloudStreamForms
                     if (ep.links == null) {
                         activeMovie.episodes[_episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                     }
+
                     bool done = false;
                     int count = 1;
                     string realName = _name;
