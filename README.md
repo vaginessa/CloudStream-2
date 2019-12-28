@@ -29,9 +29,9 @@ CloudStream 2 is the successor to https://github.com/LagradOst/CloudStream, and 
 
 **SCREENSHOTS:**
 <p align="center">
-    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660619964415344650/Screenshot_20191229_000742_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616664114790410/Screenshot_20191228_234253_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
         <img src="https://cdn.discordapp.com/attachments/542987806285496322/660619120726769684/Screenshot_20191229_000243_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
-    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616663443570688/Screenshot_20191228_234500_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
+    <img src="https://cdn.discordapp.com/attachments/542987806285496322/660619964415344650/Screenshot_20191229_000742_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
     <img src="https://cdn.discordapp.com/attachments/542987806285496322/660619121343463434/Screenshot_20191229_000203_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
     <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616662696853527/Screenshot_20191228_234518_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
     <img src="https://cdn.discordapp.com/attachments/542987806285496322/660616663443570690/Screenshot_20191228_234354_com.CloudStreamForms.CloudStreamForms.jpg" width="200" title="hover text">    
