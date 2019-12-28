@@ -162,7 +162,7 @@
 
                                     </Grid>
                                     <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" TranslationY="95">
-                                        <ProgressBar Progress="{Binding ExtraProgress}" IsVisible="{Binding DownloadNotDone}" IsEnabled="{Binding DownloadNotDone}" HeightRequest="5"  VerticalOptions="Start"/>
+                                        <ProgressBar Progress="{Binding ExtraProgress}" IsVisible="{Binding DownloadNotDone}" IsEnabled="{Binding DownloadNotDone}" HeightRequest="5" ProgressColor="{Binding ExtraColor}" VerticalOptions="Start"/>
                                     </Grid>
                                     <!--
                                     <Grid Grid.Row="1" x:Name="PBar"  Grid.Column="0" VerticalOptions="Center">

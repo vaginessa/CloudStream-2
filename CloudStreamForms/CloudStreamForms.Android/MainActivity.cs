@@ -20,6 +20,7 @@ using static CloudStreamForms.Main;
 using Android.Provider;
 using Acr.UserDialogs;
 using static CloudStreamForms.App;
+using Plugin.LocalNotifications;
 
 namespace CloudStreamForms.Droid
 {
@@ -54,6 +55,8 @@ namespace CloudStreamForms.Droid
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init(enableFastRenderer: true);
             Rg.Plugins.Popup.Popup.Init(this, savedInstanceState);
             UserDialogs.Init(this);
+
+            LocalNotificationsImplementation.NotificationIconId = Resource.Drawable.bicon;
 
             LoadApplication(new App());
             activity = this;
@@ -398,7 +401,7 @@ namespace CloudStreamForms.Droid
             return WriteFile(CensorFilename(fileName), GetPath(mainPath, extraPath), file).Path;
         }
 
-        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "")
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "", bool isNotification = false, string body = "")
         {
             try {
 
@@ -424,7 +427,12 @@ namespace CloudStreamForms.Droid
                     };
                     wc.DownloadFileCompleted += (o, e) => {
                         if (toast != "") {
-                            App.ShowToast(toast);
+                            if (isNotification) {
+                                App.ShowNotification(toast, body);
+                            }
+                            else {
+                                App.ShowToast(toast);
+                            }
                         }
                     };
                     wc.DownloadFileAsync(

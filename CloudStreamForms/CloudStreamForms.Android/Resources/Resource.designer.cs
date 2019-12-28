@@ -2619,6 +2619,7 @@ namespace CloudStreamForms.Droid
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahText = global::CloudStreamForms.Droid.Resource.Styleable.ProgressWheel_ahText;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextColor = global::CloudStreamForms.Droid.Resource.Styleable.ProgressWheel_ahTextColor;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextSize = global::CloudStreamForms.Droid.Resource.Styleable.ProgressWheel_ahTextSize;
+			global::Plugin.LocalNotifications.Resource.Drawable.plugin_lc_smallicon = global::CloudStreamForms.Droid.Resource.Drawable.plugin_lc_smallicon;
 			global::Xamarin.Essentials.Resource.Attribute.alpha = global::CloudStreamForms.Droid.Resource.Attribute.alpha;
 			global::Xamarin.Essentials.Resource.Attribute.coordinatorLayoutStyle = global::CloudStreamForms.Droid.Resource.Attribute.coordinatorLayoutStyle;
 			global::Xamarin.Essentials.Resource.Attribute.font = global::CloudStreamForms.Droid.Resource.Attribute.font;
@@ -9109,50 +9110,53 @@ namespace CloudStreamForms.Droid
 			// aapt resource value: 0x7F070141
 			public const int notify_panel_notification_icon_bg = 2131165505;
 			
-			// aapt resource value: 0x7F07014B
-			public const int roundedbg = 2131165515;
+			// aapt resource value: 0x7F070142
+			public const int plugin_lc_smallicon = 2131165506;
 			
 			// aapt resource value: 0x7F07014C
-			public const int roundedbgdark = 2131165516;
-			
-			// aapt resource value: 0x7F070142
-			public const int round_close_white_18 = 2131165506;
-			
-			// aapt resource value: 0x7F070143
-			public const int round_close_white_24 = 2131165507;
-			
-			// aapt resource value: 0x7F070144
-			public const int round_close_white_36 = 2131165508;
-			
-			// aapt resource value: 0x7F070145
-			public const int round_close_white_48 = 2131165509;
-			
-			// aapt resource value: 0x7F070146
-			public const int round_menu_white_48dp = 2131165510;
-			
-			// aapt resource value: 0x7F070147
-			public const int round_tv_white_18 = 2131165511;
-			
-			// aapt resource value: 0x7F070148
-			public const int round_tv_white_24 = 2131165512;
-			
-			// aapt resource value: 0x7F070149
-			public const int round_tv_white_36 = 2131165513;
-			
-			// aapt resource value: 0x7F07014A
-			public const int round_tv_white_48 = 2131165514;
+			public const int roundedbg = 2131165516;
 			
 			// aapt resource value: 0x7F07014D
-			public const int searchIcon = 2131165517;
+			public const int roundedbgdark = 2131165517;
+			
+			// aapt resource value: 0x7F070143
+			public const int round_close_white_18 = 2131165507;
+			
+			// aapt resource value: 0x7F070144
+			public const int round_close_white_24 = 2131165508;
+			
+			// aapt resource value: 0x7F070145
+			public const int round_close_white_36 = 2131165509;
+			
+			// aapt resource value: 0x7F070146
+			public const int round_close_white_48 = 2131165510;
+			
+			// aapt resource value: 0x7F070147
+			public const int round_menu_white_48dp = 2131165511;
+			
+			// aapt resource value: 0x7F070148
+			public const int round_tv_white_18 = 2131165512;
+			
+			// aapt resource value: 0x7F070149
+			public const int round_tv_white_24 = 2131165513;
+			
+			// aapt resource value: 0x7F07014A
+			public const int round_tv_white_36 = 2131165514;
+			
+			// aapt resource value: 0x7F07014B
+			public const int round_tv_white_48 = 2131165515;
 			
 			// aapt resource value: 0x7F07014E
-			public const int settingsIcon = 2131165518;
+			public const int searchIcon = 2131165518;
 			
 			// aapt resource value: 0x7F07014F
-			public const int tooltip_frame_dark = 2131165519;
+			public const int settingsIcon = 2131165519;
 			
 			// aapt resource value: 0x7F070150
-			public const int tooltip_frame_light = 2131165520;
+			public const int tooltip_frame_dark = 2131165520;
+			
+			// aapt resource value: 0x7F070151
+			public const int tooltip_frame_light = 2131165521;
 			
 			static Drawable()
 			{

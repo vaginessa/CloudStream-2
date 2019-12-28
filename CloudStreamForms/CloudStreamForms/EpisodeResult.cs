@@ -30,6 +30,7 @@ namespace CloudStreamForms.Models
         public bool LoadedLinks { set; get; }
         public string MainTextColor { set; get; } = "#ffffff";
         public string MainDarkTextColor { get; set; } = "#808080"; 
+        public string ExtraColor { get; set; } = "#808080"; 
         public string ogTitle { set; get; }
         public double TranslateYOffset
         {

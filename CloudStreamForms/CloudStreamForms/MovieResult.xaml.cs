@@ -1483,7 +1483,7 @@ namespace CloudStreamForms
                             double fileSize = Main.GetFileSize(s);
                             UserDialogs.Instance.HideLoading();
                             if (fileSize > 1) {
-                                string dpath = App.DownloadUrl(s, episodeResult.Title + ".mp4", true, "/" + GetPathFromType());
+                                string dpath = App.DownloadUrl(s, episodeResult.Title + ".mp4", true, "/" + GetPathFromType(),"Download complete!",true,episodeResult.Title);
                                 //  string ppath = App.DownloadUrl(episodeResult.PosterUrl, "epP" + episodeResult.Title + ".jpg", false, "/Posters");
                                 // string mppath = App.DownloadUrl(currentMovie.title.hdPosterUrl, "hdP" + episodeResult.Title + ".jpg", false, "/TitlePosters");
                                 string mppath = currentMovie.title.hdPosterUrl;

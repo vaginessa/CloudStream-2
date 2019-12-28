@@ -2910,12 +2910,23 @@ namespace CloudStreamForms
         public static double GetFileSizeOnSystem(string path)
         {
             try {
-                return Math.Round(Convert.ToDouble(new System.IO.FileInfo(path).Length) / Math.Pow((double)App.GetSizeOfJumpOnSystem(), 2.0), 2);
+                return Math.Round(Convert.ToDouble(GetFileBytesOnSystem(path)) / Math.Pow((double)App.GetSizeOfJumpOnSystem(), 2.0), 2);
             }
             catch (Exception) {
                 return -1;
             }
         }
+
+        public static long GetFileBytesOnSystem(string path)
+        {
+            try {
+                return new System.IO.FileInfo(path).Length;
+            }
+            catch (Exception) {
+                return -1;
+            }
+        }
+
 
         public static bool GetSettings(MovieType type = MovieType.Movie)
         {

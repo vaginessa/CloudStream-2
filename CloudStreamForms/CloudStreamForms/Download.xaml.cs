@@ -31,7 +31,7 @@ namespace CloudStreamForms
         public Download()
         {
             InitializeComponent();
-           // ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
+            // ytBtt.Source = App.GetImageSource("round_movie_white_48dp.png");
             ytBtt.Source = App.GetImageSource("ytIcon.png");
 
             ytrealBtt.Clicked += async (o, e) => {
@@ -72,10 +72,10 @@ namespace CloudStreamForms
                                     string key = "_dpath=" + dpath + "|||_ppath=" + ppath + "|||_mppath=" + mppath + "|||_descript=" + v.Description + "|||_maindescript=" + v.Description + "|||_epCounter=" + "-1" + "|||_epId=" + v.Id + "|||_movieId=" + v.GetUrl() + "|||_title=" + v.Title + "|||_movieTitle=" + v.Title + "|||isYouTube=" + true + "|||UploadData=" + v.UploadDate.ToString() + "|||Author=" + v.Author + "|||Duration=" + v.Duration.TotalSeconds + "|||=EndAll";
                                     print("DKEY: " + key);
                                     App.SetKey("Download", v.Id, key);
-                                    App.ShowToast("Download Started - " + Math.Round(mb,1) + "MB");
-                                    App.SetKey("DownloadSize", v.Id, Math.Round(mb,2));
-                                    YouTube.DownloadVideo(data, v.Title);
-                                   // YouTube.DownloadVideo(data, v.Title);
+                                    App.ShowToast("Download Started - " + Math.Round(mb, 1) + "MB");
+                                    App.SetKey("DownloadSize", v.Id, Math.Round(mb, 2));
+                                    YouTube.DownloadVideo(data, v.Title, "Download complete!", true, v.Title);
+                                    // YouTube.DownloadVideo(data, v.Title);
 
                                 }
                                 catch (Exception) {
@@ -170,9 +170,19 @@ namespace CloudStreamForms
                 string movieTitle = FindHTML(keys[i], "_movieTitle=", "|||");
                 string epCounter = FindHTML(keys[i], "_epCounter=", "|||");
                 print("KEY:" + keys[i]);
-              //  const double height = 80;
-              //  const double width = 126;
+                //  const double height = 80;
+                //  const double width = 126;
                 if (moviePath != "") {
+
+                    bool stuckDownload = false;
+                    long currentBytes = GetFileBytesOnSystem(moviePath);
+                    if (App.GetKey<long>("DownloadSizeBytes", id, -1) == currentBytes) {
+                        stuckDownload = true;
+                    }
+                    else {
+                        App.SetKey("DownloadSizeBytes", id, currentBytes);
+                    }
+
                     double currentProgress = GetFileSizeOnSystem(moviePath);
                     double maxProgress = App.GetKey("DownloadSize", id, -1.0);
                     double dprogress = currentProgress / maxProgress;
@@ -192,16 +202,21 @@ namespace CloudStreamForms
                         }
                     }
                     bool isYouTube = keys[i].Contains("isYouTube=" + true);
+                   
                     AddEpisode(new EpisodeResult() {
                         Description = episodeDescript,
                         PosterUrl = posterUrl,
                         Id = i,
                         Title = episodeTitle + extra,
                         ExtraProgress = dprogress,
+                        MainTextColor = stuckDownload ? "#D10E3C" : "#FFFFFF",
+                        ExtraColor = stuckDownload ? "#D10E3C" : "#303F9F",
+                        MainDarkTextColor = stuckDownload ? "#7D0824" : "#808080",
+                        
                         DownloadNotDone = !downloadDone,
                         Mirros = new List<string>() { "Download" },
                         mirrosUrls = new List<string>() { moviePath },
-                        extraInfo = "KeyPath=" + keysPaths[i] + "|||_mppath=" + movieUrl + "|||_dpath=" + moviePath + "|||_ppath=" + posterUrl + "|||_movieId=" + movieId + "|||_movieTitle=" + movieTitle + "|||isYouTube="  +isYouTube + "|||=EndAll"
+                        extraInfo = "KeyPath=" + keysPaths[i] + "|||_mppath=" + movieUrl + "|||_dpath=" + moviePath + "|||_ppath=" + posterUrl + "|||_movieId=" + movieId + "|||_movieTitle=" + movieTitle + "|||isYouTube=" + isYouTube + "|||=EndAll"
                     });
                     /*
                     Grid stackLayout = new Grid();
@@ -289,14 +304,14 @@ namespace CloudStreamForms
                 DeleteFile(moviePath, keyPath);
             }
             if (action == "Open Source") {
-                if(episodeResult.extraInfo.Contains("isYouTube="+true)) {
+                if (episodeResult.extraInfo.Contains("isYouTube=" + true)) {
                     OpenBrowser(FindHTML(episodeResult.extraInfo, "_movieId=", "|||"));
                 }
                 else {
 
-                string title = FindHTML(episodeResult.extraInfo, "_movieTitle=", "|||");
-                string movieId = FindHTML(episodeResult.extraInfo, "_movieId=", "|||");
-                PushPageFromUrlAndName(movieId, title);
+                    string title = FindHTML(episodeResult.extraInfo, "_movieTitle=", "|||");
+                    string movieId = FindHTML(episodeResult.extraInfo, "_movieId=", "|||");
+                    PushPageFromUrlAndName(movieId, title);
                 }
             }
             UpdateDownloads();
@@ -430,7 +445,7 @@ namespace CloudStreamForms
             return streamInfo;
         }
 
-        public static async void DownloadVideo(MediaStreamInfo mediaStreamInfos, string name)
+        public static async void DownloadVideo(MediaStreamInfo mediaStreamInfos, string name, string toast = "", bool isNotification = false, string body = "")
         {
 
             // YoutubeConverter converter = new YoutubeConverter();
@@ -453,6 +468,14 @@ namespace CloudStreamForms
                 Directory.CreateDirectory(rootPath);
             }
             await client.DownloadMediaStreamAsync(mediaStreamInfos, App.GetDownloadPath(name, "/YouTube") + ".mp4");
+            if (toast != "") {
+                if (isNotification) {
+                    App.ShowNotification(toast, body);
+                }
+                else {
+                    App.ShowToast(toast);
+                }
+            }
             //  await converter.DownloadAndProcessMediaStreamsAsync(mediaStreamInfos, basePath + "/" + path + ".mp4",".mp4");
         }
     }

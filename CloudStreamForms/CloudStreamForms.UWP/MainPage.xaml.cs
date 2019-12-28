@@ -174,7 +174,7 @@ namespace CloudStreamForms.UWP
         }
 
 
-        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "")
+        public string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "", bool isNotification = false, string body = "")
         {
 
             Main.print(fileName);
@@ -198,7 +198,12 @@ namespace CloudStreamForms.UWP
                     };
                     wc.DownloadFileCompleted += (o, e) => {
                         if (toast != "") {
-                            ShowToast(toast, 2.5);
+                            if (isNotification) {
+                                _App.ShowNotification(toast, body);
+                            }
+                            else {
+                                ShowToast(toast, 2.5);
+                            }
                         }
                     };
                     wc.DownloadFileAsync(

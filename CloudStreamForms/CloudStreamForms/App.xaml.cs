@@ -8,6 +8,7 @@ using System.Reflection;
 using Xamarin.Essentials;
 using System.Net;
 using System.IO;
+using Plugin.LocalNotifications;
 
 namespace CloudStreamForms
 {
@@ -24,7 +25,7 @@ namespace CloudStreamForms
             void PlayVlc(List<string> url, List<string> name, string subtitleLoc);
             void ShowToast(string message, double duration);
             string DownloadFile(string file, string fileName, bool mainPath, string extraPath);
-            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "");
+            string DownloadUrl(string url, string fileName, bool mainPath, string extraPath, string toast = "", bool isNotification = false, string body = "");
             bool DeleteFile(string path);
             void DownloadUpdate(string update);
             string GetDownloadPath(string path, string extraFolder);
@@ -41,12 +42,12 @@ namespace CloudStreamForms
             /// <summary>
             /// From 0-1
             /// </summary>
-            public double UsedProcentage { get { return ConvertBytesToGB(UsedSpace,4) / ConvertBytesToGB(TotalSpace,4); } } 
+            public double UsedProcentage { get { return ConvertBytesToGB(UsedSpace, 4) / ConvertBytesToGB(TotalSpace, 4); } }
         }
 
         public static void OnDownloadProgressChanged(string path, DownloadProgressChangedEventArgs progress)
         {
-           // Main.print("PATH: " + path + " | Progress:" + progress.ProgressPercentage);
+            // Main.print("PATH: " + path + " | Progress:" + progress.ProgressPercentage);
         }
 
 
@@ -59,7 +60,7 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
-   
+
         public static StorageInfo GetStorage()
         {
             return platformDep.GetStorageInformation();
@@ -70,7 +71,7 @@ namespace CloudStreamForms
             return ConvertBytesToAny(bytes, digits, 3);
         }
 
-        public static double ConvertBytesToAny(long bytes, int digits = 2,int steps = 3)
+        public static double ConvertBytesToAny(long bytes, int digits = 2, int steps = 3)
         {
             int div = GetSizeOfJumpOnSystem();
             return Math.Round((bytes / Math.Pow(div, steps)), digits);
@@ -78,9 +79,8 @@ namespace CloudStreamForms
 
         public static int GetSizeOfJumpOnSystem()
         {
-            return Device.RuntimePlatform == Device.UWP ? 1024 : 1000; 
+            return Device.RuntimePlatform == Device.UWP ? 1024 : 1000;
         }
-
 
         public static bool DeleteFile(string path)
         {
@@ -183,6 +183,20 @@ namespace CloudStreamForms
             return GetKeysPath(folder).Count;
         }
 
+        public static void ShowNotification(string title, string body)
+        {
+            CrossLocalNotifications.Current.Show(title, body);
+        }
+
+        public static void ShowNotification(string title, string body, int id, int sec)
+        {
+            CrossLocalNotifications.Current.Show(title, body, id, DateTime.Now.AddSeconds(sec));
+        }
+        public static void CancelNotifaction(int id)
+        {
+            CrossLocalNotifications.Current.Cancel(id);
+        }
+
         public static List<string> GetKeysPath(string folder)
         {
             List<string> keyNames = Current.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();
@@ -214,10 +228,9 @@ namespace CloudStreamForms
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());
         }
 
-        public static string DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "")
+        public static string DownloadUrl(string url, string fileName, bool mainPath = true, string extraPath = "", string toast = "", bool isNotification = false, string body = "")
         {
-            return platformDep.DownloadUrl(url, fileName, mainPath, extraPath);
-
+            return platformDep.DownloadUrl(url, fileName, mainPath, extraPath, toast, isNotification, body);
         }
         public static string DownloadFile(string file, string fileName, bool mainPath = true, string extraPath = "")
         {
