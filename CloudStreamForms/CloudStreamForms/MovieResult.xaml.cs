@@ -406,6 +406,7 @@ namespace CloudStreamForms
             movie123FishingDone += MovieFishingDone;
             yesmovieFishingDone += MovieFishingDone;
             watchSeriesFishingDone += MovieFishingDone;
+            fmoviesFishingDone += MovieFishingDone;
 
             if (Device.RuntimePlatform == Device.UWP) {
                 //QuickMenu.WidthRequest = 500;

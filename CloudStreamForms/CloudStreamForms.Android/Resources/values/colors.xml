@@ -7,6 +7,6 @@
   <color name="navigationBarColor">#111111</color>
   <color name="statusBarColor">#111111</color>
   <color name="windowBackground">#111111</color>
-  <color name="ListViewHighlighted">#303F9F</color>
-  <color name="ListViewSelected">#303F9F</color>
+  <color name="ListViewHighlighted">#232d6f</color>
+  <color name="ListViewSelected">#232d6f</color>
 </resources>
