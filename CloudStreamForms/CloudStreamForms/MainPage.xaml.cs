@@ -3013,55 +3013,60 @@ namespace CloudStreamForms
         // -------------------- METHODS --------------------
         static string HTMLGet(string uri, string referer, bool br = false)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            try {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            request.Method = "GET";
-            request.ContentType = "text/html; charset=UTF-8";
-            // webRequest.Headers.Add("Host", "trollvid.net");
-            request.UserAgent = USERAGENT;
-            request.Headers.Add("Accept-Language", "en-US,en;q=0.5");
-            request.Headers.Add("Accept-Encoding", "gzip, deflate");
-            request.Referer = referer;
+                request.Method = "GET";
+                request.ContentType = "text/html; charset=UTF-8";
+                // webRequest.Headers.Add("Host", "trollvid.net");
+                request.UserAgent = USERAGENT;
+                request.Headers.Add("Accept-Language", "en-US,en;q=0.5");
+                request.Headers.Add("Accept-Encoding", "gzip, deflate");
+                request.Referer = referer;
 
-            // webRequest.Headers.Add("Cookie", "__cfduid=dc6e854c3f07d2a427bca847e1ad5fa741562456483; _ga=GA1.2.742704858.1562456488; _gid=GA1.2.1493684150.1562456488; _maven_=popped; _pop_=popped");
-            request.Headers.Add("TE", "Trailers");
+                // webRequest.Headers.Add("Cookie", "__cfduid=dc6e854c3f07d2a427bca847e1ad5fa741562456483; _ga=GA1.2.742704858.1562456488; _gid=GA1.2.1493684150.1562456488; _maven_=popped; _pop_=popped");
+                request.Headers.Add("TE", "Trailers");
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
-                //  print(response.GetResponseHeader("set-cookie").ToString());
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                    //  print(response.GetResponseHeader("set-cookie").ToString());
 
 
-                // using (Stream stream = response.GetResponseStream())
-                if (br) {
-                    /*
-                    using (BrotliStream bs = new BrotliStream(response.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress)) {
-                        using (System.IO.MemoryStream msOutput = new System.IO.MemoryStream()) {
-                            bs.CopyTo(msOutput);
-                            msOutput.Seek(0, System.IO.SeekOrigin.Begin);
-                            using (StreamReader reader = new StreamReader(msOutput)) {
+                    // using (Stream stream = response.GetResponseStream())
+                    if (br) {
+                        /*
+                        using (BrotliStream bs = new BrotliStream(response.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress)) {
+                            using (System.IO.MemoryStream msOutput = new System.IO.MemoryStream()) {
+                                bs.CopyTo(msOutput);
+                                msOutput.Seek(0, System.IO.SeekOrigin.Begin);
+                                using (StreamReader reader = new StreamReader(msOutput)) {
+                                    string result = reader.ReadToEnd();
+
+                                    return result;
+
+                                }
+                            }
+                        }
+                        */
+                        return "";
+                    }
+                    else {
+                        using (Stream stream = response.GetResponseStream()) {
+                            // print("res" + response.StatusCode);
+                            foreach (string e in response.Headers) {
+                                // print("Head: " + e);
+                            }
+                            // print("LINK:" + response.GetResponseHeader("Set-Cookie"));
+                            using (StreamReader reader = new StreamReader(stream)) {
                                 string result = reader.ReadToEnd();
-
                                 return result;
-
                             }
                         }
                     }
-                    */
-                    return "";
                 }
-                else {
-                    using (Stream stream = response.GetResponseStream()) {
-                        // print("res" + response.StatusCode);
-                        foreach (string e in response.Headers) {
-                            // print("Head: " + e);
-                        }
-                        // print("LINK:" + response.GetResponseHeader("Set-Cookie"));
-                        using (StreamReader reader = new StreamReader(stream)) {
-                            string result = reader.ReadToEnd();
-                            return result;
-                        }
-                    }
-                }
+            }
+            catch (Exception) {
+                return "";
             }
         }
 
@@ -3959,16 +3964,16 @@ namespace CloudStreamForms
 
         public static string DownloadStringOnce(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
         {
-            WebClient client = new WebClient();
-            if (UTF8Encoding) {
-                client.Encoding = Encoding.UTF8; // TO GET SPECIAL CHARACTERS ECT
-            }
-
             try {
+                WebClient client = new WebClient();
+                if (UTF8Encoding) {
+                    client.Encoding = Encoding.UTF8; // TO GET SPECIAL CHARACTERS ECT
+                }
                 // ANDROID DOWNLOADSTRING
 
                 bool done = false;
                 string _s = "";
+                bool error = false;
                 client.DownloadStringCompleted += (o, e) => {
                     done = true;
                     if (!e.Cancelled) {
@@ -3976,6 +3981,8 @@ namespace CloudStreamForms
                             _s = e.Result;
                         }
                         else {
+                            _s = "";
+                            error = true;
                             print(e.Error.Message + "|" + url);
                         }
                     }
@@ -4002,7 +4009,9 @@ namespace CloudStreamForms
                         return _s;
                     }
                 }
-                client.CancelAsync();
+                if (!error) {
+                    client.CancelAsync();
+                }
                 return _s;
 
                 // return client.DownloadString(url);
