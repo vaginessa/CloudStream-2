@@ -51,17 +51,21 @@ https://www.imdb.com/ (Seach, rating, trailer, recommendations and descriptions)
 
 https://myanimelist.net/ (Only used to crossreference anime)
 
-https://movies123.pro/ (Movie and Tv-Show mirror links)
+https://fmovies.to/ (Movie and Tv-Show HD links)
 
 https://gomostream.com/ (Movie and Tv-Show HD links)
 
-https://www9.gogoanime.io/ (Anime HD links)
+https://movies123.pro/ (Movie and Tv-Show mirror links)
 
 https://1movietv.com/ (Movie and Tv-Show links)
 
+https://yesmoviess.to/ (Movie and Tv-Show links)
+
 https://www.freefullmovies.zone (Movie Links)
 
-http://watchserieshd.tv (slow Tv-Show mirror links)
+http://watchserieshd.tv (slow Tv-Show links)
+
+https://www9.gogoanime.io/ (Anime HD links)
 
 https://www.opensubtitles.org (Subtitles)
 
