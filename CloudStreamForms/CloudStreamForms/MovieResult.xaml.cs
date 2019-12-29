@@ -396,7 +396,7 @@ namespace CloudStreamForms
 
             titleLoaded += MovieResult_titleLoaded;
             trailerLoaded += MovieResult_trailerLoaded;
-            epsiodesLoaded += MovieResult_epsiodesLoaded;
+            episodeLoaded += MovieResult_epsiodesLoaded;
 
 
             // TrailerBtt.Clicked += TrailerBtt_Clicked;

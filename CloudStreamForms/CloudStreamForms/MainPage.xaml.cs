@@ -852,7 +852,7 @@ namespace CloudStreamForms
         public static event EventHandler<Movie> titleLoaded;
         public static event EventHandler<List<Poster>> searchLoaded;
         public static event EventHandler<string> trailerLoaded;
-        public static event EventHandler<List<Episode>> epsiodesLoaded;
+        public static event EventHandler<List<Episode>> episodeLoaded;
         public static event EventHandler<Link> linkAdded;
         public static event EventHandler<MALData> malDataLoaded;
         public static event EventHandler<Episode> linksProbablyDone;
@@ -1476,7 +1476,7 @@ namespace CloudStreamForms
                             if (activeMovie.title.movieType == MovieType.Anime) {
                                 GetMALData();
                             }
-                            else {
+                            else { // FISHING : THIS IS TO SPEED UP LINK FETHING
                                 FishFmovies();
                                 FishMovies123Links();
                                 FishYesMoviesLinks();
@@ -1484,11 +1484,10 @@ namespace CloudStreamForms
                             }
 
                         }
-                        catch (Exception) {
-
-                        }
+                        catch (Exception) { }
 
                         // ------ RECOMENDATIONS ------
+
                         if (fetchData) {
                             activeMovie.title.recomended = new List<Poster>();
                             string lookFor = "<div class=\"rec_item\" data-info=\"\" data-spec=\"";
@@ -1554,8 +1553,6 @@ namespace CloudStreamForms
 
                     string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
                     string yesmovies = "https://yesmoviess.to/search/?keyword=" + rinput.Replace("+", "-");
-
-
 
                     // SUB HD MOVIES 123
                     string movies123 = "https://movies123.pro/search/" + rinput.Replace("+", "%20") + ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? "/movies" : "/series");
@@ -1728,8 +1725,6 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "Movies123MetaData";
             tempThred.Thread.Start();
-
-
         }
 
         public static void FishFmovies()
@@ -1764,10 +1759,10 @@ namespace CloudStreamForms
 
                         bool same = false;
                         int season = 0;
-                        same = name.Replace(" ", "") == realName.Replace(" ", "");
+                        same = name.Replace(" ", "").ToLower() == realName.Replace(" ", "").ToLower();
                         if (!same && !isMovie) {
                             for (int i = 1; i < 100; i++) {
-                                if (name.Replace(" ", "") == realName.Replace(" ", "") + i) {
+                                if (name.Replace(" ", "").ToLower() == realName.Replace(" ", "").ToLower() + i) {
                                     same = true;
                                     season = i;
                                     break;
@@ -1928,45 +1923,10 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "WatchSeriesHdMetaData";
             tempThred.Thread.Start();
-
         }
 
-        static void FishMovieJoy() // DONT USE  https://www1.moviesjoy.net/search/ THEY USE GOOGLE RECAPTCH TO GET LINKS
-        {
-            TempThred tempThred = new TempThred();
-            tempThred.typeId = 2; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
-            tempThred.Thread = new System.Threading.Thread(() => {
-                try {
-                    if (activeMovie.title.movieType == MovieType.Anime) { return; }
-
-                    bool canMovie = GetSettings(MovieType.Movie);
-                    bool canShow = GetSettings(MovieType.TVSeries);
-
-                    string rinput = ToDown(activeMovie.title.name, replaceSpace: "+");
-                    string url = "http://watchserieshd.tv/search.html?keyword=" + rinput.Replace("+", "%20");
-
-                    string d = DownloadString(url);
-                    if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-
-                    string lookFor = " <div class=\"vid_info\">";
-
-                    while (d.Contains(lookFor)) {
-                        d = RemoveOne(d, lookFor);
-
-
-                        // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
-                    }
-
-                    watchSeriesFishingDone?.Invoke(null, activeMovie);
-                    fishingDone?.Invoke(null, activeMovie);
-                }
-                finally {
-                    JoinThred(tempThred);
-                }
-            });
-            tempThred.Thread.Name = "WatchSeriesHdMetaData";
-            tempThred.Thread.Start();
-        }
+        // DONT USE  https://www1.moviesjoy.net/search/ THEY USE GOOGLE RECAPTCH TO GET LINKS
+        // DONT USE https://gostream.site/iron-man/ THEY HAVE DDOS PROTECTION
 
         static void GetLinksFromWatchSeries(int season, int normalEpisode)
         {
@@ -2077,8 +2037,6 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "YesMoviesMetaData";
             tempThred.Thread.Start();
-
-
         }
 
         public static void GetRealTrailerLinkFromImdb(string url, bool purgeCurrentTrailerThread = true)
@@ -2177,7 +2135,7 @@ namespace CloudStreamForms
                         //print(activeMovie.title.MALData.japName + "<<<<<<<<<<<<<<<<<<<<<<<<");
                         //     https://www9.gogoanime.io/category/mix-meisei-story
 
-                        epsiodesLoaded?.Invoke(null, activeMovie.episodes);
+                        episodeLoaded?.Invoke(null, activeMovie.episodes);
                     }
                     finally {
                         JoinThred(tempThred);
@@ -2190,7 +2148,7 @@ namespace CloudStreamForms
                 Episode ep = new Episode() { name = activeMovie.title.name };
                 activeMovie.episodes = new List<Episode>();
                 activeMovie.episodes.Add(ep);
-                epsiodesLoaded?.Invoke(null, activeMovie.episodes);
+                episodeLoaded?.Invoke(null, activeMovie.episodes);
             }
         }
 
@@ -2268,7 +2226,6 @@ namespace CloudStreamForms
             tempThred.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
             tempThred.Thread = new System.Threading.Thread(() => {
                 try {
-
                     string id = activeMovie.title.id;
                     if (isEpisode) {
                         id = activeMovie.episodes[episodeCounter].id;
@@ -2316,6 +2273,7 @@ namespace CloudStreamForms
             }
             return fembed != "";
         }
+
         static int Random(int min, int max)
         {
             return rng.Next(min, max);
@@ -2722,7 +2680,6 @@ namespace CloudStreamForms
                                             if (seasonData[normalSeason].episodeUrls != null) {
                                                 if (seasonData[normalSeason].episodeUrls.Count > normalEpisode) {
                                                     // ---- END ----
-
                                                     string fwordLink = seasonData[normalSeason].seasonUrl + "/" + seasonData[normalSeason].episodeUrls[normalEpisode];
                                                     print(fwordLink);
                                                     for (int f = 0; f < MIRROR_COUNT; f++) {
@@ -2923,7 +2880,6 @@ namespace CloudStreamForms
             catch (Exception) {
                 return -1;
             }
-
         }
 
         public static double GetFileSizeOnSystem(string path)
@@ -3071,8 +3027,6 @@ namespace CloudStreamForms
             // webRequest.Headers.Add("Cookie", "__cfduid=dc6e854c3f07d2a427bca847e1ad5fa741562456483; _ga=GA1.2.742704858.1562456488; _gid=GA1.2.1493684150.1562456488; _maven_=popped; _pop_=popped");
             request.Headers.Add("TE", "Trailers");
 
-
-
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
                 //  print(response.GetResponseHeader("set-cookie").ToString());
 
@@ -3109,7 +3063,6 @@ namespace CloudStreamForms
                     }
                 }
             }
-
         }
 
         /// <summary>
@@ -3998,13 +3951,13 @@ namespace CloudStreamForms
             string s = "";
             for (int i = 0; i < repeats; i++) {
                 if (s == "") {
-                    s = DownloadStringOnece(url, tempThred, UTF8Encoding);
+                    s = DownloadStringOnce(url, tempThred, UTF8Encoding);
                 }
             }
             return s;
         }
 
-        public static string DownloadStringOnece(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
+        public static string DownloadStringOnce(string url, TempThred? tempThred = null, bool UTF8Encoding = true)
         {
             WebClient client = new WebClient();
             if (UTF8Encoding) {
@@ -4293,29 +4246,3 @@ namespace CloudStreamForms
         }
     }
 }
-/*
-  
-   static Random random = new Random();
-        static int Random(int min,int max)
-        {
-           return random.Next(min, max);
-        }
-         string url = "https://fmovies.to/film/iron-man-2.ljz";
-         string d = HTMLGet(url, "https://fmovies.to");
-         string dataTs = FindHTML(d, "data-ts=\"", "\"");
-         string dataId = FindHTML(d, "data-id=\"", "\"");
-         string dataEpId = FindHTML(d, "data-epid=\"", "\"");
-         string _url = "https://fmovies.to/ajax/film/servers/" + dataId + "?episode=" + dataEpId + "&ts=" + dataTs + "&_=" + Random(100, 999); //
-         print(_url);
-
-             d = HTMLGet(_url, "https://fmovies.to");
-
-         print(d);
-         string cloudGet = FindHTML(d, "<a  data-id=\\\"", "\\\"");
-         // https://fmovies.to/ajax/episode/info?ts=1574168400&_=694&id=d49ac231d1ddf83114eadf1234a1f5d8136dc4a5b6db299d037c06804b37b1ab&server=28
-         // https://fmovies.to/ajax/episode/info?ts=1574168400&_=199&id=1c7493cc7bf3cc16831ff9bf1599ceb6f4be2a65a57143c5a24c2dbea99104de&server=97
-
-         string rD = "https://fmovies.to/ajax/episode/info?ts=" + dataTs + "&_=" + Random(100,999) + "&id=" + cloudGet + "&server=" + Random(1, 99);
-         print(rD);
-         d = HTMLGet(rD, "https://fmovies.to");
-         print(d);*/
