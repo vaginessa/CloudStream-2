@@ -856,10 +856,12 @@ namespace CloudStreamForms
         public static event EventHandler<Link> linkAdded;
         public static event EventHandler<MALData> malDataLoaded;
         public static event EventHandler<Episode> linksProbablyDone;
+
         public static event EventHandler<Movie> movie123FishingDone;
         public static event EventHandler<Movie> yesmovieFishingDone;
         public static event EventHandler<Movie> watchSeriesFishingDone;
         public static event EventHandler<Movie> fmoviesFishingDone;
+        public static event EventHandler<Movie> fishingDone;
         //public static event EventHandler<Movie> yesmovieFishingDone;
 
         private static Random rng = new Random();
@@ -1716,6 +1718,7 @@ namespace CloudStreamForms
                     }
 
                     movie123FishingDone?.Invoke(null, activeMovie);
+                    fishingDone?.Invoke(null, activeMovie);
 
                     // MonitorFunc(() => print(">>>" + activeMovie.title.movies123MetaData.seasonData.Count),0);
                 }
@@ -1804,6 +1807,7 @@ namespace CloudStreamForms
                     if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                     activeMovie.title.fmoviesMetaData = data;
                     fmoviesFishingDone?.Invoke(null, activeMovie);
+                    fishingDone?.Invoke(null, activeMovie);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -1916,6 +1920,7 @@ namespace CloudStreamForms
                         }
                     }
                     watchSeriesFishingDone?.Invoke(null, activeMovie);
+                    fishingDone?.Invoke(null, activeMovie);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -1953,6 +1958,7 @@ namespace CloudStreamForms
                     }
 
                     watchSeriesFishingDone?.Invoke(null, activeMovie);
+                    fishingDone?.Invoke(null, activeMovie);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -2063,6 +2069,7 @@ namespace CloudStreamForms
                         print("DATA:" + imdbData + "|" + movieUrl + "|" + realtitle + "|" + title + "|" + seasonData + "|" + url + "|" + i1 + "|" + i2);
                     }
                     yesmovieFishingDone?.Invoke(null, activeMovie);
+                    fishingDone?.Invoke(null, activeMovie);
                 }
                 finally {
                     JoinThred(tempThred);
@@ -2654,7 +2661,7 @@ namespace CloudStreamForms
                         if (activeMovie.title.yesmoviessSeasonDatas != null) {
                             for (int i = 0; i < activeMovie.title.yesmoviessSeasonDatas.Count; i++) {
                                 //     print(activeMovie.title.yesmoviessSeasonDatas[i].id + "<-IDS:" + season);
-                                if (activeMovie.title.yesmoviessSeasonDatas[i].id == ((activeMovie.title.movieType == MovieType.Movie || activeMovie.title.movieType == MovieType.AnimeMovie) ? 1 : season)) {
+                                if (activeMovie.title.yesmoviessSeasonDatas[i].id == (isMovie ? 1 : season)) {
                                     YesMovies(normalEpisode, activeMovie.title.yesmoviessSeasonDatas[i].url);
                                 }
                             }
