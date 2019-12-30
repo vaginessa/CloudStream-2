@@ -40,7 +40,7 @@ namespace CloudStreamForms.UWP
 
     }
 
-    public class MainUWP : CloudStreamForms.App.IPlatformDep
+    public class MainUWP : _App.IPlatformDep
     {
 
         public static string GetPath(string filename)
@@ -309,8 +309,10 @@ namespace CloudStreamForms.UWP
             return "C:\\";
         }
 
-
-
+        public int ConvertDPtoPx(int dp)
+        {
+            return dp;
+        }
     }
 
     public static class Message

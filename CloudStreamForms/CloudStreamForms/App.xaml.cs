@@ -30,7 +30,7 @@ namespace CloudStreamForms
             void DownloadUpdate(string update);
             string GetDownloadPath(string path, string extraFolder);
             StorageInfo GetStorageInformation(string path = "");
-
+            int ConvertDPtoPx(int dp);
             string GetExternalStoragePath();
         }
         public class StorageInfo
@@ -60,6 +60,10 @@ namespace CloudStreamForms
             MainPage = new MainPage();
         }
 
+        public static int ConvertDPtoPx(int dp)
+        {
+            return platformDep.ConvertDPtoPx(dp);
+        }
 
         public static StorageInfo GetStorage()
         {

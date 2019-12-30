@@ -113,7 +113,7 @@ namespace CloudStreamForms
             // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
             // Navigation.PushModalAsync(p, false);
 
-            //  PushPageFromUrlAndName("tt4869896", "Overlord");
+             PushPageFromUrlAndName("tt4869896", "Overlord");
             // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
         public static void PushPageFromUrlAndName(string url, string name)
@@ -2947,14 +2947,27 @@ namespace CloudStreamForms
 
             */
 
-        public static string ConvertIMDbImagesToHD(string nonHDImg, int pwidth = 67, int pheight = 98, double mMulti = 4)
+        public static string ConvertIMDbImagesToHD(string nonHDImg, int? pwidth = null, int? pheight = null)
         {
+            string img = FindHTML("|" + nonHDImg, "|", "._");
+            pheight = (int)Math.Round((pheight ?? 0) * posterRezMulti);
+            pwidth = (int)Math.Round((pwidth ?? 0) * posterRezMulti);
+            pheight = App.ConvertDPtoPx((int)pheight);
+            pwidth = App.ConvertDPtoPx((int)pwidth);
+            if (pwidth == 0 && pheight == 0) return nonHDImg;
+            print("IMDBASE:" + nonHDImg);
+            img += "." + (pheight > 0 ? "_UY" + pheight : "" ) + (pwidth > 0 ? "UX" + pwidth : "") + "_.jpg";
+            print(img);
+            /*
             string x1 = pwidth.ToString();
             string y1 = pheight.ToString();
             pheight = (int)Math.Round(pheight * mMulti * posterRezMulti);
             pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);
-
-            string img = nonHDImg.Replace("," + x1 + "," + y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY" + y1, "UY" + pheight).Replace("UX" + x1, "UX" + pwidth);
+            int zpwidth = (int)Math.Round(pwidth *zoom);
+            int zpheight = (int)Math.Round(pheight *zoom);
+            print("IMG::" + nonHDImg);
+            string img = nonHDImg.Replace("," + x1 + "," + y1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("," + y1 + "," + x1 + "_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY" + y1, "UY" + zpheight).Replace("UX" + x1, "UX" + zpwidth).Replace("UX" + y1, "UX" + zpheight).Replace("UY" + x1, "UY" + zpwidth);
+            print("IMG>>" + img);*/
             return img;
         }
 

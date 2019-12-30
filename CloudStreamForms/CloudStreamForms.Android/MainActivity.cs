@@ -490,5 +490,10 @@ namespace CloudStreamForms.Droid
         {
             return Android.OS.Environment.ExternalStorageDirectory.Path;
         }
+
+        public int ConvertDPtoPx(int dp)
+        {
+            return (int)(dp * MainActivity.activity.ApplicationContext.Resources.DisplayMetrics.Density);
+        }
     }
 }

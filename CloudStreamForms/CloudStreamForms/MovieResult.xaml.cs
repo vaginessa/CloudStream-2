@@ -502,12 +502,15 @@ namespace CloudStreamForms
                 }
             }
             //"_V1_UY126_UX224_AL_"
+            /*
             double mMulti = 2;
             int pwidth = 224;
             int pheight = 126;
             pheight = (int)Math.Round(pheight * mMulti * posterRezMulti);
-            pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);
-            episodeResult.PosterUrl = episodeResult.PosterUrl.Replace(",126,224_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY126", "UY" + pheight).Replace("UX224", "UX" + pwidth);
+            pwidth = (int)Math.Round(pwidth * mMulti * posterRezMulti);*/
+            print(episodeResult.PosterUrl);
+            episodeResult.PosterUrl = CloudStreamCore.ConvertIMDbImagesToHD(episodeResult.PosterUrl, 126, 224); //episodeResult.PosterUrl.Replace(",126,224_AL", "," + pwidth + "," + pheight + "_AL").Replace("UY126", "UY" + pheight).Replace("UX224", "UX" + pwidth);
+            print(episodeResult.PosterUrl);
             //print(episodeResult.PosterUrl);
 
             epView.MyEpisodeResultCollection.Add(episodeResult);

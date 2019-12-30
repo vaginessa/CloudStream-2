@@ -12,29 +12,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
              x:Class="CloudStreamForms.MovieResult">
 
     <ScrollView  VerticalScrollBarVisibility="Never">
-
         <StackLayout>
-            <StackLayout x:Name="LoadingStack" IsVisible="False" IsEnabled="False">
-                <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-                    <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-
-                        <!--< Your control design goes here >-->
-
-                    </StackLayout>
-
-                    <StackLayout IsVisible="{Binding IsBusy}" Padding="12"
-             AbsoluteLayout.LayoutFlags="PositionProportional"
-             AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1">
-
-                        <ActivityIndicator IsRunning="{Binding IsBusy}" Color ="#80000000"/>
-
-                        <Label Text="Loading..." HorizontalOptions="Center" TextColor="White"/>
-
-                    </StackLayout>
-
-                </AbsoluteLayout>
-            </StackLayout>
-
             <StackLayout x:Name="NormalStack">
                 <!--
         <Grid
@@ -79,10 +57,10 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                         <!--  <Image x:Name="FakePlayBtt"  WidthRequest="100" VerticalOptions="Start"  TranslationY="75"></Image> -->
                     </Grid>
                     <Grid Grid.Row="1"  Grid.Column="0">
-                        <ff:CachedImage x:Name="ImgChromeCastBtt" BackgroundColor="Transparent" WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start" Scale="0.7" TranslationX="10" >
-                         
+                        <ff:CachedImage x:Name="ImgChromeCastBtt" BackgroundColor="Transparent" WidthRequest="40" HeightRequest="40" TranslationY="-6" VerticalOptions="Start" HorizontalOptions="Start" Scale="0.7" TranslationX="10" >
+
                         </ff:CachedImage>
-                        <ImageButton x:Name="ChromeCastBtt" BackgroundColor="Transparent" Clicked="ChromeCastBtt_Clicked"  WidthRequest="40" HeightRequest="40" TranslationY="-14" VerticalOptions="Start" HorizontalOptions="Start"></ImageButton>
+                        <ImageButton x:Name="ChromeCastBtt" BackgroundColor="Transparent" Clicked="ChromeCastBtt_Clicked"  WidthRequest="40" HeightRequest="40" TranslationY="-6" VerticalOptions="Start" HorizontalOptions="Start"></ImageButton>
                         <Label x:Name="NameLabel" FontSize="Title" Text="Iron Man" FontAttributes="Bold" HorizontalOptions="Start" Margin="10,10,10,10" TranslationY="-10" TextColor="White" ></Label>
                     </Grid>
 
@@ -143,7 +121,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <ImageButton BackgroundColor="Transparent" Clicked="ViewToggle_Clicked" HeightRequest="40" ></ImageButton>
                                 </Grid>
                                 <Grid Grid.Row="1"  Grid.Column="2">
-                                    <Label Text="Viewstate" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"> </Label>
+                                    <Label Text="Viewstate" HorizontalOptions="Center" TextColor="Gray" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
                                 <Grid Grid.Row="0"  Grid.Column="3">
 
@@ -186,29 +164,9 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                     <Label Text="MAL" HorizontalOptions="Center"  x:Name="MALTxt"  TextColor="Gray" TranslationX="7" FontSize="11" FontAttributes="Bold"></Label>
                                 </Grid>
                             </Grid>
-
-                            <!-- 
-                <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
-                </Grid>
-                -->
                         </Grid>
-
                     </Grid>
-
-
-                    <!-- <Button Clicked="IMDb_Clicked" Text="Open IMDb" VerticalOptions="Start"></Button>
-                                                <Button x:Name="MALBtt" Clicked="MAL_Clicked" Text="Open MyAnimeList" VerticalOptions="Start"></Button>-->
                 </Grid>
-
-
-
-
-
-
-                <!-- 
-                <Grid Grid.Row="3"  Grid.Column="0" x:Name="RowSeason">
-                </Grid>
-                -->
                 <Grid Margin="0,-13,0,-5">
                     <Grid.RowDefinitions >
                         <RowDefinition Height="Auto" />
@@ -251,17 +209,6 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-
-
-
-                                    <!--
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    -->
-
                                     <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" >
 
                                         <Grid  RowSpacing="0"  Padding="10" >
@@ -294,10 +241,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                                     </Grid>
                                                     <Grid Grid.Row="1"  Grid.Column="0" >
                                                         <Label Text="{Binding Description}"  TextColor="{Binding MainDarkTextColor}" MaxLines="4"  />
-
                                                     </Grid>
-
-
                                                 </Grid>
                                             </Grid>
                                             <!--
@@ -311,7 +255,7 @@ xmlns:ffTransformations="clr-namespace:FFImageLoading.Transformations;assembly=F
                                                 <ff:CachedImage WidthRequest="126" HeightRequest="80" Source="{Binding PosterUrl}" InputTransparent="True" >
 
                                                     <ff:CachedImage.Transformations>
-                                                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5" >
+                                                        <ffTransformations:RoundedTransformation BorderSize="10" BorderHexColor="#303F9F" CropWidthRatio="1.5"  >
 
                                                         </ffTransformations:RoundedTransformation>
                                                     </ff:CachedImage.Transformations>
