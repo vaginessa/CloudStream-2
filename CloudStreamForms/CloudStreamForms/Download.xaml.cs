@@ -159,17 +159,18 @@ namespace CloudStreamForms
             epView.MyEpisodeResultCollection.Clear();
 
             for (int i = 0; i < keys.Count; i++) {
-                string moviePath = FindHTML(keys[i], "_dpath=", "|||");
-                string posterUrl = FindHTML(keys[i], "_ppath=", "|||");
-                string movieUrl = FindHTML(keys[i], "_mppath=", "|||");
-                string episodeDescript = FindHTML(keys[i], "_descript=", "|||");
-                string movieDescript = FindHTML(keys[i], "_maindescript=", "|||");
-                string id = FindHTML(keys[i], "_epId=", "|||");
-                string movieId = FindHTML(keys[i], "_movieId=", "|||");
-                string episodeTitle = FindHTML(keys[i], "_title=", "|||");
-                string movieTitle = FindHTML(keys[i], "_movieTitle=", "|||");
-                string epCounter = FindHTML(keys[i], "_epCounter=", "|||");
-                print("KEY:" + keys[i]);
+                string __key = App.ConvertToObject<string>(keys[i]);
+                string moviePath = FindHTML(__key, "_dpath=", "|||");
+                string posterUrl = FindHTML(__key, "_ppath=", "|||");
+                string movieUrl = FindHTML(__key, "_mppath=", "|||");
+                string episodeDescript = FindHTML(__key, "_descript=", "|||");
+                string movieDescript = FindHTML(__key, "_maindescript=", "|||");
+                string id = FindHTML(__key, "_epId=", "|||");
+                string movieId = FindHTML(__key, "_movieId=", "|||");
+                string episodeTitle = FindHTML(__key, "_title=", "|||");
+                string movieTitle = FindHTML(__key, "_movieTitle=", "|||");
+                string epCounter = FindHTML(__key, "_epCounter=", "|||");
+                print("KEY:" + __key);
                 //  const double height = 80;
                 //  const double width = 126;
                 if (moviePath != "") {
@@ -201,7 +202,7 @@ namespace CloudStreamForms
                             extra = " | " + maxProgress + " Mb";
                         }
                     }
-                    bool isYouTube = keys[i].Contains("isYouTube=" + true);
+                    bool isYouTube = __key.Contains("isYouTube=" + true);
                     
                     if(downloadDone) { stuckDownload = false; }
 
