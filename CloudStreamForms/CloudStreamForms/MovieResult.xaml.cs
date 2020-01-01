@@ -70,15 +70,20 @@ namespace CloudStreamForms
 
         protected override bool OnBackButtonPressed()
         {
+            print("STARTBACK");
             if (lastMovie != null) {
-                if (lastMovie.Count > 0) {
+                if (lastMovie.Count > 1) {
                     activeMovie = lastMovie[lastMovie.Count - 1];
+                    print("ENDBACK1");
                     lastMovie.RemoveAt(lastMovie.Count - 1);
+                    print("ENDBACK2");
                 }
             }
+            print("STARTSeTKEY");
             if (setKey) {
                 App.RemoveKey("BookmarkData", currentMovie.title.id);
             }
+            print("ANIMATE");
             const bool animate = true;
             if (animate) {
                 return base.OnBackButtonPressed();

@@ -114,7 +114,7 @@ namespace CloudStreamForms
             // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
             // Navigation.PushModalAsync(p, false);
 
-             //PushPageFromUrlAndName("tt4869896", "Overlord");
+            //PushPageFromUrlAndName("tt4869896", "Overlord");
             // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
         public static void PushPageFromUrlAndName(string url, string name)
@@ -1380,7 +1380,7 @@ namespace CloudStreamForms
                     fetchData = false;
                     activeMovie = App.GetKey<Movie>("CacheImdb", __id, new Movie());
                     print("KEY EXIST MMM");
-                    print(":::::::::" + activeMovie.title.name) ;
+                    print(":::::::::" + activeMovie.title.name);
 
                     if (activeMovie.title.name == null || activeMovie.title.id == null) {
                         fetchData = true;
@@ -2986,7 +2986,7 @@ namespace CloudStreamForms
             pwidth = App.ConvertDPtoPx((int)pwidth);
             if (pwidth == 0 && pheight == 0) return nonHDImg;
             print("IMDBASE:" + nonHDImg);
-            img += "." + (pheight > 0 ? "_UY" + pheight : "" ) + (pwidth > 0 ? "UX" + pwidth : "") + "_.jpg";
+            img += "." + (pheight > 0 ? "_UY" + pheight : "") + (pwidth > 0 ? "UX" + pwidth : "") + "_.jpg";
             print(img);
             /*
             string x1 = pwidth.ToString();
@@ -3413,7 +3413,13 @@ namespace CloudStreamForms
         public static string ToDown(string text, bool toLower = true, string replaceSpace = " ")
         {
             Regex rgx = new Regex("[^a-zA-Z0-9 -]");
-            text = rgx.Replace(text, "");
+            try {
+                text = rgx.Replace(text, "");
+
+            }
+            catch (Exception) {
+                return text;
+            }
             if (toLower) {
                 text = text.ToLower();
             }
