@@ -45,6 +45,7 @@ namespace CloudStreamForms
         public static string intentData = "";
         public static MainPage mainPage;
 
+        [Serializable]
         public struct BookmarkPoster
         {
             public string name;
@@ -113,7 +114,7 @@ namespace CloudStreamForms
             // Page p = new ChromeCastPage();// { mainPoster = mainPoster };
             // Navigation.PushModalAsync(p, false);
 
-             PushPageFromUrlAndName("tt4869896", "Overlord");
+             //PushPageFromUrlAndName("tt4869896", "Overlord");
             // PushPageFromUrlAndName("tt0371746", "Iron Man");
         }
         public static void PushPageFromUrlAndName(string url, string name)
@@ -487,6 +488,7 @@ namespace CloudStreamForms
     }
     // -------------------------------- END CHROMECAST --------------------------------
 
+    [Serializable]
     public static class CloudStreamCore
     {
 
@@ -630,14 +632,20 @@ namespace CloudStreamForms
         // ========================================================= DATA =========================================================
 
         #region Data
+        [Serializable]
+
         public enum MovieType { Movie, TVSeries, Anime, AnimeMovie }
+        [Serializable]
         public enum PosterType { Imdb, Raw }
 
+        [Serializable]
         public struct FMoviesData
         {
             public string url;
             public int season;
         }
+
+        [Serializable]
         public struct TempThred
         {
             /// <summary>
@@ -665,6 +673,7 @@ namespace CloudStreamForms
             }
         }
 
+        [Serializable]
         public struct IMDbTopList
         {
             public string name;
@@ -678,12 +687,15 @@ namespace CloudStreamForms
             public List<int> contansGenres;
         }
 
+        [Serializable]
         public struct Trailer
         {
             public string name;
             public string url;
             public string posterUrl;
         }
+
+        [Serializable]
         public struct FishWatch
         {
             public string imdbScore;
@@ -694,6 +706,7 @@ namespace CloudStreamForms
             public string href;
         }
 
+        [Serializable]
         public struct Movies123
         {
             public string year;
@@ -706,7 +719,7 @@ namespace CloudStreamForms
             public MovieType type;
         }
 
-
+        [Serializable]
         public struct MALSeason
         {
             public string name;
@@ -719,13 +732,14 @@ namespace CloudStreamForms
             public List<string> synonyms;
         }
 
-
+        [Serializable]
         public struct MALSeasonData
         {
             public List<MALSeason> seasons;
             public string malUrl;
         }
 
+        [Serializable]
         public struct MALData
         {
             public string japName;
@@ -736,6 +750,7 @@ namespace CloudStreamForms
             public string currentSelectedYear;
         }
 
+        [Serializable]
         public struct Title
         {
             public string name;
@@ -767,30 +782,35 @@ namespace CloudStreamForms
             public string shortEpView;
         }
 
+        [Serializable]
         public struct YesmoviessSeasonData
         {
             public string url;
             public int id;
         }
 
+        [Serializable]
         public struct Movies123MetaData
         {
             public string movieLink;
             public List<Movies123SeasonData> seasonData;
         }
 
+        [Serializable]
         public struct WatchSeriesHdMetaData
         {
             public string url;
             public int season;
         }
 
+        [Serializable]
         public struct Movies123SeasonData
         {
             public string seasonUrl;
             public List<string> episodeUrls;
         }
 
+        [Serializable]
         public struct Poster
         {
             public string name;
@@ -804,6 +824,7 @@ namespace CloudStreamForms
             public PosterType posterType; // HOW DID YOU GET THE POSTER, IMDB SEARCH OR SOMETHING ELSE
         }
 
+        [Serializable]
         public struct Link
         {
             public string name;
@@ -811,6 +832,7 @@ namespace CloudStreamForms
             public int priority;
         }
 
+        [Serializable]
         public struct Episode
         {
             public List<Link> links;
@@ -826,6 +848,7 @@ namespace CloudStreamForms
             // public int Progress { set { _progress = value; linkAdded?.Invoke(null, value); } get { return _progress; } }
         }
 
+        [Serializable]
         public struct Subtitle
         {
             public string name;
@@ -833,6 +856,7 @@ namespace CloudStreamForms
             public string data;
         }
 
+        [Serializable]
         public struct Movie
         {
             public Title title;
@@ -1349,9 +1373,15 @@ namespace CloudStreamForms
             string __id = imdb.url.Replace("https://imdb.com/title/", "");
             bool fetchData = true;
             if (Settings.CacheImdb) {
+                print("START CACHE");
                 if (App.KeyExists("CacheImdb", __id)) {
+                    print("KEY EXIST CACHE");
+
                     fetchData = false;
                     activeMovie = App.GetKey<Movie>("CacheImdb", __id, new Movie());
+                    print("KEY EXIST MMM");
+                    print(":::::::::" + activeMovie.title.name) ;
+
                     if (activeMovie.title.name == null || activeMovie.title.id == null) {
                         fetchData = true;
                     }

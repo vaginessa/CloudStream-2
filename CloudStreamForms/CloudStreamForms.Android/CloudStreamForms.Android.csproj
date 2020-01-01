@@ -56,6 +56,9 @@
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <BundleAssemblies>false</BundleAssemblies>
     <LangVersion>8.0</LangVersion>
+    <MandroidI18n />
+    <AndroidSupportedAbis />
+    <AndroidLinkSkip>System.Runtime.Serialization</AndroidLinkSkip>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />

@@ -9,6 +9,10 @@ using Xamarin.Essentials;
 using System.Net;
 using System.IO;
 using Plugin.LocalNotifications;
+using System.Runtime.Serialization.Formatters.Binary;
+using Plugin.Settings.Abstractions;
+using Plugin.Settings;
+using System.Runtime.InteropServices;
 
 namespace CloudStreamForms
 {
@@ -135,14 +139,14 @@ namespace CloudStreamForms
         public static void SetKey(string folder, string name, object value)
         {
             string path = GetKeyPath(folder, name);
-            if (Current.Properties.ContainsKey(path)) {
+            string _set = ConvertToString(value);
+            if (myApp.Properties.ContainsKey(path)) {
                 CloudStreamCore.print("CONTAINS KEY");
-                Current.Properties[path] = value;
+                myApp.Properties[path] = _set;
             }
             else {
                 CloudStreamCore.print("ADD KEY");
-
-                Current.Properties.Add(path, value);
+                myApp.Properties.Add(path, _set);
             }
         }
 
@@ -162,8 +166,10 @@ namespace CloudStreamForms
 
         public static T GetKey<T>(string path, T defVal)
         {
-            if (Current.Properties.ContainsKey(path)) {
-                return (T)Current.Properties[path];
+            if (myApp.Properties.ContainsKey(path)) {
+                CloudStreamCore.print("GETKEY::" + myApp.Properties[path]);
+                CloudStreamCore.print("GETKEY::" + typeof(T).ToString() + "||" + ConvertToObject<T>(myApp.Properties[path] as string));
+                return (T)ConvertToObject<T>( myApp.Properties[path] as string);
             }
             else {
                 return defVal;
@@ -176,7 +182,7 @@ namespace CloudStreamForms
 
             List<T> allKeys = new List<T>();
             foreach (var key in keyNames) {
-                allKeys.Add((T)Current.Properties[key]);
+                allKeys.Add((T)myApp.Properties[key]);
             }
 
             return allKeys;
@@ -186,6 +192,70 @@ namespace CloudStreamForms
         {
             return GetKeysPath(folder).Count;
         }
+
+
+        public static List<string> GetKeysPath(string folder)
+        {
+            List<string> keyNames = myApp.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();
+            return keyNames;
+        }
+
+        public static bool KeyExists(string folder, string name)
+        {
+            string path = GetKeyPath(folder, name);
+            return KeyExists(path);
+        }
+        public static bool KeyExists(string path)
+        {
+            return (myApp.Properties.ContainsKey(path));
+        }
+        public static void RemoveKey(string folder, string name)
+        {
+            string path = GetKeyPath(folder, name);
+            RemoveKey(path);
+        }
+        public static void RemoveKey(string path)
+        {
+            if (myApp.Properties.ContainsKey(path)) {
+                myApp.Properties.Remove(path);
+            }
+        }
+        static Application myApp { get { return Application.Current; } }
+
+
+
+
+        static public T ConvertToObject<T>(string str)
+        {
+            return FromByteArray<T>(Convert.FromBase64String(str));
+        }
+
+        static public T FromByteArray<T>(byte[] rawValue)
+        {
+            
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream(rawValue)) {
+                return (T)bf.Deserialize(ms);
+    
+            }
+        }
+
+        static string ConvertToString(object o)
+        {
+            return Convert.ToBase64String(ToByteArray(o));
+        }
+
+        static byte[] ToByteArray(object obj)
+        {
+            if (obj == null)
+                return null;
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream()) {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+        
 
         public static void ShowNotification(string title, string body)
         {
@@ -201,32 +271,8 @@ namespace CloudStreamForms
             CrossLocalNotifications.Current.Cancel(id);
         }
 
-        public static List<string> GetKeysPath(string folder)
-        {
-            List<string> keyNames = Current.Properties.Keys.Where(t => t.StartsWith(GetKeyPath(folder))).ToList();
-            return keyNames;
-        }
-
-        public static bool KeyExists(string folder, string name)
-        {
-            string path = GetKeyPath(folder, name);
-            return KeyExists(path);
-        }
-        public static bool KeyExists(string path)
-        {
-            return (Current.Properties.ContainsKey(path));
-        }
-        public static void RemoveKey(string folder, string name)
-        {
-            string path = GetKeyPath(folder, name);
-            RemoveKey(path);
-        }
-        public static void RemoveKey(string path)
-        {
-            if (Current.Properties.ContainsKey(path)) {
-                Current.Properties.Remove(path);
-            }
-        }
+        private static ISettings AppSettings =>
+    CrossSettings.Current;
         public static ImageSource GetImageSource(string inp)
         {
             return ImageSource.FromResource("CloudStreamForms.Resource." + inp, Assembly.GetExecutingAssembly());

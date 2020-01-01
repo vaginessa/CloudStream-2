@@ -364,9 +364,18 @@ namespace CloudStreamForms
             Grid.SetRow(cachedImages[pos], y);
         }
 
+        async void SaveData()
+        {
+            print("SAVING DATA");
+            await Application.Current.SavePropertiesAsync();
+            print("SAVING DATA DONE!!");
+
+        }
+
         bool hasAppered = false;
         protected override void OnAppearing()
         {
+            SaveData();
             base.OnAppearing();
             if (!hasAppered) {
                 /*
@@ -401,10 +410,11 @@ namespace CloudStreamForms
             bookmarkPosters = new List<BookmarkPoster>();
             Bookmarks.Children.Clear();
             for (int i = 0; i < keys.Count; i++) {
-                string name = FindHTML(keys[i], "Name=", "|||");
+                string __key = App.ConvertToObject<string>(keys[i]);
+                string name = FindHTML(__key, "Name=", "|||");
                 print("BOOKMARK:" + name);
-                string posterUrl = FindHTML(keys[i], "PosterUrl=", "|||");
-                string id = FindHTML(keys[i], "Id=", "|||");
+                string posterUrl = FindHTML(__key, "PosterUrl=", "|||");
+                string id = FindHTML(__key, "Id=", "|||");
                 if (name != "" && posterUrl != "" && id != "") {
                     if (CheckIfURLIsValid(posterUrl)) {
                         Grid stackLayout = new Grid();

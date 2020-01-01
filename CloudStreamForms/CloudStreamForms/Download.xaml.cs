@@ -127,6 +127,7 @@ namespace CloudStreamForms
 
         }
         List<DownloadPoster> downloadposter = new List<DownloadPoster>();
+        [Serializable]
         struct DownloadPoster
         {
             public Button button;
