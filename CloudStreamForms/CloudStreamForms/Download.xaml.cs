@@ -159,7 +159,16 @@ namespace CloudStreamForms
             epView.MyEpisodeResultCollection.Clear();
 
             for (int i = 0; i < keys.Count; i++) {
-                string __key = App.ConvertToObject<string>(keys[i]);
+                string __key = App.ConvertToObject<string>(keys[i],"");
+                if(__key == "") {
+                    try {
+                        App.RemoveKey(keysPaths[i]);
+                    }
+                    catch (Exception) {
+
+                    }
+                    continue;
+                }
                 string moviePath = FindHTML(__key, "_dpath=", "|||");
                 string posterUrl = FindHTML(__key, "_ppath=", "|||");
                 string movieUrl = FindHTML(__key, "_mppath=", "|||");

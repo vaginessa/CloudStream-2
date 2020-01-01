@@ -166,14 +166,20 @@ namespace CloudStreamForms
 
         public static T GetKey<T>(string path, T defVal)
         {
-            if (myApp.Properties.ContainsKey(path)) {
-                CloudStreamCore.print("GETKEY::" + myApp.Properties[path]);
-                CloudStreamCore.print("GETKEY::" + typeof(T).ToString() + "||" + ConvertToObject<T>(myApp.Properties[path] as string));
-                return (T)ConvertToObject<T>( myApp.Properties[path] as string);
+            try {
+                if (myApp.Properties.ContainsKey(path)) {
+                    CloudStreamCore.print("GETKEY::" + myApp.Properties[path]);
+                    CloudStreamCore.print("GETKEY::" + typeof(T).ToString() + "||" + ConvertToObject<T>(myApp.Properties[path] as string, defVal));
+                    return (T)ConvertToObject<T>(myApp.Properties[path] as string,defVal);
+                }
+                else {
+                    return defVal;
+                }
             }
-            else {
+            catch (Exception) {
                 return defVal;
             }
+          
         }
 
         public static List<T> GetKeys<T>(string folder)
@@ -222,22 +228,23 @@ namespace CloudStreamForms
         }
         static Application myApp { get { return Application.Current; } }
 
-
-
-
-        static public T ConvertToObject<T>(string str)
+        static public T ConvertToObject<T>(string str, T defValue)
         {
-            return FromByteArray<T>(Convert.FromBase64String(str));
+            try {
+                return FromByteArray<T>(Convert.FromBase64String(str));
+
+            }
+            catch (Exception) {
+                return defValue;
+            }
         }
 
         static public T FromByteArray<T>(byte[] rawValue)
         {
-            
             BinaryFormatter bf = new BinaryFormatter();
             using (MemoryStream ms = new MemoryStream(rawValue)) {
                 return (T)bf.Deserialize(ms);
-    
-            }
+                }
         }
 
         static string ConvertToString(object o)

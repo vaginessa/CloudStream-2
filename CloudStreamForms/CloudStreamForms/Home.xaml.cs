@@ -410,7 +410,10 @@ namespace CloudStreamForms
             bookmarkPosters = new List<BookmarkPoster>();
             Bookmarks.Children.Clear();
             for (int i = 0; i < keys.Count; i++) {
-                string __key = App.ConvertToObject<string>(keys[i]);
+                string __key = App.ConvertToObject<string>(keys[i],"");
+                if(__key == "") {
+                    continue;
+                }
                 string name = FindHTML(__key, "Name=", "|||");
                 print("BOOKMARK:" + name);
                 string posterUrl = FindHTML(__key, "PosterUrl=", "|||");
