@@ -2810,63 +2810,77 @@ namespace CloudStreamForms
                         int _episode = int.Parse(episode.ToString()); // READ ONLY
 
                         if (isDub) {
-                            try {
-                                print("DUBBED::" + episode + "|"+ activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum());
-                                if (episode <= activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum()) {
-                                    List<string> fwords = GetAllDubbedAnimeLinks(activeMovie, season);
-                                    print("SLUG1." + fwords[0]);
-                                    int sel = -1;
-                                    int floor = 0;
-                                    int subtract = 0;
-                                    if (activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason != null) {
-                                        for (int i = 0; i < activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Count; i++) {
-                                            int seling = floor + activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
+                            TempThred tempthread = new TempThred();
+                            tempthread.typeId = 3; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
+                            tempthread.Thread = new System.Threading.Thread(() => {
+                                try {
+                                    print("DUBBED::" + episode + "|" + activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum());
+                                    if (episode <= activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum()) {
+                                        List<string> fwords = GetAllDubbedAnimeLinks(activeMovie, season);
+                                        print("SLUG1." + fwords[0]);
+                                        int sel = -1;
+                                        int floor = 0;
+                                        int subtract = 0;
+                                        if (activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason != null) {
+                                            for (int i = 0; i < activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Count; i++) {
+                                                int seling = floor + activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
 
-                                            if (episode > floor && episode <= seling) {
-                                                sel = i;
-                                                subtract = floor;
+                                                if (episode > floor && episode <= seling) {
+                                                    sel = i;
+                                                    subtract = floor;
 
+                                                }
+                                                //print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i] + "<<");
+                                                floor += activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
                                             }
-                                            //print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i] + "<<");
-                                            floor += activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
                                         }
-                                    }
 
-                                    string fwordLink = fwords[sel];
-                                    print("SLUGOS: " + fwordLink);
-                                    DubbedAnimeEpisode dubbedEp = GetDubbedAnimeEpisode(fwordLink, _episode - subtract);
-                                    string baseUrl = FindHTML(dubbedEp.serversHTML, "hl=\\\"", "\"");
-                                    print("BASE::" + baseUrl);
-                                    string burl = "https://bestdubbedanime.com/xz/api/playeri.php?url=" + baseUrl + "&_=" + UnixTime;
-                                    print(burl);
-                                    string _d = DownloadString(burl);
-                                    print("SSC:" + _d);
-                                    int prio = 20;
+                                        string fwordLink = fwords[sel];
+                                        print("SLUGOS: " + fwordLink);
+                                        DubbedAnimeEpisode dubbedEp = GetDubbedAnimeEpisode(fwordLink, _episode - subtract);
 
-                                    string enlink = "\'";
-                                    if (_d.Contains("<source src=\"")) {
-                                        enlink = "\"";
-                                    }
-                                    string lookFor = "<source src=" + enlink;
-                                    while (_d.Contains(lookFor)) {
-                                        string vUrl = FindHTML(_d, lookFor, enlink);
-                                        if (vUrl != "") {
-                                            vUrl = "https:" + vUrl;
+                                        string serverUrls = dubbedEp.serversHTML;
+                                        string sLookFor = "hl=\\\"";
+                                        while (serverUrls.Contains(sLookFor)) {
+                                            string baseUrl = FindHTML(dubbedEp.serversHTML, "hl=\\\"", "\"");
+                                            print("BASE::" + baseUrl);
+                                            string burl = "https://bestdubbedanime.com/xz/api/playeri.php?url=" + baseUrl + "&_=" + UnixTime;
+                                            print(burl);
+                                            string _d = DownloadString(burl);
+                                            print("SSC:" + _d);
+                                            int prio = 20;
+
+                                            string enlink = "\'";
+                                            if (_d.Contains("<source src=\"")) {
+                                                enlink = "\"";
+                                            }
+                                            string lookFor = "<source src=" + enlink;
+                                            while (_d.Contains(lookFor)) {
+                                                string vUrl = FindHTML(_d, lookFor, enlink);
+                                                if (vUrl != "") {
+                                                    vUrl = "https:" + vUrl;
+                                                }
+                                                string label = FindHTML(_d, "label=" + enlink, enlink);
+                                                print(vUrl + "|" + label);
+                                                AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label.Replace("0p", "0") + "p", prio);
+
+                                                _d = RemoveOne(_d, lookFor);
+                                                _d = RemoveOne(_d, "label=" + enlink);
+                                            }
+                                            serverUrls = RemoveOne(serverUrls, sLookFor);
                                         }
-                                        string label = FindHTML(_d, "label=" + enlink, enlink);
-                                        print(vUrl + "|" + label);
-                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label.Replace("0p", "0") + "p", prio);
 
-                                        _d = RemoveOne(_d, lookFor);
-                                        _d = RemoveOne(_d, "label=" + enlink);
+
+
                                     }
-
                                 }
-                            }
-                            catch (Exception) {
-                                print("DUBBED ANIME ERROROROOR");
-                                throw;
-                            }
+                                finally {
+                                    JoinThred(tempthread);
+                                }
+                            });
+                            tempthread.Thread.Name = "DubAnime Thread";
+                            tempthread.Thread.Start();
+
                         }
 
 

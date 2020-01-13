@@ -1052,6 +1052,7 @@ namespace CloudStreamForms
                     try {
                         int max = GetMaxEpisodesInAnimeSeason(currentMovie, currentSeason, isDub, tempThred);
 
+                        print("CLEAR AND ADD");
                         MainThread.BeginInvokeOnMainThread(() => {
                             ClearEpisodes();
                             for (int i = 0; i < max; i++) {
