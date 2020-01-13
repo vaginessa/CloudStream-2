@@ -1378,12 +1378,17 @@ namespace CloudStreamForms
                     if (!alreadyAdded.Contains(id)) {
                         alreadyAdded.Add(id);
                         try {
-                            var ms = activeMovie.title.MALData.seasonData[season].seasons[part];
+                            print("SEASON::" + season + "PART" + part);
+                            var ms = activeMovie.title.MALData.seasonData[season].seasons[part-1];
                             ms.dubbedAnimeData.dubExists = true;
                             ms.dubbedAnimeData.slug = slug;
-                            activeMovie.title.MALData.seasonData[season].seasons[part] = ms;
+                            activeMovie.title.MALData.seasonData[season].seasons[part-1] = ms;
+                            print("ÖÖ>>");
+                            print(activeMovie.title.MALData.seasonData[season].seasons[part - 1].dubbedAnimeData.dubExists);
                         }
                         catch (Exception) {
+                            print("ERROR IN " + "SEASON::" + season + "PART" + part);
+                            //throw;
                             // ERROR
                         }
                     }
@@ -2352,7 +2357,9 @@ namespace CloudStreamForms
             int max = 0;
             int maxGogo = 0;
             int maxDubbed = 0;
-            activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason = new List<int>();
+
+            List<int> saved = new List<int>();
+            //activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason = new List<int>();
             List<string> baseUrls = GetAllGogoLinksFromAnime(currentMovie, currentSeason, isDub);
             if (baseUrls.Count > 0) {
                 for (int i = 0; i < baseUrls.Count; i++) {
@@ -2369,26 +2376,32 @@ namespace CloudStreamForms
                         int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
                         //max += _epCount;
                         try {
-                            activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Add(_epCount);
+                            saved.Add(_epCount);
                         }
                         catch (Exception) {
 
                         }
                     }
                 }
-                maxGogo = activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Sum();
+                maxGogo = saved.Sum();
+                activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason = saved;
 
             }
 
             if (isDub) {
-                activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason = new List<int>();
+              //  activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason = new List<int>();
+                List<int> dubbedSum = new List<int>();
                 List<string> dubbedAnimeLinks = GetAllDubbedAnimeLinks(currentMovie, currentSeason);
                 if (!GetThredActive(tempThred)) { return max; }; // COPY UPDATE PROGRESS
                 for (int i = 0; i < dubbedAnimeLinks.Count; i++) {
+                    print("LINKOS:" + dubbedAnimeLinks[i]);
                     DubbedAnimeEpisode ep = GetDubbedAnimeEpisode(dubbedAnimeLinks[i], 1);
-                    activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Add(ep.totalEp);
+                    print("EPOS:" + ep.totalEp);
+                    dubbedSum.Add(ep.totalEp);
+                   // activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Add(ep.totalEp);
                 }
-                maxDubbed = activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum();
+                maxDubbed = dubbedSum.Sum();
+                activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason = dubbedSum;
             }
             print("MAX:" + maxDubbed + "|" + maxGogo);
             max = Math.Max(maxDubbed, maxGogo);
@@ -2412,6 +2425,7 @@ namespace CloudStreamForms
                 }
             }
             catch (Exception) {
+                throw;
             }
             return baseUrls;
         }
@@ -2833,7 +2847,7 @@ namespace CloudStreamForms
                                             vUrl = "https:" + vUrl;
                                         }
                                         string label = FindHTML(_d, "label=\'", "\'");
-                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label, prio);
+                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label.Replace("0p","0") + "p", prio);
                                         _d = RemoveOne(_d, lookFor);
                                         _d = RemoveOne(_d, "label=\'");
                                     }
@@ -3534,6 +3548,9 @@ namespace CloudStreamForms
                     return "";
                 }
                 string _f = FindHTML(d, name + smallAdd, "\",");
+                if(_f == "") {
+                     _f = FindHTML(d, name + "\":", ",");
+                }
                 return _f;
             }
             int FastId(string name)
