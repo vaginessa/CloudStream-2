@@ -723,13 +723,28 @@ namespace CloudStreamForms
         public struct MALSeason
         {
             public string name;
+            public string japName;
+            public string engName;
+            public List<string> synonyms;
+
+            public GogoAnimeData gogoData;
+            public DubbedAnimeData dubbedAnimeData;
+        }
+        [Serializable]
+        public struct GogoAnimeData
+        {
             public bool dubExists;
             public bool subExists;
             public string subUrl;
             public string dubUrl;
-            public string japName;
-            public string engName;
-            public List<string> synonyms;
+
+        }
+        [Serializable]
+
+        public struct DubbedAnimeData
+        {
+            public bool dubExists;
+            public string slug;
         }
 
         [Serializable]
@@ -746,8 +761,27 @@ namespace CloudStreamForms
             public string engName;
             public List<MALSeasonData> seasonData;
             public bool done;
-            public List<int> currentActiveMaxEpsPerSeason;
+            public bool loadSeasonEpCountDone;
+            public List<int> currentActiveGoGoMaxEpsPerSeason;
+            public List<int> currentActiveDubbedMaxEpsPerSeason;
             public string currentSelectedYear;
+        }
+
+        [System.Serializable]
+        public struct DubbedAnimeEpisode
+        {
+            public int rowid;
+            public string title;
+            public string desc;
+            public string status;
+            public int totalEp;
+            public int ep;
+            public string slug;
+            public int year;
+            public int showid;
+            public int Epviews;
+            public int TotalViews;
+            public string serversHTML;
         }
 
         [Serializable]
@@ -1144,7 +1178,7 @@ namespace CloudStreamForms
                 if (App.KeyExists("CacheMAL", activeMovie.title.id)) {
                     fetchData = false;
                     activeMovie.title.MALData = App.GetKey<MALData>("CacheMAL", activeMovie.title.id, new MALData());
-                    if (activeMovie.title.MALData.currentActiveMaxEpsPerSeason == null) {
+                    if (activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason == null) {
                         fetchData = true;
                     }
                 }
@@ -1271,76 +1305,10 @@ namespace CloudStreamForms
                     else {
                         currentSelectedYear = activeMovie.title.MALData.currentSelectedYear;
                     }
-                    if (activeMovie.title.MALData.japName != "error") {
-                        string d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName.Substring(0, Math.Min(5, activeMovie.title.MALData.japName.Length)), tempThred);
-                        if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                        string look = "<p class=\"name\"><a href=\"/category/";
-
-                        while (d.Contains(look)) {
-                            string ur = FindHTML(d, look, "\"").Replace("-dub", "");
-                            string adv = FindHTML(d, look, "</a");
-                            string title = FindHTML(adv, "title=\"", "\"").Replace(" (TV)", ""); // TO FIX BLACK CLOVER
-                            string animeTitle = title.Replace(" (Dub)", "");
-                            string __d = RemoveOne(d, look);
-                            string __year = FindHTML(__d, "Released: ", " ");
-                            int ___year = int.Parse(__year);
-                            int ___year2 = int.Parse(currentSelectedYear);
-
-                            if (___year >= ___year2) {
-
-                                // CHECKS SYNONYMES
-                                /*
-                                for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
-                                    for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
-                                        MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
-
-                                    }
-                                }*/
-
-                                // LOADS TITLES
-                                for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
-                                    for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
-                                        MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
-
-                                        bool containsSyno = false;
-                                        for (int s = 0; s < ms.synonyms.Count; s++) {
-                                            if (ToLowerAndReplace(ms.synonyms[s]) == ToLowerAndReplace(animeTitle)) {
-                                                containsSyno = true;
-                                            }
-                                            //  print("SYNO: " + ms.synonyms[s]);
-                                        }
-
-                                        //  print(animeTitle.ToLower() + "|" + ms.name.ToLower() + "|" + ms.engName.ToLower() + "|" + ___year + "___" + ___year2 + "|" + containsSyno);
-
-                                        if (ToLowerAndReplace(ms.name) == ToLowerAndReplace(animeTitle) || ToLowerAndReplace(ms.engName) == ToLowerAndReplace(animeTitle) || containsSyno) {
-                                            print(ur);
-                                            if (animeTitle == title) {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, subUrl = ur, dubUrl = ms.dubUrl, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
-                                            }
-                                            else {
-                                                activeMovie.title.MALData.seasonData[i].seasons[q] = new MALSeason() { name = ms.name, dubUrl = ur.Replace("-dub", "") + "-dub", subUrl = ms.subUrl, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            d = d.Substring(d.IndexOf(look) + 1, d.Length - d.IndexOf(look) - 1);
-                        }
-                        for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
-                            for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
-                                MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
-
-                                if (ms.dubExists) {
-                                    print(i + ". " + ms.name + " | Dub E" + ms.dubUrl);
-                                }
-                                if (ms.subExists) {
-                                    print(i + ". " + ms.name + " | Sub E" + ms.subUrl);
-                                }
-                            }
-                        }
-
-                    }
-
+                    print("FISHING DATA");
+                    FishGogoAnime(currentSelectedYear, tempThred);
+                    FishDubbedAnime();
+                    print("DONE FISHING DATA");
                     MALData md = activeMovie.title.MALData;
 
                     activeMovie.title.MALData = new MALData() {
@@ -1354,6 +1322,7 @@ namespace CloudStreamForms
                 }
                 catch {
                     activeMovie.title.MALData.japName = "error";
+                    throw;
                 }
                 finally {
                     JoinThred(tempThred);
@@ -1361,6 +1330,159 @@ namespace CloudStreamForms
             });
             tempThred.Thread.Name = "MAL Search";
             tempThred.Thread.Start();
+        }
+
+        static void FishDubbedAnime()
+        {
+            string _imdb = activeMovie.title.name; //"Attack On Titan";
+            string imdb = _imdb.Replace(".", "").Replace("/", "");
+            string d = DownloadString("https://bestdubbedanime.com/search/" + imdb);
+            string lookFor = "class=\"resulta\" href=\"";
+            string nameLookFor = "<div class=\"titleresults\">";
+            print(d);
+
+            List<int> alreadyAdded = new List<int>();
+            while (d.Contains(nameLookFor)) {
+                string name = FindHTML(d, nameLookFor, "<", decodeToNonHtml: true);
+                if (name.ToLower().Contains(_imdb.ToLower())) {
+
+                    string url = FindHTML(d, lookFor, "\"").Replace("\\/", "/");
+                    string slug = url.Replace("//bestdubbedanime.com/", "");
+
+                    int season = 0;
+                    if (name.ToLower().Contains("2nd season")) {
+                        season = 2;
+                    }
+                    else if (name.ToLower().Contains("3rd season")) {
+                        season = 3;
+                    }
+                    if (season == 0) {
+                        for (int i = 1; i < 7; i++) {
+                            if (name.EndsWith(" " + i)) {
+                                season = i;
+                            }
+                        }
+                    }
+                    if (season == 0) {
+                        season = 1;
+                    }
+                    int part = 1;
+                    for (int i = 2; i < 5; i++) {
+                        if (name.ToLower().Contains("part " + i)) {
+                            part = i;
+                        }
+                    }
+
+
+                    int id = season + part * 1000;
+                    if (!alreadyAdded.Contains(id)) {
+                        alreadyAdded.Add(id);
+                        try {
+                            var ms = activeMovie.title.MALData.seasonData[season].seasons[part];
+                            ms.dubbedAnimeData.dubExists = true;
+                            ms.dubbedAnimeData.slug = slug;
+                            activeMovie.title.MALData.seasonData[season].seasons[part] = ms;
+                        }
+                        catch (Exception) {
+                            // ERROR
+                        }
+                    }
+
+                    print("-->" + name + "|" + url + "| Season " + season + "|" + slug + "|Park" + part);
+
+                    //print("Season " + season + "||" + slug);
+                }
+                d = RemoveOne(d, nameLookFor);
+            }
+        }
+
+        static void FishGogoAnime(string currentSelectedYear, TempThred tempThred)
+        {
+            print("start");
+            if (activeMovie.title.MALData.japName != "error") {
+                print("DOWNLOADING");
+                string d = DownloadString("https://www9.gogoanime.io/search.html?keyword=" + activeMovie.title.MALData.japName.Substring(0, Math.Min(5, activeMovie.title.MALData.japName.Length)), tempThred);
+                if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
+                string look = "<p class=\"name\"><a href=\"/category/";
+
+                while (d.Contains(look)) {
+                    string ur = FindHTML(d, look, "\"").Replace("-dub", "");
+                    print("S" + ur);
+                    string adv = FindHTML(d, look, "</a");
+                    string title = FindHTML(adv, "title=\"", "\"").Replace(" (TV)", ""); // TO FIX BLACK CLOVER
+                    string animeTitle = title.Replace(" (Dub)", "");
+                    string __d = RemoveOne(d, look);
+                    string __year = FindHTML(__d, "Released: ", " ");
+                    int ___year = int.Parse(__year);
+                    int ___year2 = int.Parse(currentSelectedYear);
+
+                    if (___year >= ___year2) {
+
+                        // CHECKS SYNONYMES
+                        /*
+                        for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
+                            for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
+                                MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
+
+                            }
+                        }*/
+
+                        // LOADS TITLES
+                        for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
+                            for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
+                                MALSeason ms = activeMovie.title.MALData.seasonData[i].seasons[q];
+
+                                bool containsSyno = false;
+                                for (int s = 0; s < ms.synonyms.Count; s++) {
+                                    if (ToLowerAndReplace(ms.synonyms[s]) == ToLowerAndReplace(animeTitle)) {
+                                        containsSyno = true;
+                                    }
+                                    //  print("SYNO: " + ms.synonyms[s]);
+                                }
+
+                                //  print(animeTitle.ToLower() + "|" + ms.name.ToLower() + "|" + ms.engName.ToLower() + "|" + ___year + "___" + ___year2 + "|" + containsSyno);
+
+                                if (ToLowerAndReplace(ms.name) == ToLowerAndReplace(animeTitle) || ToLowerAndReplace(ms.engName) == ToLowerAndReplace(animeTitle) || containsSyno) {
+                                    print(ur);
+                                    var baseData = activeMovie.title.MALData.seasonData[i].seasons[q];
+                                    if (animeTitle == title) {
+                                        baseData.gogoData.subExists = true;
+                                        baseData.gogoData.subUrl = ur;
+
+                                    }
+                                    else {
+                                        baseData.gogoData.dubExists = true;
+                                        baseData.gogoData.dubUrl = ur.Replace("-dub", "") + "-dub";
+                                    }
+
+                                    /*
+                                    if (animeTitle == title) {
+                                         //= new MALSeason() { name = ms.name, subUrl = ur, dubUrl = ms.dubUrl, subExists = true, dubExists = ms.dubExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
+                                    }
+                                    else {
+                                        activeMovie.title.MALData.seasonData[i].seasons[q] //= new MALSeason() { name = ms.name, dubUrl = ur.Replace("-dub", "") + "-dub", subUrl = ms.subUrl, dubExists = true, subExists = ms.subExists, japName = ms.japName, engName = ms.engName, synonyms = ms.synonyms };
+                                    }*/
+                                    activeMovie.title.MALData.seasonData[i].seasons[q] = baseData;
+
+                                }
+                            }
+                        }
+                    }
+                    d = d.Substring(d.IndexOf(look) + 1, d.Length - d.IndexOf(look) - 1);
+                }
+                for (int i = 0; i < activeMovie.title.MALData.seasonData.Count; i++) {
+                    for (int q = 0; q < activeMovie.title.MALData.seasonData[i].seasons.Count; q++) {
+                        var ms = activeMovie.title.MALData.seasonData[i].seasons[q];
+
+                        if (ms.gogoData.dubExists) {
+                            print(i + ". " + ms.name + " | Dub E" + ms.gogoData.dubUrl);
+                        }
+                        if (ms.gogoData.subExists) {
+                            print(i + ". " + ms.name + " | Sub E" + ms.gogoData.subUrl);
+                        }
+                    }
+                }
+            }
         }
 
         public static string ToLowerAndReplace(string inp)
@@ -2225,13 +2347,82 @@ namespace CloudStreamForms
             }
         }
 
-        public static List<string> GetAllEpsFromAnime(Movie currentMovie, int currentSeason, bool isDub)
+        public static int GetMaxEpisodesInAnimeSeason(Movie currentMovie, int currentSeason, bool isDub, TempThred tempThred)
+        {
+            int max = 0;
+            int maxGogo = 0;
+            int maxDubbed = 0;
+            activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason = new List<int>();
+            List<string> baseUrls = GetAllGogoLinksFromAnime(currentMovie, currentSeason, isDub);
+            if (baseUrls.Count > 0) {
+                for (int i = 0; i < baseUrls.Count; i++) {
+                    string dstring = baseUrls[i];
+                    dstring = dstring.Replace("-dub", "") + (isDub ? "-dub" : "");
+                    string d = DownloadString("https://www9.gogoanime.io/category/" + dstring);
+                    if (d != "") {
+
+                        if (!GetThredActive(tempThred)) { return max; }; // COPY UPDATE PROGRESS
+                        string subMax = FindHTML(d, "class=\"active\" ep_start = \'", ">");
+                        string maxEp = FindHTML(subMax, "ep_end = \'", "\'");//FindHTML(d, "<a href=\"#\" class=\"active\" ep_start = \'0\' ep_end = \'", "\'");
+                        print(i + "MAXEP" + maxEp);
+                        print(baseUrls[i]);
+                        int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
+                        //max += _epCount;
+                        try {
+                            activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Add(_epCount);
+                        }
+                        catch (Exception) {
+
+                        }
+                    }
+                }
+                maxGogo = activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Sum();
+
+            }
+
+            if (isDub) {
+                activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason = new List<int>();
+                List<string> dubbedAnimeLinks = GetAllDubbedAnimeLinks(currentMovie, currentSeason);
+                if (!GetThredActive(tempThred)) { return max; }; // COPY UPDATE PROGRESS
+                for (int i = 0; i < dubbedAnimeLinks.Count; i++) {
+                    DubbedAnimeEpisode ep = GetDubbedAnimeEpisode(dubbedAnimeLinks[i], 1);
+                    activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Add(ep.totalEp);
+                }
+                maxDubbed = activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum();
+            }
+            print("MAX:" + maxDubbed + "|" + maxGogo);
+            max = Math.Max(maxDubbed, maxGogo);
+            return max;
+        }
+
+        public static List<string> GetAllDubbedAnimeLinks(Movie currentMovie, int currentSeason)
         {
             List<string> baseUrls = new List<string>();
 
             try {
                 for (int q = 0; q < currentMovie.title.MALData.seasonData[currentSeason].seasons.Count; q++) {
-                    MALSeason ms = currentMovie.title.MALData.seasonData[currentSeason].seasons[q];
+                    var ms = currentMovie.title.MALData.seasonData[currentSeason].seasons[q].dubbedAnimeData;
+
+                    if (ms.dubExists) {
+                        if (!baseUrls.Contains(ms.slug)) {
+                            baseUrls.Add(ms.slug);
+                        }
+                        //print("BASEURL " + ms.baseUrl);
+                    }
+                }
+            }
+            catch (Exception) {
+            }
+            return baseUrls;
+        }
+
+        public static List<string> GetAllGogoLinksFromAnime(Movie currentMovie, int currentSeason, bool isDub)
+        {
+            List<string> baseUrls = new List<string>();
+
+            try {
+                for (int q = 0; q < currentMovie.title.MALData.seasonData[currentSeason].seasons.Count; q++) {
+                    var ms = currentMovie.title.MALData.seasonData[currentSeason].seasons[q].gogoData;
 
                     if ((ms.dubExists && isDub) || (ms.subExists && !isDub)) {
                         //  dstring = ms.baseUrl;
@@ -2354,6 +2545,27 @@ namespace CloudStreamForms
                             d = "";
                         }
                     }
+                    /*{"html":"<div id=\"servers\">\n                        
+    <div class=\"server row\" data-type=\"iframe\" data-id=\"28\">\n            
+    <label class=\"name col-md-4 col-sm-5\">\n                
+    <i class=\"fa fa-server\"><\/i>\n                 MyCloud\n            <\/label>\n            
+    <div class=\"col-md-20 col-sm-19\">\n                                <ul class=\"episodes range active\"\n                    
+    data-range-id=\"0\">\n                                        <li>\n                        
+    <a  data-id=\"b5a4388f1a2fadb87f94fde2abf3a3e85288d96026d6be3bf4920f6aa718e12c\" href=\"\/film\/iron-man-3.885o\/1n4rzyv\">HD<\/a>\n                    
+    <\/li>\n                                    <\/ul>\n                            <\/div>\n        <\/div>\n                            
+    <div class=\"server row\" data-type=\"iframe\" data-id=\"36\">\n            <label class=\"name col-md-4 col-sm-5\">\n                
+    <i class=\"fa fa-server\"><\/i>\n                 F5 - HQ\n            <\/label>\n            <div class=\"col-md-20 col-sm-19\">\n                                
+    <ul class=\"episodes range active\"\n                    data-range-id=\"0\">\n                                        <li>\n                        
+    <a  data-id=\"05912e0bb9a837fc540e8ddc66beb8f2047667d192b2bee4aa9ba8e744f0eaea\" href=\"\/film\/iron-man-3.885o\/pr65wqx\">HD<\/a>\n                    
+    <\/li>\n                                    <\/ul>\n                            <\/div>\n        <\/div>\n                            
+    <div class=\"server row\" data-type=\"iframe\" data-id=\"39\">\n            <label class=\"name col-md-4 col-sm-5\">\n                
+    <i class=\"fa fa-server\"><\/i>\n                 Hydrax\n            <\/label>\n            <div class=\"col-md-20 col-sm-19\">\n                                
+    <ul class=\"episodes range active\"\n                    data-range-id=\"0\">\n                                        <li>\n                        
+    <a class=\"active\" data-id=\"41d881669367be4d23b70715f40410adac4788764836c1b80801639f08621e96\" href=\"\/film\/iron-man-3.885o\/m280668\">HD<\/a>\n                    
+    <\/li>\n                                    <\/ul>\n                            <\/div>\n        <\/div>\n            <\/div>"}
+
+
+    https://prettyfast.to/e/66vvrk\/fe1541bb8d2aeaec6bb7e500d070b2ec?sub=https%253A%252F%252Fstaticf.akacdn.ru%252Ff%252Fsubtitle%252F7309.vtt%253Fv1*/
                     // https://fmovies.to/ajax/episode/info?ts=1574168400&_=694&id=d49ac231d1ddf83114eadf1234a1f5d8136dc4a5b6db299d037c06804b37b1ab&server=28
                     // https://fmovies.to/ajax/episode/info?ts=1574168400&_=199&id=1c7493cc7bf3cc16831ff9bf1599ceb6f4be2a65a57143c5a24c2dbea99104de&server=97
                     d = "";
@@ -2580,50 +2792,111 @@ namespace CloudStreamForms
                             Thread.Sleep(100);
                             if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
                         }
+                        
+                        int _episode = int.Parse(episode.ToString()); // READ ONLY
 
-                        string fwordLink = "";
-                        List<string> fwords = GetAllEpsFromAnime(activeMovie, season, isDub);
-                        for (int i = 0; i < fwords.Count; i++) {
-                            // print("FW: " + fwords[i]);
-                        }
-
-                        // --------------- GET WHAT SEASON THE EPISODE IS IN ---------------
-
-                        int sel = -1;
-                        int _episode = int.Parse(episode.ToString());
-                        int floor = 0;
-                        int subtract = 0;
-                        // print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason);
-                        if (activeMovie.title.MALData.currentActiveMaxEpsPerSeason != null) {
-                            for (int i = 0; i < activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Count; i++) {
-                                int seling = floor + activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i];
-
-                                if (episode > floor && episode <= seling) {
-                                    sel = i;
-                                    subtract = floor;
-
-                                }
-                                //print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i] + "<<");
-                                floor += activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i];
-                            }
-                        }
-                        //print("sel: " + sel);
-                        if (sel != -1) {
+                        if (isDub) {
                             try {
-                                fwordLink = fwords[sel].Replace("-dub", "") + (isDub ? "-dub" : "");
+                                print("DUBBED::" + episode + "|"+ activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum());
+                                if (episode <= activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Sum()) {
+                                    List<string> fwords = GetAllDubbedAnimeLinks(activeMovie, season);
+                                    print("SLUG1." + fwords[0]);
+                                    int sel = -1;
+                                    int floor = 0;
+                                    int subtract = 0;
+                                    if (activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason != null) {
+                                        for (int i = 0; i < activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason.Count; i++) {
+                                            int seling = floor + activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
+
+                                            if (episode > floor && episode <= seling) {
+                                                sel = i;
+                                                subtract = floor;
+
+                                            }
+                                            //print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i] + "<<");
+                                            floor += activeMovie.title.MALData.currentActiveDubbedMaxEpsPerSeason[i];
+                                        }
+                                    }
+
+                                    string fwordLink = fwords[sel];
+                                    print("SLUGOS: " + fwordLink);
+                                    DubbedAnimeEpisode dubbedEp = GetDubbedAnimeEpisode(fwordLink, _episode - subtract);
+                                    string baseUrl = FindHTML(dubbedEp.serversHTML, "hl=\\\"", "\"");
+                                    string _d = DownloadString("https://bestdubbedanime.com/xz/api/playeri.php?url=" + baseUrl + "&_=" + UnixTime);
+                                    string lookFor = "<source src=\'";
+                                    int prio = 20;
+
+                                    while (_d.Contains(lookFor)) {
+                                        prio--;
+                                        string vUrl = FindHTML(_d, lookFor, "\'");
+                                        if (vUrl != "") {
+                                            vUrl = "https:" + vUrl;
+                                        }
+                                        string label = FindHTML(_d, "label=\'", "\'");
+                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label, prio);
+                                        _d = RemoveOne(_d, lookFor);
+                                        _d = RemoveOne(_d, "label=\'");
+                                    }
+                                }
                             }
                             catch (Exception) {
-
+                                print("DUBBED ANIME ERROROROOR");
+                                throw;
                             }
                         }
 
-                        if (fwordLink != "") { // IF FOUND
-                            string dstring = "https://www3.gogoanime.io/" + fwordLink + "-episode-" + (episode - subtract);
-                            print("DSTRING: " + dstring);
-                            string d = DownloadString(dstring, tempThred);
 
-                            AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                        try {
+                            if (episode <= activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Sum()) {
+                                string fwordLink = "";
+                                List<string> fwords = GetAllGogoLinksFromAnime(activeMovie, season, isDub);
+                                // for (int i = 0; i < fwords.Count; i++) {
+                                // print("FW: " + fwords[i]);
+                                //  }
+
+                                // --------------- GET WHAT SEASON THE EPISODE IS IN ---------------
+
+                                int sel = -1;
+                                int floor = 0;
+                                int subtract = 0;
+                                // print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason);
+                                if (activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason != null) {
+                                    for (int i = 0; i < activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason.Count; i++) {
+                                        int seling = floor + activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason[i];
+
+                                        if (episode > floor && episode <= seling) {
+                                            sel = i;
+                                            subtract = floor;
+
+                                        }
+                                        //print(activeMovie.title.MALData.currentActiveMaxEpsPerSeason[i] + "<<");
+                                        floor += activeMovie.title.MALData.currentActiveGoGoMaxEpsPerSeason[i];
+                                    }
+                                }
+                                //print("sel: " + sel);
+                                if (sel != -1) {
+                                    try {
+                                        fwordLink = fwords[sel].Replace("-dub", "") + (isDub ? "-dub" : "");
+                                    }
+                                    catch (Exception) {
+
+                                    }
+                                }
+
+                                if (fwordLink != "") { // IF FOUND
+                                    string dstring = "https://www3.gogoanime.io/" + fwordLink + "-episode-" + (_episode - subtract);
+                                    print("DSTRING: " + dstring);
+                                    string d = DownloadString(dstring, tempThred);
+
+                                    AddEpisodesFromMirrors(tempThred, d, normalEpisode);
+                                }
+                            }
                         }
+                        catch (Exception) {
+                            print("GOGOANIME ERROR");
+                        }
+
+
                     }
                     if (movieSearch) { // use https://movies123.pro/
 
@@ -3212,16 +3485,16 @@ namespace CloudStreamForms
             }
         }
 
-        public static bool AddPotentialLink(int _episode, string _url, string _name, int _priority)
+        public static bool AddPotentialLink(int normalEpisode, string _url, string _name, int _priority)
         {
             _name = _name.Replace("  ", " ");
             _url = _url.Replace(" ", "%20");
-            if (!LinkListContainsString(activeMovie.episodes[_episode].links, _url)) {
+            if (!LinkListContainsString(activeMovie.episodes[normalEpisode].links, _url)) {
                 if (CheckIfURLIsValid(_url)) {
-                    print("ADD LINK:" + _episode + "|" + _name + "|" + _priority + "|" + _url);
-                    Episode ep = activeMovie.episodes[_episode];
+                    print("ADD LINK:" + normalEpisode + "|" + _name + "|" + _priority + "|" + _url);
+                    Episode ep = activeMovie.episodes[normalEpisode];
                     if (ep.links == null) {
-                        activeMovie.episodes[_episode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
+                        activeMovie.episodes[normalEpisode] = new Episode() { links = new List<Link>(), date = ep.date, description = ep.description, name = ep.name, posterUrl = ep.posterUrl, rating = ep.rating, id = ep.id };
                     }
 
                     bool done = false;
@@ -3240,12 +3513,60 @@ namespace CloudStreamForms
                     }
                     realName = realName.Replace("  ", " ");
                     var link = new Link() { priority = _priority, url = _url, name = realName };
-                    activeMovie.episodes[_episode].links.Add(link); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
+                    activeMovie.episodes[normalEpisode].links.Add(link); // [MIRRORCOUNTER] IS LATER REPLACED WITH A NUMBER TO MAKE IT EASIER TO SEPERATE THEM, CAN'T DO IT HERE BECAUSE IT MUST BE ABLE TO RUN SEPARETE THREADS AT THE SAME TIME
                     linkAdded?.Invoke(null, link);
                     return true;
                 }
             }
             return false;
+        }
+
+        public static DubbedAnimeEpisode GetDubbedAnimeEpisode(string slug, int eps)
+        {
+            string url = "https://bestdubbedanime.com/xz/v3/jsonEpi.php?slug=" + slug + "/" + eps + "&_=" + UnixTime;
+            string d = DownloadString(url);
+            print(d);
+
+            const string smallAdd = "\": \"";
+            string FastFind(string name)
+            {
+                if (d.Contains(name + smallAdd + "\": null,")) {
+                    return "";
+                }
+                string _f = FindHTML(d, name + smallAdd, "\",");
+                return _f;
+            }
+            int FastId(string name)
+            {
+                try {
+                    return int.Parse(FastFind(name));
+                }
+                catch (Exception) {
+                    return -1;
+                }
+            }
+
+            DubbedAnimeEpisode e = new DubbedAnimeEpisode();
+            try {
+                e.serversHTML = FastFind(nameof(e.serversHTML));
+
+                e.ep = FastId(nameof(e.ep));
+                e.Epviews = FastId(nameof(e.Epviews));
+                e.rowid = FastId(nameof(e.ep));
+                e.totalEp = FastId(nameof(e.totalEp));
+                e.year = FastId(nameof(e.year));
+                e.showid = FastId(nameof(e.showid));
+                e.TotalViews = FastId(nameof(e.TotalViews));
+
+                e.desc = FastFind(nameof(e.desc));
+                e.title = FastFind(nameof(e.title));
+                e.slug = FastFind(nameof(e.slug));
+                e.status = FastFind(nameof(e.status));
+            }
+            catch (Exception) {
+                print("!!!!!!DubbedAnimeEpisodeERROR");
+            }
+            return e;
         }
 
         public static int UnixTime { get { return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds; } }

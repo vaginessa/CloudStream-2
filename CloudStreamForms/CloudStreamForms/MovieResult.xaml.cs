@@ -970,12 +970,28 @@ namespace CloudStreamForms
                         for (int q = 0; q < currentMovie.title.MALData.seasonData[currentSeason].seasons.Count; q++) {
                             MALSeason ms = currentMovie.title.MALData.seasonData[currentSeason].seasons[q];
 
-                            if (ms.dubExists) {
-                                dubExists = true;
+                            try {
+                                if (ms.dubbedAnimeData.dubExists) {
+                                    dubExists = true;
+                                }
                             }
-                            if (ms.subExists) {
-                                subExists = true;
+                            catch (Exception) {
+
                             }
+                         
+                            try {
+                                if (ms.gogoData.dubExists) {
+                                    dubExists = true;
+                                }
+                                if (ms.gogoData.subExists) {
+                                    subExists = true;
+                                }
+                            }
+                            catch (Exception) {
+
+                            }
+                          
+                           
                         }
                     }
                     catch (Exception) {
@@ -1026,7 +1042,7 @@ namespace CloudStreamForms
             if (!SameAsActiveMovie()) return;
 
             // string dstring = "";
-            List<string> baseUrls = GetAllEpsFromAnime(currentMovie, currentSeason, isDub);
+            List<string> baseUrls = GetAllGogoLinksFromAnime(currentMovie, currentSeason, isDub);
 
             if (baseUrls.Count > 0) {
 
@@ -1034,31 +1050,7 @@ namespace CloudStreamForms
                 tempThred.typeId = 6; // MAKE SURE THIS IS BEFORE YOU CREATE THE THRED
                 tempThred.Thread = new System.Threading.Thread(() => {
                     try {
-                        int max = 0;
-                        activeMovie.title.MALData.currentActiveMaxEpsPerSeason = new List<int>();
-
-                        for (int i = 0; i < baseUrls.Count; i++) {
-                            string dstring = baseUrls[i]; dstring = dstring.Replace("-dub", "") + (isDub ? "-dub" : "");
-                            string d = DownloadString("https://www9.gogoanime.io/category/" + dstring);
-                            if (d == "") {
-                                return;
-                            }
-                            if (!GetThredActive(tempThred)) { return; }; // COPY UPDATE PROGRESS
-                            string subMax = FindHTML(d, "class=\"active\" ep_start = \'", ">");
-                            string maxEp = FindHTML(subMax, "ep_end = \'", "\'");//FindHTML(d, "<a href=\"#\" class=\"active\" ep_start = \'0\' ep_end = \'", "\'");
-                            print(i + "MAXEP" + maxEp);
-                            print(baseUrls[i]);
-                            int _epCount = (int)Math.Floor(decimal.Parse(maxEp));
-                            max += _epCount;
-                            if (!SameAsActiveMovie()) return;
-                            try {
-                                activeMovie.title.MALData.currentActiveMaxEpsPerSeason.Add(_epCount);
-
-                            }
-                            catch (Exception) {
-
-                            }
-                        }
+                        int max = GetMaxEpisodesInAnimeSeason(currentMovie, currentSeason, isDub, tempThred);
 
                         MainThread.BeginInvokeOnMainThread(() => {
                             ClearEpisodes();
