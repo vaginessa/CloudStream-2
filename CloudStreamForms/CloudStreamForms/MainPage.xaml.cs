@@ -2836,21 +2836,31 @@ namespace CloudStreamForms
                                     print("SLUGOS: " + fwordLink);
                                     DubbedAnimeEpisode dubbedEp = GetDubbedAnimeEpisode(fwordLink, _episode - subtract);
                                     string baseUrl = FindHTML(dubbedEp.serversHTML, "hl=\\\"", "\"");
-                                    string _d = DownloadString("https://bestdubbedanime.com/xz/api/playeri.php?url=" + baseUrl + "&_=" + UnixTime);
-                                    string lookFor = "<source src=\'";
+                                    print("BASE::" + baseUrl);
+                                    string burl = "https://bestdubbedanime.com/xz/api/playeri.php?url=" + baseUrl + "&_=" + UnixTime;
+                                    print(burl);
+                                    string _d = DownloadString(burl);
+                                    print("SSC:" + _d);
                                     int prio = 20;
 
+                                    string enlink = "\'";
+                                    if (_d.Contains("<source src=\"")) {
+                                        enlink = "\"";
+                                    }
+                                    string lookFor = "<source src=" + enlink;
                                     while (_d.Contains(lookFor)) {
-                                        prio--;
-                                        string vUrl = FindHTML(_d, lookFor, "\'");
+                                        string vUrl = FindHTML(_d, lookFor, enlink);
                                         if (vUrl != "") {
                                             vUrl = "https:" + vUrl;
                                         }
-                                        string label = FindHTML(_d, "label=\'", "\'");
-                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label.Replace("0p","0") + "p", prio);
+                                        string label = FindHTML(_d, "label=" + enlink, enlink);
+                                        print(vUrl + "|" + label);
+                                        AddPotentialLink(normalEpisode, vUrl, "DubbedAnime " + label.Replace("0p", "0") + "p", prio);
+
                                         _d = RemoveOne(_d, lookFor);
-                                        _d = RemoveOne(_d, "label=\'");
+                                        _d = RemoveOne(_d, "label=" + enlink);
                                     }
+
                                 }
                             }
                             catch (Exception) {
